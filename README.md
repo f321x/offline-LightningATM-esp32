@@ -77,4 +77,10 @@ Check the values in the file lightning_atm.h in the includes directory, change t
 Flash the software on the esp32. You may have to disconnect the ESP32 from the step up converter before connecting it to the computer to prevent faults, or power it up with the power supply and use an usb isolator.
 
 If you need help ask me on Nostr @npub1z9n5ktfjrlpyywds9t7ljekr9cm9jjnzs27h702te5fy8p2c4dgs5zvycf
+
 If this software and guide provided value to you feel free to send some sats to x@lnaddress.com
+
+
+## Images
+![PXL_20231126_144603980](https://github.com/f321x/offline-LightningATM-esp32/assets/51097237/12ac8a54-8756-4842-b26d-4408e8df3afe)
+![PXL_20231126_162906807 MP_1](https://github.com/f321x/offline-LightningATM-esp32/assets/51097237/7e394774-f341-4b1c-ae73-4806f6f42ce5)
