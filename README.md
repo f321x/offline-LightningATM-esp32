@@ -34,15 +34,16 @@ All in all would calculate around $100 for the neccessary parts
 1.)
 Connect the Waveshare 1.54 inch display to the following pins on the ESP32:
 
-Display Pins 	ESP32 GPIO
-Busy 	        27
-RST 	        33
-DC 	            25
-CS 	            26
-CLK 	        SCK = 18
-DIN 	        MOSI = 23
-GND 	        GND
-3.3V 	        3.3V
+| Display Pins                                                        | ESP32 GPIO |
+|---------------------------------------------------------------------|------------|
+| Busy                                                                | 27         |
+| RST                                                                 | 33         |
+| DC                                                                  | 25         |
+| CS                                                                  | 26         |
+| CLK                                                                 | SCK = 18   |
+| DIN                                                                 | MOSI = 23  |
+| GND                                                                 | GND        |
+| 3.3V                                                                | 3.3V       |
 
 2.)
 Program the coin acceptor, be careful to adjust voltage of the step-up converter first before connecting the coin acceptor.
