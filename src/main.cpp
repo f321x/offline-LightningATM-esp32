@@ -67,8 +67,7 @@ void loop() {
         digitalWrite(LED_BUTTON_PIN, LOW);
         clean_screen();
         display.hibernate();
-        while ((millis() - time_last_press) < 30000)
-          delay(1000);
+        delay(30000);
         home_screen();
     }
   }
