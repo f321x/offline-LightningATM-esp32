@@ -57,6 +57,15 @@ German: https://ereignishorizont.xyz/lightning-atm/
 
 4.) Connect LED Button to the Pins specified in the include/lightning_atm.h file
 
+| Periphery Pin                                                        | ESP32 GPIO |
+|----------------------------------------------------------------------|------------|
+| Coin acceptor 'coin pin'                                             | 17         |
+| Button LED Pin (+ after resistor)                                    | 13         |
+| Button PIN 1                                                         | 32         |
+| Button PIN 2                                                         | GND        |
+| Mosfet PWM Pin                                                       | 12         |
+| Mosfet GND Pin                                                       | GND        |
+
 You can find inspiration on how to correctly wire everything in these docs by 21isenough
 https://github.com/21isenough/LightningATM/tree/master/docs
 
