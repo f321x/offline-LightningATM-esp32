@@ -107,6 +107,8 @@ unsigned int detect_coin()
   unsigned int  pulses;
   bool          prev_value;
   bool          read_value;
+  unsigned long entering_time;
+  unsigned long current_time;
 
   pulses = 0;
   read_value = 1;
@@ -114,6 +116,7 @@ unsigned int detect_coin()
   digitalWrite(LED_BUTTON_PIN, HIGH);
   digitalWrite(MOSFET_PIN, LOW);
   button_pressed = false;
+  entering_time = millis();
   while (true && !button_pressed)
   {
     read_value = digitalRead(COIN_PIN);
@@ -123,15 +126,21 @@ unsigned int detect_coin()
       last_pulse = millis();
     }
     prev_value = read_value;
-    if (pulses > 0 && (millis() - last_pulse > PULSE_TIMEOUT))
+    current_time = millis();
+    if (pulses > 0 && (current_time - last_pulse > PULSE_TIMEOUT))
     {
       break;
+    }
+    else if (pulses == 0 && ((current_time - entering_time) > 43200000))
+    {
+      clean_screen();
+      delay(10000);
+      entering_time = millis();
+      home_screen();
     }
   }
   if (button_pressed)
     return (0);
-  Serial.println("Returned coin detector");
-  Serial.println(pulses);
   return (pulses);
 }
 
