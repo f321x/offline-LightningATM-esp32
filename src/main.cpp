@@ -244,7 +244,10 @@ String get_amount_string(int amount_in_cents)
   euro_value = amount_in_cents / 100;
   cent_remainder = amount_in_cents % 100;
   euro = String(euro_value);
-  cents = String(cent_remainder);
+  if (cent_remainder > 9)
+    cents = String(cent_remainder);
+  else if (cent_remainder < 10)
+    cents = String('0' + cent_remainder);
   return_value = String(euro + '.' + cents + " Euro");
   return (return_value);
 }
