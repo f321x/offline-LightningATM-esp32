@@ -15,8 +15,8 @@
 #include "GxEPD2_display_selection_new_style.h"
 
 //Generate the URL and secret in LNBITS with the LNURLDevice Extension:
-String baseURLATM = "https://legend.lnbits.com/lnurldevice/api/v1/lnurl/ABCDE";
-String secretATM = "ABCDEFGHIJKLM";
+String baseURLATM = "https://legend.lnbits.com/lnurldevice/api/v1/lnurl/ABCD";
+String secretATM = "ABCDABCD";
 String currencyATM = "EUR";
 
 #define COIN_PIN 17

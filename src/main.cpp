@@ -247,8 +247,8 @@ String get_amount_string(int amount_in_cents)
   if (cent_remainder > 9)
     cents = String(cent_remainder);
   else if (cent_remainder < 10)
-    cents = String('0' + cent_remainder);
-  return_value = String(euro + '.' + cents + " Euro");
+    cents = "0" + String(cent_remainder);
+  return_value = String(euro) + "." + String(cents) + " Euro";
   return (return_value);
 }
 
