@@ -122,8 +122,13 @@ unsigned int detect_coin()
     read_value = digitalRead(COIN_PIN);
     if (read_value != prev_value && !read_value)
     {
-      pulses++;
-      last_pulse = millis();
+      delay(40);
+      read_value = digitalRead(COIN_PIN);
+      if (!read_value)
+      {
+        pulses++;
+        last_pulse = millis();
+      }
     }
     prev_value = read_value;
     current_time = millis();
@@ -131,13 +136,16 @@ unsigned int detect_coin()
     {
       break;
     }
-    else if (pulses == 0 && ((current_time - entering_time) > 43200000))
+    else if (pulses == 0 && ((current_time - entering_time) > 43200000)
+              && inserted_cents == 0)
     {
       clean_screen();
       delay(10000);
       entering_time = millis();
       home_screen();
     }
+    else if (inserted_cents > 0 && (current_time - entering_time) > 360000)
+      button_pressed = true;
   }
   if (button_pressed)
     return (0);
