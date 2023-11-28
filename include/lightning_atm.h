@@ -16,7 +16,7 @@
 
 //Generate the URL and secret in LNBITS with the LNURLDevice Extension:
 String baseURLATM = "https://legend.lnbits.com/lnurldevice/api/v1/lnurl/ABCD";
-String secretATM = "ABCDABCD";
+String secretATM = "ABCD";
 String currencyATM = "EUR";
 
 #define COIN_PIN 17
