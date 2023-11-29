@@ -30,8 +30,6 @@ void loop() {
     digitalWrite(LED_BUTTON_PIN, LOW);
     inserted_cents += COINS[pulses];
     show_inserted_amount(inserted_cents);
-    display.hibernate();
-    delay(100);
   }
   else if (button_pressed && inserted_cents > 0)
   {
@@ -52,14 +50,14 @@ void loop() {
 
     button_pressed = false;
     time_last_press = millis();
-    while ((millis() - time_last_press) < 5000 && press_counter < 6)
+    while ((millis() - time_last_press) < 4000 && press_counter < 6)
     {
       if (button_pressed)
       {
         time_last_press = millis();
         button_pressed = false;
         press_counter++;
-        delay(600);
+        delay(500);
       }
     }
     if (press_counter > 5)
@@ -199,7 +197,6 @@ void  show_inserted_amount(int amount_in_cents)
   display.println(" Press button\n once finished.");
 
   display.nextPage();
-  display.hibernate();
 }
 
 void  qr_withdrawl_screen(String top_message, String bottom_message, const char *qr_content)
