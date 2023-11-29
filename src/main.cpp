@@ -122,7 +122,7 @@ unsigned int detect_coin()
     read_value = digitalRead(COIN_PIN);
     if (read_value != prev_value && !read_value)
     {
-      delay(40);
+      delay(35);
       read_value = digitalRead(COIN_PIN);
       if (!read_value)
       {
