@@ -84,9 +84,10 @@ void  wait_for_user_to_scan()
 
   light_on = true;
   time = millis();
+  digitalWrite(LED_BUTTON_PIN, HIGH);
+  delay(5000);
   button_pressed = false;
-  while ((!button_pressed && (millis() - time) < 600000)
-          || ((millis() - time) < 5000))
+  while (!button_pressed && (millis() - time) < 600000)
   {
     if (!light_on)
     {
