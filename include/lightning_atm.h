@@ -4,7 +4,6 @@
 #include <Arduino.h>
 #include <GxEPD2_BW.h>
 #include <Fonts/FreeMonoBold9pt7b.h>
-#include "bitmaps/Bitmaps200x200.h"
 #include "qrcode.h"
 #include "Bitcoin.h"
 #include <stdlib.h>
