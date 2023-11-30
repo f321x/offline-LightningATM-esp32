@@ -86,7 +86,7 @@ void  wait_for_user_to_scan()
   time = millis();
   button_pressed = false;
   while ((!button_pressed && (millis() - time) < 600000)
-          || ((millis() - time) < 10000))
+          || ((millis() - time) < 5000))
   {
     if (!light_on)
     {
