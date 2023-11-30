@@ -7,23 +7,23 @@ unsigned long long       time_last_press = millis();
 
 void setup()
 {
-  display.init(115200, true, 2, false);
-  Serial.begin(9600);
-  pinMode(COIN_PIN, INPUT_PULLUP);
-  pinMode(LED_BUTTON_PIN, OUTPUT);
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
-  pinMode(MOSFET_PIN, OUTPUT);
-  digitalWrite(MOSFET_PIN, LOW);
-  attachInterrupt(BUTTON_PIN, button_pressed_itr, FALLING);
-  home_screen();
-  digitalWrite(LED_BUTTON_PIN, HIGH);
+  display.init(115200, true, 2, false);  // connection to the e-ink display
+  Serial.begin(9600);                    // serial connection for debugging over USB
+  pinMode(COIN_PIN, INPUT_PULLUP);      // coin acceptor input
+  pinMode(LED_BUTTON_PIN, OUTPUT);      // LED of the LED Button
+  pinMode(BUTTON_PIN, INPUT_PULLUP);    // Button
+  pinMode(MOSFET_PIN, OUTPUT);          // mosfet relay to block the coin acceptor
+  digitalWrite(MOSFET_PIN, LOW);        // set it low to accept coins, high to block coins
+  attachInterrupt(BUTTON_PIN, button_pressed_itr, FALLING);     // interrupt, will set button_pressed to true when button is pressed
+  home_screen();       // will show first screen
+  digitalWrite(LED_BUTTON_PIN, HIGH);   // light up the led
 }
 
 void loop() {
   unsigned int pulses = 0;
   unsigned long long time_last_press;
 
-  pulses = detect_coin();
+  pulses = detect_coin();  // detect_coin() is a loop to detect the input of coins, will return the amount of pulses
   if (pulses >= 2 && pulses <= 7)
   {
     digitalWrite(MOSFET_PIN, HIGH);
@@ -44,7 +44,7 @@ void loop() {
     digitalWrite(MOSFET_PIN, LOW);
     inserted_cents = 0;
   }
-  else if (button_pressed && !pulses && !inserted_cents)
+  else if (button_pressed && !pulses && !inserted_cents)  // to clean the screen (for storage), press the button several times
   {
     int press_counter = 0;
 
@@ -71,10 +71,12 @@ void loop() {
   }
 }
 
+// function to handle the button interrupt
 void IRAM_ATTR button_pressed_itr() {
   button_pressed = true;
 }
 
+// blocking loop which is called when the qr code is shown
 void  wait_for_user_to_scan()
 {
   unsigned long long time;
@@ -134,7 +136,7 @@ unsigned int detect_coin()
     {
       break;
     }
-    else if (pulses == 0 && ((current_time - entering_time) > 43200000)
+    else if (pulses == 0 && ((current_time - entering_time) > 43200000)  // refreshes the screen every 12h
               && inserted_cents == 0)
     {
       clean_screen();
@@ -142,7 +144,7 @@ unsigned int detect_coin()
       entering_time = millis();
       home_screen();
     }
-    else if (inserted_cents > 0 && (current_time - entering_time) > 360000)
+    else if (inserted_cents > 0 && (current_time - entering_time) > 360000)  // break the loop if no new coin is inserted for some time
       button_pressed = true;
   }
   if (button_pressed)
@@ -238,6 +240,7 @@ void  qr_withdrawl_screen(String top_message, String bottom_message, const char 
   // display.hibernate();
 }
 
+// converts a cent amount to a String like "1.15 Euro"
 String get_amount_string(int amount_in_cents)
 {
   String  euro;
