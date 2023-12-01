@@ -69,6 +69,11 @@ German: https://ereignishorizont.xyz/lightning-atm/
 You can find inspiration on how to correctly wire everything in these docs by 21isenough
 https://github.com/21isenough/LightningATM/tree/master/docs
 
+4.) Wiring - circuit diagram
+
+![Wiring - circuit diagram](./assets/ATM_circuit_diagram.png)
+
+
 ## Setup software
 
 Install VSCode and the PlattformIO IDE Extension.
