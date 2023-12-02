@@ -1,0 +1,6 @@
+{
+	"editor.defaultFormatter": "platformio.platformio-ide",
+	"editor.formatOnPaste": true,
+	"editor.formatOnSave": true,
+	"files.autoSave": "onFocusChange"
+}
