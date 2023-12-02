@@ -13,6 +13,9 @@
 // select the display class and display driver class in the following file (new style):
 #include "GxEPD2_display_selection_new_style.h"
 
+// Activate for debugging over Serial (1), deactivate in production use (0)
+#define DEBUG_MODE 0
+
 //Generate the URL and secret in LNBITS with the LNURLDevice Extension:
 String baseURLATM = "https://legend.lnbits.com/lnurldevice/api/v1/lnurl/ABCD";
 String secretATM = "ABCD";

@@ -8,8 +8,11 @@ unsigned long long       time_last_press = millis();
 void setup()
 {
   display.init(115200, true, 2, false);  // connection to the e-ink display
-  Serial.begin(9600);                    // serial connection for debugging over USB
-  Serial.println("Setup..");             // for monitoring with serial monitor to debug
+  if (DEBUG_MODE)
+  {
+    Serial.begin(9600); // serial connection for debugging over USB
+    Serial.println("Setup with debug mode...");  // for monitoring with serial monitor to debug
+  }
   pinMode(COIN_PIN, INPUT_PULLUP);      // coin acceptor input
   pinMode(LED_BUTTON_PIN, OUTPUT);      // LED of the LED Button
   pinMode(BUTTON_PIN, INPUT_PULLUP);    // Button
@@ -55,6 +58,8 @@ void loop() {
     {
       if (button_pressed)
       {
+        if (DEBUG_MODE)
+          Serial.println("Button pressed");
         time_last_press = millis();
         button_pressed = false;
         press_counter++;
@@ -63,11 +68,13 @@ void loop() {
     }
     if (press_counter > 5)
     {
-        digitalWrite(LED_BUTTON_PIN, LOW);
-        clean_screen();
-        display.hibernate();
-        delay(30000);
-        home_screen();
+      if (DEBUG_MODE)
+        Serial.println("Button pressed over 5 times, will clean screen...");
+      digitalWrite(LED_BUTTON_PIN, LOW);
+      clean_screen();
+      display.hibernate();
+      delay(30000);
+      home_screen();
     }
   }
 }
@@ -83,6 +90,8 @@ void  wait_for_user_to_scan()
   unsigned long long time;
   bool               light_on;
 
+  if (DEBUG_MODE)
+    Serial.println("Waiting for user to scan qr code and press button...");
   light_on = true;
   time = millis();
   digitalWrite(LED_BUTTON_PIN, HIGH);
@@ -113,6 +122,8 @@ unsigned int detect_coin()
   unsigned long entering_time;
   unsigned long current_time;
 
+  if (DEBUG_MODE)
+    Serial.println("Starting coin detection...");
   pulses = 0;
   read_value = 1;
   prev_value = digitalRead(COIN_PIN);
@@ -150,9 +161,14 @@ unsigned int detect_coin()
     else if (inserted_cents > 0 && (current_time - entering_time) > 360000)  // break the loop if no new coin is inserted for some time
       button_pressed = true;
   }
+  if (DEBUG_MODE)
+    Serial.println("Pulses: " + String(pulses));
   if (button_pressed)
+  {
+    if (DEBUG_MODE)
+      Serial.println("Button pressed, stopping coin detection");
     return (0);
-  Serial.println("Pulses: " + String(pulses));
+  }
   return (pulses);
 }
 
@@ -176,6 +192,8 @@ void  home_screen()
   display.println("Prepare Lightning enabled Bitcoin\nwallet before starting!\nSupported coins: 5ct, 10ct, \n20ct, 50ct, 1eur, 2eur");
   display.nextPage();
   display.hibernate();
+  if (DEBUG_MODE)
+    Serial.println("Home screen printed.");
 }
 
 void  show_inserted_amount(int amount_in_cents)
@@ -203,6 +221,8 @@ void  show_inserted_amount(int amount_in_cents)
   display.println(" Press button\n once finished.");
 
   display.nextPage();
+  if (DEBUG_MODE)
+    Serial.println("New amount on screen.");
 }
 
 void  qr_withdrawl_screen(String top_message, String bottom_message, const char *qr_content)
@@ -241,6 +261,8 @@ void  qr_withdrawl_screen(String top_message, String bottom_message, const char 
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println(bottom_message);
   display.nextPage();
+  if (DEBUG_MODE)
+    Serial.println("QR generated and Withdrawl screen printed.");
   // display.hibernate();
 }
 
@@ -261,6 +283,8 @@ String get_amount_string(int amount_in_cents)
   else if (cent_remainder < 10)
     cents = "0" + String(cent_remainder);
   return_value = String(euro) + "." + String(cents) + " Euro";
+  if (DEBUG_MODE)
+    Serial.println("Calculated amount string: " + return_value);
   return (return_value);
 }
 
@@ -270,6 +294,8 @@ String get_amount_string(int amount_in_cents)
 */
 void clean_screen()
 {
+  if (DEBUG_MODE)
+    Serial.println("Cleaning screen...");
   display.firstPage();
   display.nextPage();
   display.hibernate();
@@ -342,12 +368,11 @@ char *makeLNURL(float total)
     nonce[i] = random(256);
   }
   byte payload[51]; // 51 bytes is max one can get with xor-encryption
-
-    size_t payload_len = xor_encrypt(payload, sizeof(payload), (uint8_t *)secretATM.c_str(), secretATM.length(), nonce, sizeof(nonce), randomPin, float(total));
-    String preparedURL = baseURLATM + "?atm=1&p=";
-    preparedURL += toBase64(payload, payload_len, BASE64_URLSAFE | BASE64_NOPADDING);
-
-  Serial.println(preparedURL);
+  size_t payload_len = xor_encrypt(payload, sizeof(payload), (uint8_t *)secretATM.c_str(), secretATM.length(), nonce, sizeof(nonce), randomPin, float(total));
+  String preparedURL = baseURLATM + "?atm=1&p=";
+  preparedURL += toBase64(payload, payload_len, BASE64_URLSAFE | BASE64_NOPADDING);
+  if (DEBUG_MODE)
+    Serial.println(preparedURL);
   char Buf[200];
   preparedURL.toCharArray(Buf, 200);
   char *url = Buf;
