@@ -90,8 +90,14 @@ You can power the ESP32 either trough the MicroUSB port or over the VIN and GND 
 
 1. Install VSCode and the PlattformIO IDE Extension.
 2. Clone this repository and open it as PlattformIO Project.
-3. Get an ATM key and URL for the LNBits instance/wallet you plan to use with the "LNURLDevice" extension. [Demo instance](https://legend.lnbits.com/)
-4. Check the values in the file lightning_atm.h in the includes directory, change the LNBits key and URL, You can see the correct GPIO pins there.
+3. Create an [LNbits](https://legend.lnbits.com/) wallet. Add the LNURLDevice extension and create a new LNURLDevice instance with ATM.
+
+    [![wallet_settings_02_thumb](./assets/wallet_settings_01_thumb.png)](./assets/wallet_settings_02.png)
+
+4. Copy the LNURLDevice Settings String and paste it into the code under “include/lighting_atm.h” under “USER ACTION”.
+
+    [![wallet_settings_02_thumb](./assets/wallet_settings_02_thumb.png)](./assets/wallet_settings_02.png)
+
 5. Flash the software on the esp32. You may have to disconnect the ESP32 from the step up converter before connecting it to the computer to prevent faults, or power it up with the power supply and use an usb isolator.
 
 If you need help ask me on Nostr @npub1z9n5ktfjrlpyywds9t7ljekr9cm9jjnzs27h702te5fy8p2c4dgs5zvycf
