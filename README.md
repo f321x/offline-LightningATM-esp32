@@ -71,6 +71,7 @@ Connect the LED Button to the ESP32 according to the pin assignments specified i
 | Periphery Pin             | ESP32 GPIO |
 |---------------------------|------------|
 | Button LED Pin (+)        | 13         |
+| Button LED Pin (-)        | GND        |
 | Button PIN 1              | 32         |
 | Button PIN 2              | GND        |
 
