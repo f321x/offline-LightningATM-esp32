@@ -54,6 +54,7 @@ Ensure to adjust the voltage of the step-up converter before connecting the coin
 
 ## 3. Connecting the Coin Acceptor to the ESP32
 
+- For the Coin <-> Pin 17 connection, use a cable as short as possible.
 - Short circuit the two pins below the switch on the coin acceptor with the MOSFET on GND IN and GND OUT.
 - Connect the MOSFET GND pin to the ESP32 GND and the PWM pin to the pin specified in `include/lightning_atm.h`.
 
