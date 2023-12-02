@@ -57,18 +57,22 @@ Ensure to adjust the voltage of the step-up converter before connecting the coin
 - Short circuit the two pins below the switch on the coin acceptor with the MOSFET on GND IN and GND OUT.
 - Connect the MOSFET GND pin to the ESP32 GND and the PWM pin to the pin specified in `include/lightning_atm.h`.
 
+| Periphery Pin            | ESP32 GPIO |
+|--------------------------|------------|
+| Coin Acceptor 'Coin Pin' | 17         |
+| Mosfet PWM Pin           | 12         |
+| Mosfet GND Pin           | GND        |
+
+
 ## 4. Connecting the LED Button
 
 Connect the LED Button to the ESP32 according to the pin assignments specified in `include/lightning_atm.h`:
 
 | Periphery Pin             | ESP32 GPIO |
 |---------------------------|------------|
-| Coin Acceptor 'Coin Pin'  | 17         |
 | Button LED Pin (+)        | 13         |
 | Button PIN 1              | 32         |
 | Button PIN 2              | GND        |
-| Mosfet PWM Pin            | 12         |
-| Mosfet GND Pin            | GND        |
 
 For wiring inspiration and guidance, refer to [Lightning ATM Documentation](https://github.com/21isenough/LightningATM/tree/master/docs).
 
