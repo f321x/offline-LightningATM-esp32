@@ -29,49 +29,54 @@ All the parts are available on eBay and Aliexpress
 
 All in all would calculate around $100 for the neccessary parts
 
-## Assembly
+# Assembly Instructions for Lightning ATM
 
-1.)
-Connect the Waveshare 1.54 inch display to the following pins on the ESP32:
+## 1. Connecting the Waveshare 1.54 inch Display to the ESP32
 
-| Display Pins                                                        | ESP32 GPIO |
-|---------------------------------------------------------------------|------------|
-| Busy                                                                | 27         |
-| RST                                                                 | 33         |
-| DC                                                                  | 25         |
-| CS                                                                  | 26         |
-| CLK                                                                 | SCK = 18   |
-| DIN                                                                 | MOSI = 23  |
-| GND                                                                 | GND        |
-| 3.3V                                                                | 3.3V       |
+Begin by connecting the Waveshare display to the ESP32 using the following pin assignments:
 
-2.)
-Program the coin acceptor, be careful to adjust voltage of the step-up converter first before connecting the coin acceptor.
-Find guide here:
-English: https://github.com/21isenough/LightningATM/blob/master/docs/guide/coin_validator.md
-German: https://ereignishorizont.xyz/lightning-atm/
+| Display Pins | ESP32 GPIO |
+|--------------|------------|
+| Busy         | 27         |
+| RST          | 33         |
+| DC           | 25         |
+| CS           | 26         |
+| CLK          | SCK = 18   |
+| DIN          | MOSI = 23  |
+| GND          | GND        |
+| 3.3V         | 3.3V       |
 
-3.) Connect the coin acceptor to the esp32
-    Connect the 2 coin acceptor pins below the switch in short circuit with the mosfet on GND IN and GND OUT.
-    Connect mosfet gnd pin to esp32 gnd and pwm pin to the pin specified in the include/lightning_atm.h file
+## 2. Programming the Coin Acceptor
 
-4.) Connect LED Button to the Pins specified in the include/lightning_atm.h file
+Ensure to adjust the voltage of the step-up converter before connecting the coin acceptor. Detailed programming instructions are available in the following guides:
+- [Coin Acceptor Programming Guide (English)](https://github.com/21isenough/LightningATM/blob/master/docs/guide/coin_validator.md)
+- [Coin Acceptor Programming Guide (German)](https://ereignishorizont.xyz/lightning-atm/)
 
-| Periphery Pin                                                        | ESP32 GPIO |
-|----------------------------------------------------------------------|------------|
-| Coin acceptor 'coin pin'                                             | 17         |
-| Button LED Pin (+ after resistor)                                    | 13         |
-| Button PIN 1                                                         | 32         |
-| Button PIN 2                                                         | GND        |
-| Mosfet PWM Pin                                                       | 12         |
-| Mosfet GND Pin                                                       | GND        |
+## 3. Connecting the Coin Acceptor to the ESP32
 
-You can find inspiration on how to correctly wire everything in these docs by 21isenough
-https://github.com/21isenough/LightningATM/tree/master/docs
+- Short circuit the two pins below the switch on the coin acceptor with the MOSFET on GND IN and GND OUT.
+- Connect the MOSFET GND pin to the ESP32 GND and the PWM pin to the pin specified in `include/lightning_atm.h`.
 
-4.) Wiring - circuit diagram
+## 4. Connecting the LED Button
 
-![Wiring - circuit diagram](./assets/ATM_circuit_diagram.png)
+Connect the LED Button to the ESP32 according to the pin assignments specified in `include/lightning_atm.h`:
+
+| Periphery Pin             | ESP32 GPIO |
+|---------------------------|------------|
+| Coin Acceptor 'Coin Pin'  | 17         |
+| Button LED Pin (+)        | 13         |
+| Button PIN 1              | 32         |
+| Button PIN 2              | GND        |
+| Mosfet PWM Pin            | 12         |
+| Mosfet GND Pin            | GND        |
+
+For wiring inspiration and guidance, refer to [Lightning ATM Documentation](https://github.com/21isenough/LightningATM/tree/master/docs).
+
+## 5. Circuit Diagram
+
+Refer to the circuit diagram below for a visual representation of the wiring:
+
+![Wiring - Circuit Diagram](./assets/ATM_circuit_diagram.png)
 
 
 ## Setup software
