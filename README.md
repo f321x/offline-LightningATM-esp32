@@ -16,16 +16,16 @@ https://ereignishorizont.xyz/lightning-atm/
 ## Used parts
 All the parts are available on eBay and Aliexpress
 
-* ESP32 NodeMCU Dev Board | Any "normal" esp32 dev board should do the job here
-* DC-DC Adjustable Step-up Boost Power Supply LM2587S 5V -> 12V | for the coin acceptor, runs on 12V
-* Waveshare 1.54 inch e-Paper Display Modul with SPI Interface
-* Programmable Coin Acceptor (HX-616) - 6 Coin
-* 10mm Metal Push Button Switch 3-6V with Yellow LED, Self-reset Momentary
-* USB Type C socket | to plug in the power supply (i used a Raspberry Pi type C power supply)
-* Little Mosfet modules ("15A 400W MOS FET Trigger") | To block the coin acceptor at certain points
-* Orange PLA Filament for the 3D Printer
-* Jumper Wires
-* Heat-Set Threaded Inserts M3
+* ESP32 NodeMCU Dev Board | Any "normal" esp32 dev board should do the job here | [Example](https://web.archive.org/web/20231202141343/https://www.berrybase.de/en/esp32-nodemcu-development-board)
+* DC-DC Adjustable Step-up Boost Power Supply LM2587S 5V -> 12V | for the coin acceptor, runs on 12V [Example](https://de.aliexpress.com/item/32834930982.html)
+* Waveshare 1.54 inch e-Paper Display Modul with SPI Interface | [Example](https://www.waveshare.com/1.54inch-e-paper-module.htm)
+* Programmable Coin Acceptor (HX-616) - 6 Coin | [Example](https://de.aliexpress.com/item/1005005203759184.html)
+* 10mm Metal Push Button Switch 3-6V with Yellow LED, Self-reset Momentary | [Example](https://de.aliexpress.com/item/1005004527235094.html)
+* USB Type C socket | to plug in the power supply (i used a Raspberry Pi type C power supply) [Example](https://de.aliexpress.com/item/1005005347655323.html)
+* Little Mosfet modules ("15A 400W MOS FET Trigger") | To block the coin acceptor at certain points [Example](https://de.aliexpress.com/item/33038160184.html)
+* Orange PLA Filament for the 3D Printer | [Example](https://us.polymaker.com/products/polylite-pla)
+* Jumper Wires | [Example](https://de.aliexpress.com/item/1005005945668553.html)
+* Heat-Set Threaded Inserts M3 | [Example](https://www.prusa3d.com/product/threaded-inserts-m3-standard-100-pcs/)
 
 All in all would calculate around $100 for the neccessary parts
 
@@ -83,13 +83,14 @@ Refer to the circuit diagram below for a visual representation of the wiring:
 
 ![Wiring - Circuit Diagram](./assets/ATM_circuit_diagram.png)
 
+You can power the ESP32 either trough the MicroUSB port or over the VIN and GND pins.
 
 ## Setup software
 
-Install VSCode and the PlattformIO IDE Extension.
-Clone this repository and open it as PlattformIO Project.
-Check the values in the file lightning_atm.h in the includes directory, change the LNBits key and URL, You can see the correct GPIO pins there.
-Flash the software on the esp32. You may have to disconnect the ESP32 from the step up converter before connecting it to the computer to prevent faults, or power it up with the power supply and use an usb isolator.
+1. Install VSCode and the PlattformIO IDE Extension.
+2. Clone this repository and open it as PlattformIO Project.
+3. Check the values in the file lightning_atm.h in the includes directory, change the LNBits key and URL, You can see the correct GPIO pins there.
+4. Flash the software on the esp32. You may have to disconnect the ESP32 from the step up converter before connecting it to the computer to prevent faults, or power it up with the power supply and use an usb isolator.
 
 If you need help ask me on Nostr @npub1z9n5ktfjrlpyywds9t7ljekr9cm9jjnzs27h702te5fy8p2c4dgs5zvycf
 
