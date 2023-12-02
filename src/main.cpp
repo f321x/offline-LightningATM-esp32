@@ -9,6 +9,7 @@ void setup()
 {
   display.init(115200, true, 2, false);  // connection to the e-ink display
   Serial.begin(9600);                    // serial connection for debugging over USB
+  Serial.println("Setup..");             // for monitoring with serial monitor to debug
   pinMode(COIN_PIN, INPUT_PULLUP);      // coin acceptor input
   pinMode(LED_BUTTON_PIN, OUTPUT);      // LED of the LED Button
   pinMode(BUTTON_PIN, INPUT_PULLUP);    // Button
@@ -151,6 +152,7 @@ unsigned int detect_coin()
   }
   if (button_pressed)
     return (0);
+  Serial.println("Pulses: " + String(pulses));
   return (pulses);
 }
 
