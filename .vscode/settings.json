@@ -1,6 +1,9 @@
 {
-	"editor.defaultFormatter": "platformio.platformio-ide",
+	"editor.defaultFormatter": "ms-vscode.cpptools",
 	"editor.formatOnPaste": true,
 	"editor.formatOnSave": true,
-	"files.autoSave": "onFocusChange"
+	"files.autoSave": "onFocusChange",
+	"[cpp]": {
+		"editor.defaultFormatter": "ms-vscode.cpptools"
+	}
 }

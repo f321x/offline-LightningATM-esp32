@@ -1,33 +1,34 @@
 #include "lightning_atm.h"
 
-const unsigned int       COINS[] = {0, 0, 5, 10, 20, 50, 100, 200};
-bool                     button_pressed = false;
-unsigned int             inserted_cents = 0;
-unsigned long long       time_last_press = millis();
+const unsigned int COINS[] = {0, 0, 5, 10, 20, 50, 100, 200};
+bool button_pressed = false;
+unsigned int inserted_cents = 0;
+unsigned long long time_last_press = millis();
 
 void setup()
 {
-  display.init(115200, true, 2, false);  // connection to the e-ink display
+  display.init(115200, true, 2, false); // connection to the e-ink display
   if (DEBUG_MODE)
   {
-    Serial.begin(9600); // serial connection for debugging over USB
-    Serial.println("Setup with debug mode...");  // for monitoring with serial monitor to debug
+    Serial.begin(9600);                         // serial connection for debugging over USB
+    Serial.println("Setup with debug mode..."); // for monitoring with serial monitor to debug
   }
-  pinMode(COIN_PIN, INPUT_PULLUP);      // coin acceptor input
-  pinMode(LED_BUTTON_PIN, OUTPUT);      // LED of the LED Button
-  pinMode(BUTTON_PIN, INPUT_PULLUP);    // Button
-  pinMode(MOSFET_PIN, OUTPUT);          // mosfet relay to block the coin acceptor
-  digitalWrite(MOSFET_PIN, LOW);        // set it low to accept coins, high to block coins
-  attachInterrupt(BUTTON_PIN, button_pressed_itr, FALLING);     // interrupt, will set button_pressed to true when button is pressed
-  home_screen();       // will show first screen
-  digitalWrite(LED_BUTTON_PIN, HIGH);   // light up the led
+  pinMode(COIN_PIN, INPUT_PULLUP);                          // coin acceptor input
+  pinMode(LED_BUTTON_PIN, OUTPUT);                          // LED of the LED Button
+  pinMode(BUTTON_PIN, INPUT_PULLUP);                        // Button
+  pinMode(MOSFET_PIN, OUTPUT);                              // mosfet relay to block the coin acceptor
+  digitalWrite(MOSFET_PIN, LOW);                            // set it low to accept coins, high to block coins
+  attachInterrupt(BUTTON_PIN, button_pressed_itr, FALLING); // interrupt, will set button_pressed to true when button is pressed
+  home_screen();                                            // will show first screen
+  digitalWrite(LED_BUTTON_PIN, HIGH);                       // light up the led
 }
 
-void loop() {
+void loop()
+{
   unsigned int pulses = 0;
   unsigned long long time_last_press;
 
-  pulses = detect_coin();  // detect_coin() is a loop to detect the input of coins, will return the amount of pulses
+  pulses = detect_coin(); // detect_coin() is a loop to detect the input of coins, will return the amount of pulses
   if (pulses >= 2 && pulses <= 7)
   {
     digitalWrite(MOSFET_PIN, HIGH);
@@ -48,7 +49,7 @@ void loop() {
     digitalWrite(MOSFET_PIN, LOW);
     inserted_cents = 0;
   }
-  else if (button_pressed && !pulses && !inserted_cents)  // to clean the screen (for storage), press the button several times
+  else if (button_pressed && !pulses && !inserted_cents) // to clean the screen (for storage), press the button several times
   {
     int press_counter = 0;
 
@@ -80,15 +81,16 @@ void loop() {
 }
 
 // function to handle the button interrupt
-void IRAM_ATTR button_pressed_itr() {
+void IRAM_ATTR button_pressed_itr()
+{
   button_pressed = true;
 }
 
 // blocking loop which is called when the qr code is shown
-void  wait_for_user_to_scan()
+void wait_for_user_to_scan()
 {
   unsigned long long time;
-  bool               light_on;
+  bool light_on;
 
   if (DEBUG_MODE)
     Serial.println("Waiting for user to scan qr code and press button...");
@@ -116,9 +118,9 @@ void  wait_for_user_to_scan()
 unsigned int detect_coin()
 {
   unsigned long last_pulse;
-  unsigned int  pulses;
-  bool          prev_value;
-  bool          read_value;
+  unsigned int pulses;
+  bool prev_value;
+  bool read_value;
   unsigned long entering_time;
   unsigned long current_time;
 
@@ -150,15 +152,15 @@ unsigned int detect_coin()
     {
       break;
     }
-    else if (pulses == 0 && ((current_time - entering_time) > 43200000)  // refreshes the screen every 12h
-              && inserted_cents == 0)
+    else if (pulses == 0 && ((current_time - entering_time) > 43200000) // refreshes the screen every 12h
+             && inserted_cents == 0)
     {
       clean_screen();
       delay(10000);
       entering_time = millis();
       home_screen();
     }
-    else if (inserted_cents > 0 && (current_time - entering_time) > 360000)  // break the loop if no new coin is inserted for some time
+    else if (inserted_cents > 0 && (current_time - entering_time) > 360000) // break the loop if no new coin is inserted for some time
       button_pressed = true;
   }
   if (DEBUG_MODE)
@@ -175,7 +177,7 @@ unsigned int detect_coin()
 /*
 ** DISPLAY UTILS
 */
-void  home_screen()
+void home_screen()
 {
   display.setRotation(1);
   display.setFullWindow();
@@ -196,7 +198,7 @@ void  home_screen()
     Serial.println("Home screen printed.");
 }
 
-void  show_inserted_amount(int amount_in_cents)
+void show_inserted_amount(int amount_in_cents)
 {
   String amount_in_euro;
 
@@ -225,10 +227,10 @@ void  show_inserted_amount(int amount_in_cents)
     Serial.println("New amount on screen.");
 }
 
-void  qr_withdrawl_screen(String top_message, String bottom_message, const char *qr_content)
+void qr_withdrawl_screen(String top_message, String bottom_message, const char *qr_content)
 {
   QRCode qrcoded;
-  uint8_t qrcodeData[qrcode_getBufferSize(20)];  // 20 is "qr version"
+  uint8_t qrcodeData[qrcode_getBufferSize(20)]; // 20 is "qr version"
   t_qrdata qr;
 
   qrcode_initText(&qrcoded, qrcodeData, 11, 0, qr_content);
@@ -246,10 +248,10 @@ void  qr_withdrawl_screen(String top_message, String bottom_message, const char 
     {
       if (qrcode_getModule(&qrcoded, qr.current_x, qr.current_y))
         display.fillRect(qr.start_x + qr.module_size * qr.current_x,
-          qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_BLACK);
+                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_BLACK);
       else
         display.fillRect(qr.start_x + qr.module_size * qr.current_x,
-          qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
+                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
     }
   }
   display.setCursor(0, 4);
@@ -269,11 +271,11 @@ void  qr_withdrawl_screen(String top_message, String bottom_message, const char 
 // converts a cent amount to a String like "1.15 Euro"
 String get_amount_string(int amount_in_cents)
 {
-  String  euro;
-  String  cents;
-  String  return_value;
-  int     euro_value;
-  int     cent_remainder;
+  String euro;
+  String cents;
+  String return_value;
+  int euro_value;
+  int cent_remainder;
 
   euro_value = amount_in_cents / 100;
   cent_remainder = amount_in_cents % 100;
@@ -287,7 +289,6 @@ String get_amount_string(int amount_in_cents)
     Serial.println("Calculated amount string: " + return_value);
   return (return_value);
 }
-
 
 /*
 ** Called to clean the e-ink screen for storage over longer periods
@@ -339,7 +340,7 @@ int xor_encrypt(uint8_t *output, size_t outlen, uint8_t *key, size_t keylen, uin
   uint8_t hmacresult[32];
   SHA256 h;
   h.beginHMAC(key, keylen);
-  h.write((uint8_t *) "Round secret:", 13);
+  h.write((uint8_t *)"Round secret:", 13);
   h.write(nonce, nonce_len);
   h.endHMAC(hmacresult);
   for (int i = 0; i < payload_len; i++)
@@ -349,7 +350,7 @@ int xor_encrypt(uint8_t *output, size_t outlen, uint8_t *key, size_t keylen, uin
 
   // add hmac to authenticate
   h.beginHMAC(key, keylen);
-  h.write((uint8_t *) "Data:", 5);
+  h.write((uint8_t *)"Data:", 5);
   h.write(output, cur);
   h.endHMAC(hmacresult);
   memcpy(output + cur, hmacresult, 8);
@@ -380,8 +381,8 @@ char *makeLNURL(float total)
   if (!data)
     return (NULL);
   size_t len = 0;
-  int res = convert_bits(data, &len, 5, (byte *) url, strlen(url), 8, 1);
-  char *charLnurl = (char *) calloc(strlen(url) * 2, sizeof(byte));
+  int res = convert_bits(data, &len, 5, (byte *)url, strlen(url), 8, 1);
+  char *charLnurl = (char *)calloc(strlen(url) * 2, sizeof(byte));
   if (!charLnurl)
   {
     free(data);
