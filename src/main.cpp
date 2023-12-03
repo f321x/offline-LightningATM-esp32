@@ -5,11 +5,6 @@ bool button_pressed = false;
 unsigned int inserted_cents = 0;
 unsigned long long time_last_press = millis();
 
-String baseURLATM;
-String secretATM;
-String currencyATM;
-String getValue(String data, char separator, int index);
-
 void setup()
 {
   display.init(115200, true, 2, false); // connection to the e-ink display
@@ -24,9 +19,7 @@ void setup()
   attachInterrupt(BUTTON_PIN, button_pressed_itr, FALLING); // interrupt, will set button_pressed to true when button is pressed
   home_screen();                                            // will show first screen
   digitalWrite(LED_BUTTON_PIN, HIGH);                       // light up the led
-
-  // setup wallet data from string
-  baseURLATM = getValue(lnurlDeviceString, ',', 0);
+  baseURLATM = getValue(lnurlDeviceString, ',', 0);         // setup wallet data from string
   secretATM = getValue(lnurlDeviceString, ',', 1);
   currencyATM = getValue(lnurlDeviceString, ',', 2);
 }
@@ -413,7 +406,7 @@ void to_upper(char *arr)
   }
 }
 
-String getValue(String data, char separator, int index) // seperate string function
+String getValue(const String data, char separator, int index) // seperate string function
 {
   int found = 0;
   int strIndex[] = {0, -1};
