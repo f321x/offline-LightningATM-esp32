@@ -20,7 +20,7 @@
 // ###########    USER ACTION   ###########
 // ########################################
 // Generate and copy in LNbits with the LNURLDevice extension the string for the ATM and paste it here:
-String lnurlDeviceString = "https://legend.lnbits.com/lnurldevice/api/v1/lnurl/idexample,keyexample,EUR";
+const String lnurlDeviceString = "https://legend.lnbits.com/lnurldevice/api/v1/lnurl/idexample,keyexample,EUR";
 // ########################################
 // ########################################
 // ########################################
@@ -41,6 +41,10 @@ typedef struct s_qrdata
 	uint8_t qr_size;
 } t_qrdata;
 
+String baseURLATM;
+String secretATM;
+String currencyATM;
+
 // put function declarations here:
 void clean_screen();
 void to_upper(char *arr);
@@ -53,5 +57,6 @@ unsigned int detect_coin();
 void home_screen();
 void IRAM_ATTR button_pressed_itr();
 void wait_for_user_to_scan();
+String getValue(String data, char separator, int index);
 
 #endif
