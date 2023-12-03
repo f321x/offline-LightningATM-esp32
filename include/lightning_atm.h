@@ -16,10 +16,14 @@
 // Activate for debugging over Serial (1), deactivate in production use (0)
 #define DEBUG_MODE 0
 
-// Generate the URL and secret in LNBITS with the LNURLDevice Extension:
-String baseURLATM = "https://legend.lnbits.com/lnurldevice/api/v1/lnurl/ABCD";
-String secretATM = "ABCD";
-String currencyATM = "EUR";
+// ########################################
+// ###########    USER ACTION   ###########
+// ########################################
+// Generate and copy in LNbits with the LNURLDevice extension the string for the ATM and paste it here:
+String lnurlDeviceString = "https://legend.lnbits.com/lnurldevice/api/v1/lnurl/idexample,keyexample,EUR";
+// ########################################
+// ########################################
+// ########################################
 
 #define COIN_PIN 17
 #define PULSE_TIMEOUT 200
