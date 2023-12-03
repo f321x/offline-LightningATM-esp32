@@ -92,7 +92,7 @@ You can power the ESP32 either trough the MicroUSB port or over the VIN and GND 
 2. Clone this repository and open it as PlattformIO Project.
 3. Create an [LNbits](https://legend.lnbits.com/) wallet. Add the LNURLDevice extension and create a new LNURLDevice instance with ATM.
 
-    [![wallet_settings_02_thumb](./assets/wallet_settings_01_thumb.png)](./assets/wallet_settings_02.png)
+    [![wallet_settings_02_thumb](./assets/wallet_settings_01_thumb.png)](./assets/wallet_settings_01.png)
 
 4. Copy the LNURLDevice Settings String and paste it into the code under “include/lighting_atm.h” under “USER ACTION”.
 
