@@ -10,12 +10,6 @@
 #include <Hash.h>
 #include <ctype.h>
 
-// select the display class and display driver class in the following file (new style):
-#include "GxEPD2_display_selection_new_style.h"
-
-// Activate for debugging over Serial (1), deactivate in production use (0)
-#define DEBUG_MODE 0
-
 // ########################################
 // ###########    USER ACTION   ###########
 // ########################################
@@ -25,11 +19,17 @@ const String lnurlDeviceString = "https://legend.lnbits.com/lnurldevice/api/v1/l
 // ########################################
 // ########################################
 
+// select the display class and display driver class in the following file (new style):
+#include "GxEPD2_display_selection_new_style.h"
+
 #define COIN_PIN 17
 #define PULSE_TIMEOUT 200
 #define LED_BUTTON_PIN 13
 #define BUTTON_PIN 32
 #define MOSFET_PIN 12
+
+// Activate for debugging over Serial (1), deactivate in production use (0)
+#define DEBUG_MODE 0
 
 typedef struct s_qrdata
 {
