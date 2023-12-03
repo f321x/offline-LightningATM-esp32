@@ -285,7 +285,7 @@ String get_amount_string(int amount_in_cents)
     cents = String(cent_remainder);
   else if (cent_remainder < 10)
     cents = "0" + String(cent_remainder);
-  return_value = String(euro) + "." + String(cents) + " Euro";
+  return_value = String(euro) + "." + String(cents) + " " + currencyATM;
   if (DEBUG_MODE)
     Serial.println("Calculated amount string: " + return_value);
   return (return_value);
@@ -406,7 +406,8 @@ void to_upper(char *arr)
   }
 }
 
-String getValue(const String data, char separator, int index) // seperate string function
+// Function to seperate the LNURLDevice string in key, url and currency
+String getValue(const String data, char separator, int index)
 {
   int found = 0;
   int strIndex[] = {0, -1};
@@ -421,6 +422,5 @@ String getValue(const String data, char separator, int index) // seperate string
       strIndex[1] = (i == maxIndex) ? i + 1 : i;
     }
   }
-
   return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
