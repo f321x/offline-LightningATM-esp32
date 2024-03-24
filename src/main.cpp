@@ -4,10 +4,13 @@ const unsigned int COINS[] = {0, 0, 5, 10, 20, 50, 100, 200};
 bool button_pressed = false;
 unsigned int inserted_cents = 0;
 unsigned long long time_last_press = millis();
+String baseURLATM;
+String secretATM;
+String currencyATM;
 
 void setup()
 {
-  display.init(115200, true, 2, false); // connection to the e-ink display
+  initialize_display(); // connection to the e-ink display
   Serial.begin(9600);
   if (DEBUG_MODE)                                           // serial connection for debugging over USB
     Serial.println("Setup with debug mode...");             // for monitoring with serial monitor to debug
@@ -74,7 +77,7 @@ void loop()
         Serial.println("Button pressed over 5 times, will clean screen...");
       digitalWrite(LED_BUTTON_PIN, LOW);
       clean_screen();
-      display.hibernate();
+      display_sleep();
       delay(30000);
       home_screen();
     }
@@ -178,95 +181,97 @@ unsigned int detect_coin()
 /*
 ** DISPLAY UTILS
 */
+
+void display_sleep()
+{
+#if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
+  display.hibernate();
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
+  display.hibernate();
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
+  display.hibernate();
+#else
+  Serial.println("No suitable display class defined.");
+#endif
+}
+
+void initialize_display()
+{
+#if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
+  display.init(115200, true, 2, false);
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
+  display.init(115200, true, 2, false);
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
+  display.init(115200, true, 2, false);
+#else
+  Serial.println("No suitable display class defined.");
+#endif
+}
+
 void home_screen()
 {
-  display.setRotation(1);
-  display.setFullWindow();
-  display.firstPage();
-
-  display.setCursor(0, 10);
-  display.setTextSize(3);
-  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println("Insert\nEuro coins\non the\nright\nside to\nstart ->");
-
-  display.setCursor(0, 160);
-  display.setTextSize(1);
-  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println("Prepare Lightning enabled Bitcoin\nwallet before starting!\nSupported coins: 5ct, 10ct, \n20ct, 50ct, 1eur, 2eur");
-  display.nextPage();
-  display.hibernate();
+#if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
+  home_screen_waveshare_1_54();
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
+  home_screen_waveshare_2_7();
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
+  home_screen_waveshare_2_13();
+#else
+  Serial.println("No suitable display class defined.");
+#endif
   if (DEBUG_MODE)
     Serial.println("Home screen printed.");
 }
 
 void show_inserted_amount(int amount_in_cents)
 {
-  String amount_in_euro;
+  String amount_in_euro_string;
 
-  display.setRotation(1);
-  display.setFullWindow();
-  display.firstPage();
-
-  display.setCursor(0, 4);
-  display.setTextSize(2);
-  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println("Inserted amount:");
-
-  amount_in_euro = get_amount_string(amount_in_cents);
-  display.setCursor(10, 90);
-  display.setTextSize(3);
-  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println(amount_in_euro);
-
-  display.setCursor(0, 160);
-  display.setTextSize(2);
-  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println(" Press button\n once finished.");
-
-  display.nextPage();
+  amount_in_euro_string = get_amount_string(amount_in_cents);
+#if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
+  show_inserted_amount_waveshare_1_54(amount_in_euro_string);
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
+  show_inserted_amount_waveshare_2_7(String amount_in_euro);
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
+  show_inserted_amount_waveshare_2_13(String amount_in_euro);
+#else
+  Serial.println("No suitable display class defined.");
+#endif
   if (DEBUG_MODE)
     Serial.println("New amount on screen.");
 }
 
 void qr_withdrawl_screen(String top_message, String bottom_message, const char *qr_content)
 {
-  QRCode qrcoded;
-  uint8_t qrcodeData[qrcode_getBufferSize(20)]; // 20 is "qr version"
-  t_qrdata qr;
-
-  qrcode_initText(&qrcoded, qrcodeData, 11, 0, qr_content);
-  qr.qr_size = qrcoded.size * 2;
-  qr.start_x = (200 - qr.qr_size) / 2;
-  qr.start_y = (200 - qr.qr_size) / 2;
-  qr.module_size = 2;
-
-  display.setRotation(1);
-  display.setFullWindow();
-  display.firstPage();
-  for (qr.current_y = 0; qr.current_y < qrcoded.size; qr.current_y++)
-  {
-    for (qr.current_x = 0; qr.current_x < qrcoded.size; qr.current_x++)
-    {
-      if (qrcode_getModule(&qrcoded, qr.current_x, qr.current_y))
-        display.fillRect(qr.start_x + qr.module_size * qr.current_x,
-                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_BLACK);
-      else
-        display.fillRect(qr.start_x + qr.module_size * qr.current_x,
-                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
-    }
-  }
-  display.setCursor(0, 4);
-  display.setTextSize(2);
-  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println(top_message);
-  display.setCursor(0, 170);
-  display.setTextSize(2);
-  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println(bottom_message);
-  display.nextPage();
+#if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
+  qr_withdrawl_screen_waveshare_1_54(top_message, bottom_message, qr_content);
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
+  qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message, const char *qr_content);
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
+  qr_withdrawl_screen_waveshare_2_13(String top_message, String bottom_message, const char *qr_content);
+#else
+  Serial.println("No suitable display class defined.");
+#endif
   if (DEBUG_MODE)
     Serial.println("QR generated and Withdrawl screen printed.");
-  // display.hibernate();
+}
+
+/*
+** Called to clean the e-ink screen for storage over longer periods
+*/
+void clean_screen()
+{
+  if (DEBUG_MODE)
+    Serial.println("Cleaning screen...");
+#if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
+  clean_screen_waveshare_1_54();
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
+  clean_screen_waveshare_2_7();
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
+  clean_screen_waveshare_2_13();
+#else
+  Serial.println("No suitable display class defined.");
+#endif
 }
 
 // converts a cent amount to a String like "1.15 Euro"
@@ -289,18 +294,6 @@ String get_amount_string(int amount_in_cents)
   if (DEBUG_MODE)
     Serial.println("Calculated amount string: " + return_value);
   return (return_value);
-}
-
-/*
-** Called to clean the e-ink screen for storage over longer periods
-*/
-void clean_screen()
-{
-  if (DEBUG_MODE)
-    Serial.println("Cleaning screen...");
-  display.firstPage();
-  display.nextPage();
-  display.hibernate();
 }
 
 ////////////////////////////////////////////
@@ -423,4 +416,285 @@ String getValue(const String data, char separator, int index)
     }
   }
   return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
+}
+
+// Display functions for specific display types
+
+// ################################################################
+// # Waveshare 1.54 inch e-Paper Display Modul with SPI Interface #
+// ################################################################
+
+void home_screen_waveshare_1_54()
+{
+  display.setRotation(1);
+  display.setFullWindow();
+  display.firstPage();
+
+  display.setCursor(0, 10);
+  display.setTextSize(3);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println("Insert\nEuro coins\non the\nright\nside to\nstart ->");
+
+  display.setCursor(0, 160);
+  display.setTextSize(1);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println("Prepare Lightning enabled Bitcoin\nwallet before starting!\nSupported coins: 5ct, 10ct, \n20ct, 50ct, 1eur, 2eur");
+  display.nextPage();
+  display.hibernate();
+}
+
+void show_inserted_amount_waveshare_1_54(String amount_in_euro)
+{
+  display.setRotation(1);
+  display.setFullWindow();
+  display.firstPage();
+
+  display.setCursor(0, 4);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println("Inserted amount:");
+
+  display.setCursor(10, 90);
+  display.setTextSize(3);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(amount_in_euro);
+
+  display.setCursor(0, 160);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(" Press button\n once finished.");
+
+  display.nextPage();
+}
+
+void qr_withdrawl_screen_waveshare_1_54(String top_message, String bottom_message, const char *qr_content)
+{
+  QRCode qrcoded;
+  uint8_t qrcodeData[qrcode_getBufferSize(20)]; // 20 is "qr version"
+  t_qrdata qr;
+
+  qrcode_initText(&qrcoded, qrcodeData, 11, 0, qr_content);
+  qr.qr_size = qrcoded.size * 2;
+  qr.start_x = (200 - qr.qr_size) / 2;
+  qr.start_y = (200 - qr.qr_size) / 2;
+  qr.module_size = 2;
+
+  display.setRotation(1);
+  display.setFullWindow();
+  display.firstPage();
+  for (qr.current_y = 0; qr.current_y < qrcoded.size; qr.current_y++)
+  {
+    for (qr.current_x = 0; qr.current_x < qrcoded.size; qr.current_x++)
+    {
+      if (qrcode_getModule(&qrcoded, qr.current_x, qr.current_y))
+        display.fillRect(qr.start_x + qr.module_size * qr.current_x,
+                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_BLACK);
+      else
+        display.fillRect(qr.start_x + qr.module_size * qr.current_x,
+                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
+    }
+  }
+  display.setCursor(0, 4);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(top_message);
+  display.setCursor(0, 170);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(bottom_message);
+  display.nextPage();
+  // display.hibernate();
+}
+
+void clean_screen_waveshare_1_54()
+{
+  display.firstPage();
+  display.nextPage();
+  display.hibernate();
+}
+
+// ##############################################
+// # Waveshare 2.7 inch e-ink display functions #
+// ##############################################
+
+void home_screen_waveshare_2_7()
+{
+  display.setRotation(1);
+  display.setFullWindow();
+  display.firstPage();
+
+  display.setCursor(0, 10);
+  display.setTextSize(3);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println("Insert\nEuro coins\non the\nright\nside to\nstart ->");
+
+  display.setCursor(0, 160);
+  display.setTextSize(1);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println("Prepare Lightning enabled Bitcoin\nwallet before starting!\nSupported coins: 5ct, 10ct, \n20ct, 50ct, 1eur, 2eur");
+  display.nextPage();
+  display.hibernate();
+}
+
+void show_inserted_amount_waveshare_2_7(String amount_in_euro)
+{
+  display.setRotation(1);
+  display.setFullWindow();
+  display.firstPage();
+
+  display.setCursor(0, 4);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println("Inserted amount:");
+
+  display.setCursor(10, 90);
+  display.setTextSize(3);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(amount_in_euro);
+
+  display.setCursor(0, 160);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(" Press button\n once finished.");
+
+  display.nextPage();
+}
+
+void qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message, const char *qr_content)
+{
+  QRCode qrcoded;
+  uint8_t qrcodeData[qrcode_getBufferSize(20)]; // 20 is "qr version"
+  t_qrdata qr;
+
+  qrcode_initText(&qrcoded, qrcodeData, 11, 0, qr_content);
+  qr.qr_size = qrcoded.size * 2;
+  qr.start_x = (200 - qr.qr_size) / 2;
+  qr.start_y = (200 - qr.qr_size) / 2;
+  qr.module_size = 2;
+
+  display.setRotation(1);
+  display.setFullWindow();
+  display.firstPage();
+  for (qr.current_y = 0; qr.current_y < qrcoded.size; qr.current_y++)
+  {
+    for (qr.current_x = 0; qr.current_x < qrcoded.size; qr.current_x++)
+    {
+      if (qrcode_getModule(&qrcoded, qr.current_x, qr.current_y))
+        display.fillRect(qr.start_x + qr.module_size * qr.current_x,
+                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_BLACK);
+      else
+        display.fillRect(qr.start_x + qr.module_size * qr.current_x,
+                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
+    }
+  }
+  display.setCursor(0, 4);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(top_message);
+  display.setCursor(0, 170);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(bottom_message);
+  display.nextPage();
+  // display.hibernate();
+}
+
+void clean_screen_waveshare_2_7()
+{
+  display.firstPage();
+  display.nextPage();
+  display.hibernate();
+}
+
+// ###############################################
+// # Waveshare 2.13 inch e-ink display functions #
+// ###############################################
+
+void home_screen_waveshare_2_13()
+{
+  display.setRotation(1);
+  display.setFullWindow();
+  display.firstPage();
+
+  display.setCursor(0, 10);
+  display.setTextSize(3);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println("Insert\nEuro coins\non the\nright\nside to\nstart ->");
+
+  display.setCursor(0, 160);
+  display.setTextSize(1);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println("Prepare Lightning enabled Bitcoin\nwallet before starting!\nSupported coins: 5ct, 10ct, \n20ct, 50ct, 1eur, 2eur");
+  display.nextPage();
+  display.hibernate();
+}
+
+void show_inserted_amount_waveshare_2_13(String amount_in_euro)
+{
+  display.setRotation(1);
+  display.setFullWindow();
+  display.firstPage();
+
+  display.setCursor(0, 4);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println("Inserted amount:");
+
+  display.setCursor(10, 90);
+  display.setTextSize(3);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(amount_in_euro);
+
+  display.setCursor(0, 160);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(" Press button\n once finished.");
+
+  display.nextPage();
+}
+
+void qr_withdrawl_screen_waveshare_2_13(String top_message, String bottom_message, const char *qr_content)
+{
+  QRCode qrcoded;
+  uint8_t qrcodeData[qrcode_getBufferSize(20)]; // 20 is "qr version"
+  t_qrdata qr;
+
+  qrcode_initText(&qrcoded, qrcodeData, 11, 0, qr_content);
+  qr.qr_size = qrcoded.size * 2;
+  qr.start_x = (200 - qr.qr_size) / 2;
+  qr.start_y = (200 - qr.qr_size) / 2;
+  qr.module_size = 2;
+
+  display.setRotation(1);
+  display.setFullWindow();
+  display.firstPage();
+  for (qr.current_y = 0; qr.current_y < qrcoded.size; qr.current_y++)
+  {
+    for (qr.current_x = 0; qr.current_x < qrcoded.size; qr.current_x++)
+    {
+      if (qrcode_getModule(&qrcoded, qr.current_x, qr.current_y))
+        display.fillRect(qr.start_x + qr.module_size * qr.current_x,
+                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_BLACK);
+      else
+        display.fillRect(qr.start_x + qr.module_size * qr.current_x,
+                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
+    }
+  }
+  display.setCursor(0, 4);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(top_message);
+  display.setCursor(0, 170);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(bottom_message);
+  display.nextPage();
+  // display.hibernate();
+}
+
+void clean_screen_waveshare_2_13()
+{
+  display.firstPage();
+  display.nextPage();
+  display.hibernate();
 }
