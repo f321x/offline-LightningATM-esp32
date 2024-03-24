@@ -1,6 +1,6 @@
 #include "lightning_atm.h"
 
-const unsigned int COINS[] = {0, 0, 5, 10, 20, 50, 100, 200};
+const unsigned int COINS[] = { 0, 0, 5, 10, 20, 50, 100, 200 };
 bool button_pressed = false;
 unsigned int inserted_cents = 0;
 unsigned long long time_last_press = millis();
@@ -44,7 +44,7 @@ void loop()
   {
     digitalWrite(MOSFET_PIN, HIGH);
     button_pressed = false;
-    char *lnurl = makeLNURL(inserted_cents);
+    char* lnurl = makeLNURL(inserted_cents);
     qr_withdrawl_screen("Please scan this LNURLW QR code:", "Then press the \nbutton to finish", lnurl);
     free(lnurl);
     wait_for_user_to_scan();
@@ -157,7 +157,7 @@ unsigned int detect_coin()
       break;
     }
     else if (pulses == 0 && ((current_time - entering_time) > 43200000) // refreshes the screen every 12h
-             && inserted_cents == 0)
+      && inserted_cents == 0)
     {
       clean_screen();
       delay(10000);
@@ -184,47 +184,44 @@ unsigned int detect_coin()
 
 void display_sleep()
 {
-#if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
-  display.hibernate();
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
-  display.hibernate();
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
-  display.hibernate();
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
-  display.hibernate();
-#else
-  Serial.println("No suitable display class defined.");
-#endif
+  if (display_type == "GxEPD2_150_BN")
+    display.hibernate();
+  else if (display_type == "GxEPD2_270")
+    display.hibernate();
+  else if (display_type == "GxEPD2_270_GDEY027T91")
+    display.hibernate();
+  else if (display_type == "GxEPD2_213_flex")
+    display.hibernate();
+  else
+    Serial.println("No suitable display class defined.");
 }
 
 void initialize_display()
 {
-#if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
-  display.init(115200, true, 2, false);
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
-  display.init(115200, true, 2, false);
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
-  display.init(115200, true, 2, false);
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
-  display.init(115200, true, 2, false);
-#else
-  Serial.println("No suitable display class defined.");
-#endif
+  if (display_type == "GxEPD2_150_BN")
+    display.init(115200, true, 2, false);
+  else if (display_type == "GxEPD2_270")
+    display.init(115200, true, 2, false);
+  else if (display_type == "GxEPD2_270_GDEY027T91")
+    display.init(115200, true, 2, false);
+  else if (display_type == "GxEPD2_213_flex")
+    display.init(115200, true, 2, false);
+  else
+    Serial.println("No suitable display class defined.");
 }
 
 void home_screen()
 {
-#if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
-  home_screen_waveshare_1_54();
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
-  home_screen_waveshare_2_7();
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
-  home_screen_waveshare_2_7();
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
-  home_screen_waveshare_2_13();
-#else
-  Serial.println("No suitable display class defined.");
-#endif
+  if (display_type == "GxEPD2_150_BN")
+    home_screen_waveshare_1_54();
+  else if (display_type == "GxEPD2_270")
+    home_screen_waveshare_2_7();
+  else if (display_type == "GxEPD2_270_GDEY027T91")
+    home_screen_waveshare_2_7();
+  else if (display_type == "GxEPD2_213_flex")
+    home_screen_waveshare_2_13();
+  else
+    Serial.println("No suitable display class defined.");
   if (DEBUG_MODE)
     Serial.println("Home screen printed.");
 }
@@ -234,34 +231,32 @@ void show_inserted_amount(int amount_in_cents)
   String amount_in_euro_string;
 
   amount_in_euro_string = get_amount_string(amount_in_cents);
-#if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
-  show_inserted_amount_waveshare_1_54(amount_in_euro_string);
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
-  show_inserted_amount_waveshare_2_7(String amount_in_euro);
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
-  show_inserted_amount_waveshare_2_7(String amount_in_euro);
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
-  show_inserted_amount_waveshare_2_13(String amount_in_euro);
-#else
-  Serial.println("No suitable display class defined.");
-#endif
+  if (display_type == "GxEPD2_150_BN")
+    show_inserted_amount_waveshare_1_54(amount_in_euro_string);
+  else if (display_type == "GxEPD2_270")
+    show_inserted_amount_waveshare_2_7(amount_in_euro_string);
+  else if (display_type == "GxEPD2_270_GDEY027T91")
+    show_inserted_amount_waveshare_2_7(amount_in_euro_string);
+  else if (display_type == "GxEPD2_213_flex")
+    show_inserted_amount_waveshare_2_13(amount_in_euro_string);
+  else
+    Serial.println("No suitable display class defined.");
   if (DEBUG_MODE)
     Serial.println("New amount on screen.");
 }
 
-void qr_withdrawl_screen(String top_message, String bottom_message, const char *qr_content)
+void qr_withdrawl_screen(String top_message, String bottom_message, const char* qr_content)
 {
-#if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
-  qr_withdrawl_screen_waveshare_1_54(top_message, bottom_message, qr_content);
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
-  qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message, const char *qr_content);
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
-  qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message, const char *qr_content);
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
-  qr_withdrawl_screen_waveshare_2_13(String top_message, String bottom_message, const char *qr_content);
-#else
-  Serial.println("No suitable display class defined.");
-#endif
+  if (display_type == "GxEPD2_150_BN")
+    qr_withdrawl_screen_waveshare_1_54(top_message, bottom_message, qr_content);
+  else if (display_type == "GxEPD2_270")
+    qr_withdrawl_screen_waveshare_2_7(top_message, bottom_message, qr_content);
+  else if (display_type == "GxEPD2_270_GDEY027T91")
+    qr_withdrawl_screen_waveshare_2_7(top_message, bottom_message, qr_content);
+  else if (display_type == "GxEPD2_213_flex")
+    qr_withdrawl_screen_waveshare_2_13(top_message, bottom_message, qr_content);
+  else
+    Serial.println("No suitable display class defined.");
   if (DEBUG_MODE)
     Serial.println("QR generated and Withdrawl screen printed.");
 }
@@ -273,17 +268,16 @@ void clean_screen()
 {
   if (DEBUG_MODE)
     Serial.println("Cleaning screen...");
-#if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
-  clean_screen_waveshare_1_54();
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
-  clean_screen_waveshare_2_7();
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
-  clean_screen_waveshare_2_7();
-#elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
-  clean_screen_waveshare_2_13();
-#else
-  Serial.println("No suitable display class defined.");
-#endif
+  if (display_type == "GxEPD2_150_BN")
+    clean_screen_waveshare_1_54();
+  else if (display_type == "GxEPD2_270")
+    clean_screen_waveshare_2_7();
+  else if (display_type == "GxEPD2_270_GDEY027T91")
+    clean_screen_waveshare_2_7();
+  else if (display_type == "GxEPD2_213_flex")
+    clean_screen_waveshare_2_13();
+  else
+    Serial.println("No suitable display class defined.");
 }
 
 // converts a cent amount to a String like "1.15 Euro"
@@ -314,7 +308,7 @@ String get_amount_string(int amount_in_cents)
 ////////////THANK YOU STEPAN////////////////
 ////////////////////////////////////////////
 
-int xor_encrypt(uint8_t *output, size_t outlen, uint8_t *key, size_t keylen, uint8_t *nonce, size_t nonce_len, uint64_t pin, uint64_t amount_in_cents)
+int xor_encrypt(uint8_t* output, size_t outlen, uint8_t* key, size_t keylen, uint8_t* nonce, size_t nonce_len, uint64_t pin, uint64_t amount_in_cents)
 {
   // check we have space for all the data:
   // <variant_byte><len|nonce><len|payload:{pin}{amount}><hmac>
@@ -337,7 +331,7 @@ int xor_encrypt(uint8_t *output, size_t outlen, uint8_t *key, size_t keylen, uin
   int payload_len = lenVarInt(pin) + 1 + lenVarInt(amount_in_cents);
   output[cur] = (uint8_t)payload_len;
   cur++;
-  uint8_t *payload = output + cur;                                 // pointer to the start of the payload
+  uint8_t* payload = output + cur;                                 // pointer to the start of the payload
   cur += writeVarInt(pin, output + cur, outlen - cur);             // pin code
   cur += writeVarInt(amount_in_cents, output + cur, outlen - cur); // amount
   cur++;
@@ -346,7 +340,7 @@ int xor_encrypt(uint8_t *output, size_t outlen, uint8_t *key, size_t keylen, uin
   uint8_t hmacresult[32];
   SHA256 h;
   h.beginHMAC(key, keylen);
-  h.write((uint8_t *)"Round secret:", 13);
+  h.write((uint8_t*)"Round secret:", 13);
   h.write(nonce, nonce_len);
   h.endHMAC(hmacresult);
   for (int i = 0; i < payload_len; i++)
@@ -356,7 +350,7 @@ int xor_encrypt(uint8_t *output, size_t outlen, uint8_t *key, size_t keylen, uin
 
   // add hmac to authenticate
   h.beginHMAC(key, keylen);
-  h.write((uint8_t *)"Data:", 5);
+  h.write((uint8_t*)"Data:", 5);
   h.write(output, cur);
   h.endHMAC(hmacresult);
   memcpy(output + cur, hmacresult, 8);
@@ -366,7 +360,7 @@ int xor_encrypt(uint8_t *output, size_t outlen, uint8_t *key, size_t keylen, uin
   return cur;
 }
 
-char *makeLNURL(float total)
+char* makeLNURL(float total)
 {
   int randomPin = random(1000, 9999);
   byte nonce[8];
@@ -375,20 +369,20 @@ char *makeLNURL(float total)
     nonce[i] = random(256);
   }
   byte payload[51]; // 51 bytes is max one can get with xor-encryption
-  size_t payload_len = xor_encrypt(payload, sizeof(payload), (uint8_t *)secretATM.c_str(), secretATM.length(), nonce, sizeof(nonce), randomPin, float(total));
+  size_t payload_len = xor_encrypt(payload, sizeof(payload), (uint8_t*)secretATM.c_str(), secretATM.length(), nonce, sizeof(nonce), randomPin, float(total));
   String preparedURL = baseURLATM + "?atm=1&p=";
   preparedURL += toBase64(payload, payload_len, BASE64_URLSAFE | BASE64_NOPADDING);
   if (DEBUG_MODE)
     Serial.println(preparedURL);
   char Buf[200];
   preparedURL.toCharArray(Buf, 200);
-  char *url = Buf;
-  byte *data = (byte *)calloc(strlen(url) * 2, sizeof(byte));
+  char* url = Buf;
+  byte* data = (byte*)calloc(strlen(url) * 2, sizeof(byte));
   if (!data)
     return (NULL);
   size_t len = 0;
-  int res = convert_bits(data, &len, 5, (byte *)url, strlen(url), 8, 1);
-  char *charLnurl = (char *)calloc(strlen(url) * 2, sizeof(byte));
+  int res = convert_bits(data, &len, 5, (byte*)url, strlen(url), 8, 1);
+  char* charLnurl = (char*)calloc(strlen(url) * 2, sizeof(byte));
   if (!charLnurl)
   {
     free(data);
@@ -400,7 +394,7 @@ char *makeLNURL(float total)
   return (charLnurl);
 }
 
-void to_upper(char *arr)
+void to_upper(char* arr)
 {
   for (size_t i = 0; i < strlen(arr); i++)
   {
@@ -415,7 +409,7 @@ void to_upper(char *arr)
 String getValue(const String data, char separator, int index)
 {
   int found = 0;
-  int strIndex[] = {0, -1};
+  int strIndex[] = { 0, -1 };
   const int maxIndex = data.length() - 1;
 
   for (int i = 0; i <= maxIndex && found <= index; i++)
@@ -479,10 +473,10 @@ void show_inserted_amount_waveshare_1_54(String amount_in_euro)
   display.nextPage();
 }
 
-void qr_withdrawl_screen_waveshare_1_54(String top_message, String bottom_message, const char *qr_content)
+void qr_withdrawl_screen_waveshare_1_54(String top_message, String bottom_message, const char* qr_content)
 {
   QRCode qrcoded;
-  uint8_t qrcodeData[qrcode_getBufferSize(20)]; // 20 is "qr version"
+  uint8_t qrcodeData[qrcode_getBufferSize(QR_VERSION)]; // 20 is "qr version"
   t_qrdata qr;
 
   qrcode_initText(&qrcoded, qrcodeData, 11, 0, qr_content);
@@ -500,10 +494,10 @@ void qr_withdrawl_screen_waveshare_1_54(String top_message, String bottom_messag
     {
       if (qrcode_getModule(&qrcoded, qr.current_x, qr.current_y))
         display.fillRect(qr.start_x + qr.module_size * qr.current_x,
-                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_BLACK);
+          qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_BLACK);
       else
         display.fillRect(qr.start_x + qr.module_size * qr.current_x,
-                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
+          qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
     }
   }
   display.setCursor(0, 4);
@@ -572,10 +566,10 @@ void show_inserted_amount_waveshare_2_7(String amount_in_euro)
   display.nextPage();
 }
 
-void qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message, const char *qr_content)
+void qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message, const char* qr_content)
 {
   QRCode qrcoded;
-  uint8_t qrcodeData[qrcode_getBufferSize(20)]; // 20 is "qr version"
+  uint8_t qrcodeData[qrcode_getBufferSize(QR_VERSION)]; // 20 is "qr version"
   t_qrdata qr;
 
   qrcode_initText(&qrcoded, qrcodeData, 11, 0, qr_content);
@@ -593,10 +587,10 @@ void qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message
     {
       if (qrcode_getModule(&qrcoded, qr.current_x, qr.current_y))
         display.fillRect(qr.start_x + qr.module_size * qr.current_x,
-                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_BLACK);
+          qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_BLACK);
       else
         display.fillRect(qr.start_x + qr.module_size * qr.current_x,
-                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
+          qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
     }
   }
   display.setCursor(0, 4);
@@ -665,10 +659,10 @@ void show_inserted_amount_waveshare_2_13(String amount_in_euro)
   display.nextPage();
 }
 
-void qr_withdrawl_screen_waveshare_2_13(String top_message, String bottom_message, const char *qr_content)
+void qr_withdrawl_screen_waveshare_2_13(String top_message, String bottom_message, const char* qr_content)
 {
   QRCode qrcoded;
-  uint8_t qrcodeData[qrcode_getBufferSize(20)]; // 20 is "qr version"
+  uint8_t qrcodeData[qrcode_getBufferSize(QR_VERSION)]; // 20 is "qr version"
   t_qrdata qr;
 
   qrcode_initText(&qrcoded, qrcodeData, 11, 0, qr_content);
@@ -686,10 +680,10 @@ void qr_withdrawl_screen_waveshare_2_13(String top_message, String bottom_messag
     {
       if (qrcode_getModule(&qrcoded, qr.current_x, qr.current_y))
         display.fillRect(qr.start_x + qr.module_size * qr.current_x,
-                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_BLACK);
+          qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_BLACK);
       else
         display.fillRect(qr.start_x + qr.module_size * qr.current_x,
-                         qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
+          qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
     }
   }
   display.setCursor(0, 4);

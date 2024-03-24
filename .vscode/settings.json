@@ -5,5 +5,7 @@
 	"files.autoSave": "onFocusChange",
 	"[cpp]": {
 		"editor.defaultFormatter": "ms-vscode.cpptools"
-	}
+	},
+	"cmake.configureOnOpen": false,
+	"C_Cpp.formatting": "vcFormat"
 }
