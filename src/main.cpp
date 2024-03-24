@@ -186,6 +186,8 @@ void display_sleep()
 {
 #if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
   display.hibernate();
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
+  display.hibernate();
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
   display.hibernate();
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
@@ -198,6 +200,8 @@ void display_sleep()
 void initialize_display()
 {
 #if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
+  display.init(115200, true, 2, false);
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
   display.init(115200, true, 2, false);
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
   display.init(115200, true, 2, false);
@@ -212,6 +216,8 @@ void home_screen()
 {
 #if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
   home_screen_waveshare_1_54();
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
+  home_screen_waveshare_2_7();
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
   home_screen_waveshare_2_7();
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
@@ -230,6 +236,8 @@ void show_inserted_amount(int amount_in_cents)
   amount_in_euro_string = get_amount_string(amount_in_cents);
 #if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
   show_inserted_amount_waveshare_1_54(amount_in_euro_string);
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
+  show_inserted_amount_waveshare_2_7(String amount_in_euro);
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
   show_inserted_amount_waveshare_2_7(String amount_in_euro);
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
@@ -245,6 +253,8 @@ void qr_withdrawl_screen(String top_message, String bottom_message, const char *
 {
 #if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
   qr_withdrawl_screen_waveshare_1_54(top_message, bottom_message, qr_content);
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
+  qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message, const char *qr_content);
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
   qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message, const char *qr_content);
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
@@ -265,6 +275,8 @@ void clean_screen()
     Serial.println("Cleaning screen...");
 #if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
   clean_screen_waveshare_1_54();
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
+  clean_screen_waveshare_2_7();
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
   clean_screen_waveshare_2_7();
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
@@ -524,11 +536,11 @@ void home_screen_waveshare_2_7()
   display.firstPage();
 
   display.setCursor(0, 10);
-  display.setTextSize(3);
+  display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println("Insert\nEuro coins\non the\nright\nside to\nstart ->");
 
-  display.setCursor(0, 160);
+  display.setCursor(0, 140);
   display.setTextSize(1);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println("Prepare Lightning enabled Bitcoin\nwallet before starting!\nSupported coins: 5ct, 10ct, \n20ct, 50ct, 1eur, 2eur");
@@ -547,12 +559,12 @@ void show_inserted_amount_waveshare_2_7(String amount_in_euro)
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println("Inserted amount:");
 
-  display.setCursor(10, 90);
+  display.setCursor(10, 70);
   display.setTextSize(3);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println(amount_in_euro);
 
-  display.setCursor(0, 160);
+  display.setCursor(0, 130);
   display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println(" Press button\n once finished.");
@@ -568,8 +580,8 @@ void qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message
 
   qrcode_initText(&qrcoded, qrcodeData, 11, 0, qr_content);
   qr.qr_size = qrcoded.size * 2;
-  qr.start_x = (200 - qr.qr_size) / 2;
-  qr.start_y = (200 - qr.qr_size) / 2;
+  qr.start_x = (264 - qr.qr_size) / 2;
+  qr.start_y = (176 - qr.qr_size) / 2;
   qr.module_size = 2;
 
   display.setRotation(1);
