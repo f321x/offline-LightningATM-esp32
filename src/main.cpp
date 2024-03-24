@@ -186,6 +186,8 @@ void display_sleep()
 {
 #if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
   display.hibernate();
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
+  display.hibernate();
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
   display.hibernate();
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
@@ -198,6 +200,8 @@ void display_sleep()
 void initialize_display()
 {
 #if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
+  display.init(115200, true, 2, false);
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
   display.init(115200, true, 2, false);
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
   display.init(115200, true, 2, false);
@@ -212,6 +216,8 @@ void home_screen()
 {
 #if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
   home_screen_waveshare_1_54();
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
+  home_screen_waveshare_2_7();
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
   home_screen_waveshare_2_7();
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
@@ -230,6 +236,8 @@ void show_inserted_amount(int amount_in_cents)
   amount_in_euro_string = get_amount_string(amount_in_cents);
 #if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
   show_inserted_amount_waveshare_1_54(amount_in_euro_string);
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
+  show_inserted_amount_waveshare_2_7(String amount_in_euro);
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
   show_inserted_amount_waveshare_2_7(String amount_in_euro);
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
@@ -267,6 +275,8 @@ void clean_screen()
     Serial.println("Cleaning screen...");
 #if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
   clean_screen_waveshare_1_54();
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
+  clean_screen_waveshare_2_7();
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
   clean_screen_waveshare_2_7();
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
@@ -549,12 +559,12 @@ void show_inserted_amount_waveshare_2_7(String amount_in_euro)
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println("Inserted amount:");
 
-  display.setCursor(10, 90);
+  display.setCursor(10, 70);
   display.setTextSize(3);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println(amount_in_euro);
 
-  display.setCursor(0, 160);
+  display.setCursor(0, 130);
   display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println(" Press button\n once finished.");
