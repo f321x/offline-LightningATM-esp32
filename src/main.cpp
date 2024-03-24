@@ -245,6 +245,8 @@ void qr_withdrawl_screen(String top_message, String bottom_message, const char *
 {
 #if GxEPD2_DRIVER_CLASS == GxEPD2_150_BN
   qr_withdrawl_screen_waveshare_1_54(top_message, bottom_message, qr_content);
+#elif GxEPD2_DRIVER_CLASS == GxEPD2_270
+  qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message, const char *qr_content);
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_270_GDEY027T91
   qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message, const char *qr_content);
 #elif GxEPD2_DRIVER_CLASS == GxEPD2_213_flex
@@ -524,11 +526,11 @@ void home_screen_waveshare_2_7()
   display.firstPage();
 
   display.setCursor(0, 10);
-  display.setTextSize(3);
+  display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println("Insert\nEuro coins\non the\nright\nside to\nstart ->");
 
-  display.setCursor(0, 160);
+  display.setCursor(0, 140);
   display.setTextSize(1);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println("Prepare Lightning enabled Bitcoin\nwallet before starting!\nSupported coins: 5ct, 10ct, \n20ct, 50ct, 1eur, 2eur");
@@ -568,8 +570,8 @@ void qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message
 
   qrcode_initText(&qrcoded, qrcodeData, 11, 0, qr_content);
   qr.qr_size = qrcoded.size * 2;
-  qr.start_x = (200 - qr.qr_size) / 2;
-  qr.start_y = (200 - qr.qr_size) / 2;
+  qr.start_x = (264 - qr.qr_size) / 2;
+  qr.start_y = (176 - qr.qr_size) / 2;
   qr.module_size = 2;
 
   display.setRotation(1);

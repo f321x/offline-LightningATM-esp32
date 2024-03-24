@@ -21,7 +21,8 @@ const String lnurlDeviceString = "https://legend.lnbits.com/lnurldevice/api/v1/l
 
 // select the display class and display driver class in the following file (new style):
 // 1.54 inch Waveshare e-paper display is "GxEPD2_DRIVER_CLASS GxEPD2_150_BN"
-// Waveshare 264x176, 2.7inch E-Ink display HAT for Raspberry Pi is "GxEPD2_DRIVER_CLASS GxEPD2_270_GDEY027T91"
+// Waveshare 264x176, 2.7inch E-Ink display - Version 1 = "GxEPD2_DRIVER_CLASS GxEPD2_270"
+// Waveshare 264x176, 2.7inch E-Ink display - Version 2 = "GxEPD2_DRIVER_CLASS GxEPD2_270_GDEY027T91"
 // Waveshare 2.13 inch e-paper display is "GxEPD2_DRIVER_CLASS GxEPD2_213_flex"
 // use search to find the correct line, and uncomment the other display drivers in this header file:
 #include "GxEPD2_display_selection_new_style.h"
