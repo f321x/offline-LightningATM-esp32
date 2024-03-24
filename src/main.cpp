@@ -13,7 +13,10 @@ void setup()
   initialize_display(); // connection to the e-ink display
   Serial.begin(9600);
   if (DEBUG_MODE)                                           // serial connection for debugging over USB
+  {
     Serial.println("Setup with debug mode...");             // for monitoring with serial monitor to debug
+    Serial.println("Selected display type: " + display_type);
+  }
   pinMode(COIN_PIN, INPUT_PULLUP);                          // coin acceptor input
   pinMode(LED_BUTTON_PIN, OUTPUT);                          // LED of the LED Button
   pinMode(BUTTON_PIN, INPUT_PULLUP);                        // Button
