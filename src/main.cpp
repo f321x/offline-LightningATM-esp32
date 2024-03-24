@@ -99,22 +99,13 @@ void wait_for_user_to_scan()
   if (DEBUG_MODE)
     Serial.println("Waiting for user to scan qr code and press button...");
   light_on = true;
-  time = millis();
-  digitalWrite(LED_BUTTON_PIN, HIGH);
+  time = millis();  // save start time
+  digitalWrite(LED_BUTTON_PIN, HIGH);  // light up the led
   delay(5000);
   button_pressed = false;
+  // wait for user to press button or 10 minutes to go back to home screen
   while (!button_pressed && (millis() - time) < 600000)
   {
-    if (!light_on)
-    {
-      digitalWrite(LED_BUTTON_PIN, HIGH);
-      light_on = true;
-    }
-    else if (light_on)
-    {
-      digitalWrite(LED_BUTTON_PIN, LOW);
-      light_on = false;
-    }
     delay(500);
   }
 }
@@ -182,6 +173,7 @@ unsigned int detect_coin()
 ** DISPLAY UTILS
 */
 
+// sleep is to put the screen in hibernation mode for longer static frames
 void display_sleep()
 {
   if (display_type == "GxEPD2_150_BN")
@@ -261,9 +253,9 @@ void qr_withdrawl_screen(String top_message, String bottom_message, const char* 
     Serial.println("QR generated and Withdrawl screen printed.");
 }
 
-/*
-** Called to clean the e-ink screen for storage over longer periods
-*/
+
+//  Called to clean the e-ink screen for storage over longer periods 
+// by button presses on home screen
 void clean_screen()
 {
   if (DEBUG_MODE)
@@ -479,6 +471,7 @@ void qr_withdrawl_screen_waveshare_1_54(String top_message, String bottom_messag
   uint8_t qrcodeData[qrcode_getBufferSize(QR_VERSION)]; // 20 is "qr version"
   t_qrdata qr;
 
+  // initialize qr code data
   qrcode_initText(&qrcoded, qrcodeData, 11, 0, qr_content);
   qr.qr_size = qrcoded.size * 2;
   qr.start_x = (200 - qr.qr_size) / 2;
@@ -488,6 +481,8 @@ void qr_withdrawl_screen_waveshare_1_54(String top_message, String bottom_messag
   display.setRotation(1);
   display.setFullWindow();
   display.firstPage();
+  // loop trough Y and X axis to draw the qr code rectangle by rectangle
+  // 0, 0 is the top left of the screen
   for (qr.current_y = 0; qr.current_y < qrcoded.size; qr.current_y++)
   {
     for (qr.current_x = 0; qr.current_x < qrcoded.size; qr.current_x++)
@@ -500,6 +495,7 @@ void qr_withdrawl_screen_waveshare_1_54(String top_message, String bottom_messag
           qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
     }
   }
+  // draw the text messages on the screen
   display.setCursor(0, 4);
   display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
@@ -509,7 +505,7 @@ void qr_withdrawl_screen_waveshare_1_54(String top_message, String bottom_messag
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println(bottom_message);
   display.nextPage();
-  // display.hibernate();
+  display.hibernate();
 }
 
 void clean_screen_waveshare_1_54()
@@ -602,7 +598,7 @@ void qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println(bottom_message);
   display.nextPage();
-  // display.hibernate();
+  display.hibernate();
 }
 
 void clean_screen_waveshare_2_7()
@@ -695,7 +691,7 @@ void qr_withdrawl_screen_waveshare_2_13(String top_message, String bottom_messag
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println(bottom_message);
   display.nextPage();
-  // display.hibernate();
+  display.hibernate();
 }
 
 void clean_screen_waveshare_2_13()
