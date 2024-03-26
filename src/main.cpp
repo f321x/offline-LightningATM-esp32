@@ -14,6 +14,7 @@ void setup()
   Serial.begin(9600);
   if (DEBUG_MODE)                                           // serial connection for debugging over USB
   {
+    sleep(3);
     Serial.println("Setup with debug mode...");             // for monitoring with serial monitor to debug
     Serial.println("Selected display type: " + display_type);
   }
@@ -48,7 +49,7 @@ void loop()
     digitalWrite(MOSFET_PIN, HIGH);
     button_pressed = false;
     char* lnurl = makeLNURL(inserted_cents);
-    qr_withdrawl_screen("Please scan QR code:", "Reset - press button", lnurl);
+    qr_withdrawl_screen(lnurl);
     free(lnurl);
     wait_for_user_to_scan();
     digitalWrite(LED_BUTTON_PIN, HIGH);
@@ -250,16 +251,16 @@ void show_inserted_amount(int amount_in_cents)
     Serial.println("New amount on screen.");
 }
 
-void qr_withdrawl_screen(String top_message, String bottom_message, const char* qr_content)
+void qr_withdrawl_screen(const char* qr_content)
 {
   if (display_type == "GxEPD2_150_BN")
-    qr_withdrawl_screen_waveshare_1_54(top_message, bottom_message, qr_content);
+    qr_withdrawl_screen_waveshare_1_54(qr_content);
   else if (display_type == "GxEPD2_270")
-    qr_withdrawl_screen_waveshare_2_7(top_message, bottom_message, qr_content);
+    qr_withdrawl_screen_waveshare_2_7(qr_content);
   else if (display_type == "GxEPD2_270_GDEY027T91")
-    qr_withdrawl_screen_waveshare_2_7(top_message, bottom_message, qr_content);
+    qr_withdrawl_screen_waveshare_2_7(qr_content);
   else if (display_type == "GxEPD2_213_flex")
-    qr_withdrawl_screen_waveshare_2_13(top_message, bottom_message, qr_content);
+    qr_withdrawl_screen_waveshare_2_13(qr_content);
   else
     Serial.println("No suitable display class defined.");
   if (DEBUG_MODE)
@@ -437,6 +438,8 @@ String getValue(const String data, char separator, int index)
 
 void home_screen_waveshare_1_54()
 {
+  if (DEBUG_MODE)
+    Serial.println("Home screen for Waveshare 1.54 inch display...");
   display.setRotation(1);
   display.setFullWindow();
   display.firstPage();
@@ -449,7 +452,7 @@ void home_screen_waveshare_1_54()
   display.setCursor(0, 160);
   display.setTextSize(1);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println("Prepare Lightning enabled Bitcoin\nwallet before starting!\nSupported coins: 5ct, 10ct, \n20ct, 50ct, 1eur, 2eur");
+  display.println("Prepare Lightning enabled Bitcoin\nwallet before starting!\n\nSupported coins:\n5 - 50 Cent and 1 - 2 Euro");
   display.nextPage();
   display.hibernate();
 }
@@ -478,7 +481,7 @@ void show_inserted_amount_waveshare_1_54(String amount_in_euro)
   display.nextPage();
 }
 
-void qr_withdrawl_screen_waveshare_1_54(String top_message, String bottom_message, const char* qr_content)
+void qr_withdrawl_screen_waveshare_1_54(const char* qr_content)
 {
   QRCode qrcoded;
   uint8_t qrcodeData[qrcode_getBufferSize(QR_VERSION)]; // 20 is "qr version"
@@ -512,11 +515,11 @@ void qr_withdrawl_screen_waveshare_1_54(String top_message, String bottom_messag
   display.setCursor(0, 4);
   display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println(top_message);
+  display.println("Please scan QR\ncode:");  // top message
   display.setCursor(0, 170);
   display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println(bottom_message);
+  display.println("Press the \nbutton to reset");  // bottom message
   display.nextPage();
   display.hibernate();
 }
@@ -548,7 +551,7 @@ void home_screen_waveshare_2_7()
   display.setCursor(12, 140);
   display.setTextSize(1);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println("Prepare Lightning enabled Bitcoin\n  wallet before starting!\n  Supported coins: 5-50 cent, 1-2 euro");
+  display.println("Prepare Lightning enabled Bitcoin\n  wallet before starting!\n  Supported coins: 5 - 50 Cent, 1 - 2 Euro");
 
   display.nextPage();
   display.hibernate();
@@ -578,7 +581,7 @@ void show_inserted_amount_waveshare_2_7(String amount_in_euro)
   display.nextPage();
 }
 
-void qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message, const char* qr_content)
+void qr_withdrawl_screen_waveshare_2_7(const char* qr_content)
 {
   QRCode qrcoded;
   uint8_t qrcodeData[qrcode_getBufferSize(QR_VERSION)]; // 20 is "qr version"
@@ -608,12 +611,12 @@ void qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message
   display.setCursor(11, 5);
   display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println(top_message);
+  display.println("Please scan QR code:");  // top message
 
   display.setCursor(11, 155);
   display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println(bottom_message);
+  display.println("Reset - press button");  // bottom message
 
   display.nextPage();
   display.hibernate();
@@ -673,7 +676,7 @@ void show_inserted_amount_waveshare_2_13(String amount_in_euro)
   display.nextPage();
 }
 
-void qr_withdrawl_screen_waveshare_2_13(String top_message, String bottom_message, const char* qr_content)
+void qr_withdrawl_screen_waveshare_2_13(const char* qr_content)
 {
   QRCode qrcoded;
   uint8_t qrcodeData[qrcode_getBufferSize(QR_VERSION)]; // 20 is "qr version"
@@ -703,11 +706,11 @@ void qr_withdrawl_screen_waveshare_2_13(String top_message, String bottom_messag
   display.setCursor(0, 4);
   display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println(top_message);
+  display.println("Please scan QR code:");  // top message
   display.setCursor(0, 170);
   display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println(bottom_message);
+  display.println("Reset - press button");
   display.nextPage();
   display.hibernate();
 }

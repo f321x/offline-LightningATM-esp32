@@ -15,6 +15,7 @@
 // ########################################
 // Generate and copy in LNbits with the LNURLDevice extension the string for the ATM and paste it here:
 const String lnurlDeviceString = "https://legend.lnbits.com/lnurldevice/api/v1/lnurl/idexample,keyexample,EUR";
+// #################### EXAMPLE:  https://legend.lnbits.com/lnurldevice/api/v1/lnurl/idexample,keyexample,EUR
 // ########################################
 // ########################################
 // ########################################
@@ -93,7 +94,7 @@ const unsigned char bitcoin_logo[] PROGMEM = {
 void clean_screen();
 void initialize_display();
 void to_upper(char* arr);
-void qr_withdrawl_screen(String top_message, String bottom_message, const char* qr_content);
+void qr_withdrawl_screen(const char* qr_content);
 char* makeLNURL(float total);
 int xor_encrypt(uint8_t* output, size_t outlen, uint8_t* key, size_t keylen, uint8_t* nonce, size_t nonce_len, uint64_t pin, uint64_t amount_in_cents);
 void show_inserted_amount(int amount_in_cents);
@@ -109,19 +110,19 @@ void test_macro();
 // Waveshare 1.54 inch e-ink display functions
 void home_screen_waveshare_1_54();
 void show_inserted_amount_waveshare_1_54(String amount_in_euro);
-void qr_withdrawl_screen_waveshare_1_54(String top_message, String bottom_message, const char* qr_content);
+void qr_withdrawl_screen_waveshare_1_54(const char* qr_content);
 void clean_screen_waveshare_1_54();
 
 // Waveshare 2.7 inch e-ink display functions
 void home_screen_waveshare_2_7();
 void show_inserted_amount_waveshare_2_7(String amount_in_euro);
-void qr_withdrawl_screen_waveshare_2_7(String top_message, String bottom_message, const char* qr_content);
+void qr_withdrawl_screen_waveshare_2_7(const char* qr_content);
 void clean_screen_waveshare_2_7();
 
 // Waveshare 2.13 inch e-ink display functions
 void home_screen_waveshare_2_13();
 void show_inserted_amount_waveshare_2_13(String amount_in_euro);
-void qr_withdrawl_screen_waveshare_2_13(String top_message, String bottom_message, const char* qr_content);
+void qr_withdrawl_screen_waveshare_2_13(const char* qr_content);
 void clean_screen_waveshare_2_13();
 
 #endif

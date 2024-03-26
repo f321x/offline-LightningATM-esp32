@@ -22,17 +22,17 @@
 
 // select the display driver class (only one) for your  panel
 
-// -> #define GxEPD2_DRIVER_CLASS GxEPD2_150_BN // 1.54 inch Waveshare e-paper display
-// -> const String display_type = "GxEPD2_150_BN";
+#define GxEPD2_DRIVER_CLASS GxEPD2_150_BN // 1.54 inch Waveshare e-paper display
+const String display_type = "GxEPD2_150_BN";
 
-// -> #define GxEPD2_DRIVER_CLASS GxEPD2_213_flex // Waveshare 2.13 inch e-paper display
-// -> const String display_type = "GxEPD2_213_flex";
+// #define GxEPD2_DRIVER_CLASS GxEPD2_213_flex // Waveshare 2.13 inch e-paper display
+// const String display_type = "GxEPD2_213_flex";
 
-#define GxEPD2_DRIVER_CLASS GxEPD2_270 // Waveshare 264x176, 2.7inch E-Ink display - Version 1
-const String display_type = "GxEPD2_270";
+// #define GxEPD2_DRIVER_CLASS GxEPD2_270 // Waveshare 264x176, 2.7inch E-Ink display - Version 1
+// const String display_type = "GxEPD2_270";
 
-// -> #define GxEPD2_DRIVER_CLASS GxEPD2_270_GDEY027T91 // Waveshare 264x176, 2.7inch E-Ink display - Version 2
-// -> const String display_type = "GxEPD2_270_GDEY027T91";
+// #define GxEPD2_DRIVER_CLASS GxEPD2_270_GDEY027T91 // Waveshare 264x176, 2.7inch E-Ink display - Version 2
+// const String display_type = "GxEPD2_270_GDEY027T91";
 
 // #define GxEPD2_DRIVER_CLASS GxEPD2_154     // GDEP015OC1  200x200, IL3829, (WFC0000CZ07), no longer available
 // #define GxEPD2_DRIVER_CLASS GxEPD2_154_D67 // GDEH0154D67 200x200, SSD1681, (HINK-E154A07-A1)
@@ -173,9 +173,9 @@ GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> displ
 // Waveshare 12.48 b/w or b/w/r SPI display board and frame or Good Display 12.48 b/w panel GDEW1248T3 or b/w/r panel GDEY1248Z51
 // general constructor for use with all parameters, e.g. for Waveshare ESP32 driver board mounted on connection board
 GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*sck=*/13, /*miso=*/12, /*mosi=*/14,
-                                                                                                       /*cs_m1=*/23, /*cs_s1=*/22, /*cs_m2=*/16, /*cs_s2=*/19,
-                                                                                                       /*dc1=*/25, /*dc2=*/17, /*rst1=*/33, /*rst2=*/5,
-                                                                                                       /*busy_m1=*/32, /*busy_s1=*/26, /*busy_m2=*/18, /*busy_s2=*/4));
+    /*cs_m1=*/23, /*cs_s1=*/22, /*cs_m2=*/16, /*cs_s2=*/19,
+    /*dc1=*/25, /*dc2=*/17, /*rst1=*/33, /*rst2=*/5,
+    /*busy_m1=*/32, /*busy_s1=*/26, /*busy_m2=*/18, /*busy_s2=*/4));
 #endif
 #undef MAX_DISPLAY_BUFFER_SIZE
 #undef MAX_HEIGHT
