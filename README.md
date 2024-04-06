@@ -60,7 +60,7 @@ Ensure to adjust the voltage of the step-up converter before connecting the coin
 | Periphery Pin            | ESP32 GPIO |
 |--------------------------|------------|
 | Coin Acceptor 'Coin Pin' | 17         |
-| Mosfet PWM Pin           | 12         |
+| Mosfet PWM Pin           | 16         |
 | Mosfet GND Pin           | GND        |
 
 
@@ -70,7 +70,7 @@ Connect the LED Button to the ESP32 according to the pin assignments specified i
 
 | Periphery Pin             | ESP32 GPIO |
 |---------------------------|------------|
-| Button LED Pin (+)        | 13         |
+| Button LED Pin (+)        | 21         |
 | Button LED Pin (-)        | GND        |
 | Button PIN 1              | 32         |
 | Button PIN 2              | GND        |
@@ -81,7 +81,7 @@ For wiring inspiration and guidance, refer to [Lightning ATM Documentation](http
 
 Refer to the circuit diagram below for a visual representation of the wiring:
 
-![Wiring - Circuit Diagram](./assets/ATM_circuit_diagram.png)
+![Wiring - Circuit Diagram](./assets/offlineATM-xxxxxx.png)
 
 You can power the ESP32 either trough the MicroUSB port or over the VIN and GND pins.
 
