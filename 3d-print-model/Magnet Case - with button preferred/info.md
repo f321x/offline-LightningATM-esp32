@@ -4,3 +4,6 @@ Magnets: 5x5mm round nickel plate: https://www.supermagnete.ch/scheibenmagnete-n
 Metal plates: 2x10mm self-adhesive: https://www.supermagnete.ch/magnethaftgruende-selbstklebend/metallscheiben-selbstklebend-10mm_PAS-10
 
 For more information please DM me on Twitter or Telegram! @Nicolas_b58
+
+Update axelhamburch 838776:
+In this version, the front panel has a hole for a 12 mm LED button in the upper area of the front panel. You will need a drill and possibly a file for the "screen backplate". Depending on which display you use, you may also need this for a feed-through for the ribbon cable. 
