@@ -35,9 +35,9 @@ const String lnurlDeviceString = "https://legend.lnbits.com/lnurldevice/api/v1/l
 
 #define COIN_PIN 17
 #define PULSE_TIMEOUT 200
-#define LED_BUTTON_PIN 21
+#define LED_BUTTON_PIN 21  // old: 13 | new: 21
 #define BUTTON_PIN 32
-#define MOSFET_PIN 16
+#define MOSFET_PIN 16  // old: 12 | new: 16
 #define QR_VERSION 20
 
 typedef struct s_qrdata

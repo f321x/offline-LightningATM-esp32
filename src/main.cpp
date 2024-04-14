@@ -484,15 +484,15 @@ void show_inserted_amount_waveshare_1_54(String amount_in_euro)
 void qr_withdrawl_screen_waveshare_1_54(const char* qr_content)
 {
   QRCode qrcoded;
-  uint8_t qrcodeData[qrcode_getBufferSize(QR_VERSION)]; // 20 is "qr version"
+  uint8_t qrcodeData[qrcode_getBufferSize(20)]; // 20 is "qr version"
   t_qrdata qr;
 
   // initialize qr code data
-  qrcode_initText(&qrcoded, qrcodeData, 11, 0, qr_content);
+  qrcode_initText(&qrcoded, qrcodeData, 6, 0, qr_content);
   qr.qr_size = qrcoded.size * 2;
-  qr.start_x = (200 - qr.qr_size) / 2;
-  qr.start_y = (200 - qr.qr_size) / 2;
-  qr.module_size = 2;
+  qr.start_x = (150 - qr.qr_size) / 2;
+  qr.start_y = (150 - qr.qr_size) / 2;
+  qr.module_size = 3;
 
   display.setRotation(1);
   display.setFullWindow();
@@ -505,17 +505,23 @@ void qr_withdrawl_screen_waveshare_1_54(const char* qr_content)
     {
       if (qrcode_getModule(&qrcoded, qr.current_x, qr.current_y))
         display.fillRect(qr.start_x + qr.module_size * qr.current_x,
-          qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_BLACK);
+          qr.start_y + qr.module_size * qr.current_y,
+          qr.module_size,
+          qr.module_size,
+          GxEPD_BLACK);
       else
         display.fillRect(qr.start_x + qr.module_size * qr.current_x,
-          qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
+          qr.start_y + qr.module_size * qr.current_y,
+          qr.module_size,
+          qr.module_size,
+          GxEPD_WHITE);
     }
   }
   // draw the text messages on the screen
   display.setCursor(0, 4);
   display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println("Please scan QR\ncode:");  // top message
+  display.println("Please scan QR:");  // top message
   display.setCursor(0, 170);
   display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
