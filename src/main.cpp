@@ -488,7 +488,7 @@ void qr_withdrawl_screen_waveshare_1_54(const char* qr_content)
   t_qrdata qr;
 
   // initialize qr code data
-  qrcode_initText(&qrcoded, qrcodeData, 6, 0, qr_content);
+  qrcode_initText(&qrcoded, qrcodeData, QR_VERSION, 0, qr_content);
   qr.qr_size = qrcoded.size * 2;
   qr.start_x = (150 - qr.qr_size) / 2;
   qr.start_y = (150 - qr.qr_size) / 2;
