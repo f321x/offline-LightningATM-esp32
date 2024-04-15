@@ -607,10 +607,10 @@ void qr_withdrawl_screen_waveshare_2_7(const char* qr_content)
   t_qrdata qr;
 
   qrcode_initText(&qrcoded, qrcodeData, QR_VERSION, 0, qr_content);
-  qr.qr_size = qrcoded.size * 2;
+  qr.qr_size = qrcoded.size * 3;
   qr.start_x = (264 - qr.qr_size) / 2;
   qr.start_y = (176 - qr.qr_size) / 2;
-  qr.module_size = 2;
+  qr.module_size = 3;
 
   display.setRotation(1);
   display.setFullWindow();
