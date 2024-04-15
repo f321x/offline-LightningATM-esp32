@@ -8,10 +8,23 @@ String baseURLATM;
 String secretATM;
 String currencyATM;
 
+// *** for Waveshare ESP32 Driver board *** //
+#if defined(ESP32) && defined(USE_HSPI_FOR_EPD)
+SPIClass hspi(HSPI);
+#endif
+// *** end Waveshare ESP32 Driver board *** //
+
+
 void setup()
 {
   initialize_display(); // connection to the e-ink display
   Serial.begin(9600);
+  // *** for Waveshare ESP32 Driver board *** //
+#if defined(ESP32) && defined(USE_HSPI_FOR_EPD)
+  hspi.begin(13, 12, 14, 15); // remap hspi for EPD (swap pins)
+  display.epd2.selectSPI(hspi, SPISettings(4000000, MSBFIRST, SPI_MODE0));
+#endif
+  // *** end Waveshare ESP32 Driver board *** //
   if (DEBUG_MODE)                                           // serial connection for debugging over USB
   {
     sleep(3);
