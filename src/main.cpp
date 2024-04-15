@@ -497,7 +497,7 @@ void show_inserted_amount_waveshare_1_54(String amount_in_euro)
 void qr_withdrawl_screen_waveshare_1_54(const char* qr_content)
 {
   QRCode qrcoded;
-  uint8_t qrcodeData[qrcode_getBufferSize(20)]; // 20 is "qr version"
+  uint8_t qrcodeData[qrcode_getBufferSize(QR_VERSION)]; // 20 is "qr version"
   t_qrdata qr;
 
   // initialize qr code data
@@ -606,7 +606,7 @@ void qr_withdrawl_screen_waveshare_2_7(const char* qr_content)
   uint8_t qrcodeData[qrcode_getBufferSize(QR_VERSION)]; // 20 is "qr version"
   t_qrdata qr;
 
-  qrcode_initText(&qrcoded, qrcodeData, 11, 0, qr_content);
+  qrcode_initText(&qrcoded, qrcodeData, QR_VERSION, 0, qr_content);
   qr.qr_size = qrcoded.size * 2;
   qr.start_x = (264 - qr.qr_size) / 2;
   qr.start_y = (176 - qr.qr_size) / 2;
@@ -701,7 +701,7 @@ void qr_withdrawl_screen_waveshare_2_13(const char* qr_content)
   uint8_t qrcodeData[qrcode_getBufferSize(QR_VERSION)]; // 20 is "qr version"
   t_qrdata qr;
 
-  qrcode_initText(&qrcoded, qrcodeData, 11, 0, qr_content);
+  qrcode_initText(&qrcoded, qrcodeData, QR_VERSION, 0, qr_content);
   qr.qr_size = qrcoded.size * 2;
   qr.start_x = (200 - qr.qr_size) / 2;
   qr.start_y = (200 - qr.qr_size) / 2;
