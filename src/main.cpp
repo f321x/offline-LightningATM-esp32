@@ -1,6 +1,6 @@
 #include "lightning_atm.h"
 
-const unsigned int COINS[] = { 0, 0, 5, 10, 20, 50, 100, 200 };
+const unsigned int COINS[] = { 0, 0, 5, 10, 20, 50, 100, 200, 1, 2 };
 bool button_pressed = false;
 unsigned int inserted_cents = 0;
 unsigned long long time_last_press = millis();
@@ -50,7 +50,7 @@ void loop()
   unsigned long long time_last_press;
 
   pulses = detect_coin(); // detect_coin() is a loop to detect the input of coins, will return the amount of pulses
-  if (pulses >= 2 && pulses <= 7)
+  if (pulses >= 2 && pulses <= 9)
   {
     digitalWrite(MOSFET_PIN, HIGH);
     digitalWrite(LED_BUTTON_PIN, LOW);
