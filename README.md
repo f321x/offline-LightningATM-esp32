@@ -79,11 +79,15 @@ For wiring inspiration and guidance, refer to [Lightning ATM Documentation](http
 
 ## 5. Circuit Diagram
 
-Refer to the circuit diagram below for a visual representation of the wiring:
+Below are two possible wiring options. Depending on which ESP32 type and display / driver board you are using. 
 
-![Wiring - Circuit Diagram](./assets/offlineATM-xxxxxx.png)
+1. Standard ESP32 with separate display / driver board
 
-You can power the ESP32 either trough the MicroUSB port or over the VIN and GND pins.
+![Wiring - Circuit Diagram Normal ESP32](./assets/offlineATM-xxxxxx.png)
+
+2. Waveshare ESP32 with integrated driver board and separate display
+
+![Wiring - Circuit Diagram Waveshare ESP32](./assets/offlineATM-WaveshareESP32-xxxxxx.png)
 
 ## Setup software
 
@@ -105,5 +109,15 @@ If this software and guide provided value to you feel free to send some sats to 
 
 
 ## Images
+
+Standard ESP32
 ![PXL_20231126_144603980](https://github.com/f321x/offline-LightningATM-esp32/assets/51097237/12ac8a54-8756-4842-b26d-4408e8df3afe)
 ![PXL_20231126_162906807 MP_1](https://github.com/f321x/offline-LightningATM-esp32/assets/51097237/7e394774-f341-4b1c-ae73-4806f6f42ce5)
+
+Waveshare ESP32
+![Construction - Waveshare ESP32](./assets/WaveshareESP32_construction_005.jpg)
+![Construction - Waveshare ESP32](./assets/WaveshareESP32_construction_001.jpg)
+![Construction - Waveshare ESP32](./assets/WaveshareESP32_construction_002.jpg)
+![Construction - Waveshare ESP32](./assets/WaveshareESP32_construction_003.jpg)
+![Construction - Waveshare ESP32](./assets/WaveshareESP32_construction_004.jpg)
+
