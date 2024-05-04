@@ -32,7 +32,7 @@ const String lnurlDeviceString = "https://legend.lnbits.com/lnurldevice/api/v1/l
 //  OTHER OPTIONS:
 
 // Activate for debugging over Serial (1), deactivate in production use (0)
-#define DEBUG_MODE 1
+#define DEBUG_MODE 0
 
 #define COIN_PIN 17
 #define PULSE_TIMEOUT 200
