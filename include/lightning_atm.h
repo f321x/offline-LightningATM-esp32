@@ -14,7 +14,7 @@
 // ###########    USER ACTION   ###########
 // ########################################
 // Generate and copy in LNbits with the LNURLDevice extension the string for the ATM and paste it here:
-const String lnurlDeviceString = "https://legend.lnbits.com/lnurldevice/api/v1/lnurl/idexample,keyexample,EUR";
+const String lnurlDeviceString = "https://lnbits.ereignishorizont.xyz/lnurldevice/api/v1/lnurl/8a3mb,M97wP6NR3cfwVeUZCEuQET,EUR";
 // #################### EXAMPLE:  https://legend.lnbits.com/lnurldevice/api/v1/lnurl/idexample,keyexample,EUR
 // ########################################
 // ########################################
@@ -23,15 +23,16 @@ const String lnurlDeviceString = "https://legend.lnbits.com/lnurldevice/api/v1/l
 // select the display class and display driver class in the following file (new style):
 // 1.54 inch Waveshare e-paper display is "GxEPD2_DRIVER_CLASS GxEPD2_150_BN"
 // Waveshare 264x176, 2.7inch E-Ink display - Version 1 = "GxEPD2_DRIVER_CLASS GxEPD2_270"
-// Waveshare 264x176, 2.7inch E-Ink display - Version 2 = "GxEPD2_DRIVER_CLASS GxEPD2_270_GDEY027T91"
-// Waveshare 2.13 inch e-paper display is "GxEPD2_DRIVER_CLASS GxEPD2_213_flex"
+// Waveshare 264x176, 2.7inch E-Ink display - Version 2 = "GxEPD2_DRIVER_CLASS GxEPD2_270_GDEY027T91" 
+// Waveshare 2.13 inch e-paper display version 3 is "GxEPD2_DRIVER_CLASS GxEPD2_213_B74"
+// Waveshare 2.13 inch e-paper display (D) flex (yellow) is "GxEPD2_DRIVER_CLASS GxEPD2_213_flex"
 // use search to find the correct line, and uncomment the other display drivers in this header file:
 #include "GxEPD2_display_selection_new_style.h"
 
 //  OTHER OPTIONS:
 
 // Activate for debugging over Serial (1), deactivate in production use (0)
-#define DEBUG_MODE 0
+#define DEBUG_MODE 1
 
 #define COIN_PIN 17
 #define PULSE_TIMEOUT 200
@@ -119,10 +120,16 @@ void show_inserted_amount_waveshare_2_7(String amount_in_euro);
 void qr_withdrawl_screen_waveshare_2_7(const char* qr_content);
 void clean_screen_waveshare_2_7();
 
-// Waveshare 2.13 inch e-ink display functions
+// Waveshare 2.13 inch e-ink display (250x122) functions
 void home_screen_waveshare_2_13();
 void show_inserted_amount_waveshare_2_13(String amount_in_euro);
 void qr_withdrawl_screen_waveshare_2_13(const char* qr_content);
 void clean_screen_waveshare_2_13();
+
+// Waveshare 2.13 inch e-ink display (D) flex (yellow) (212x104) functions
+void home_screen_waveshare_2_13_flex();
+void show_inserted_amount_waveshare_2_13_flex(String amount_in_euro);
+void qr_withdrawl_screen_waveshare_2_13_flex(const char* qr_content);
+void clean_screen_waveshare_2_13_flex();
 
 #endif
