@@ -120,7 +120,7 @@ void wait_for_user_to_scan()
   digitalWrite(LED_BUTTON_PIN, HIGH);  // light up the led
   delay(5000);
   button_pressed = false;
-  // wait for user to press button or 10 minutes to go back to home screen
+  Serial.println("wait for user to press button or 10 minutes to go back to home screen");
   while (!button_pressed && (millis() - time) < 600000)
   {
     if (!light_on && (millis() - time) > 30000)
@@ -135,6 +135,7 @@ void wait_for_user_to_scan()
     }
     delay(500);
   }
+  Serial.println("Exit waiting");
 }
 
 unsigned int detect_coin()
@@ -209,6 +210,8 @@ void display_sleep()
     display.hibernate();
   else if (display_type == "GxEPD2_270_GDEY027T91")
     display.hibernate();
+  else if (display_type == "GxEPD2_213_B74")
+    display.hibernate();
   else if (display_type == "GxEPD2_213_flex")
     display.hibernate();
   else
@@ -222,6 +225,8 @@ void initialize_display()
   else if (display_type == "GxEPD2_270")
     display.init(115200, true, 2, false);
   else if (display_type == "GxEPD2_270_GDEY027T91")
+    display.init(115200, true, 2, false);
+  else if (display_type == "GxEPD2_213_B74")
     display.init(115200, true, 2, false);
   else if (display_type == "GxEPD2_213_flex")
     display.init(115200, true, 2, false);
@@ -237,8 +242,10 @@ void home_screen()
     home_screen_waveshare_2_7();
   else if (display_type == "GxEPD2_270_GDEY027T91")
     home_screen_waveshare_2_7();
-  else if (display_type == "GxEPD2_213_flex")
+  else if (display_type == "GxEPD2_213_B74")
     home_screen_waveshare_2_13();
+  else if (display_type == "GxEPD2_213_flex")
+    home_screen_waveshare_2_13_flex();
   else
     Serial.println("No suitable display class defined.");
   if (DEBUG_MODE)
@@ -256,8 +263,10 @@ void show_inserted_amount(int amount_in_cents)
     show_inserted_amount_waveshare_2_7(amount_in_euro_string);
   else if (display_type == "GxEPD2_270_GDEY027T91")
     show_inserted_amount_waveshare_2_7(amount_in_euro_string);
-  else if (display_type == "GxEPD2_213_flex")
+  else if (display_type == "GxEPD2_213_B74")
     show_inserted_amount_waveshare_2_13(amount_in_euro_string);
+  else if (display_type == "GxEPD2_213_flex")
+    show_inserted_amount_waveshare_2_13_flex(amount_in_euro_string);
   else
     Serial.println("No suitable display class defined.");
   if (DEBUG_MODE)
@@ -272,8 +281,10 @@ void qr_withdrawl_screen(const char* qr_content)
     qr_withdrawl_screen_waveshare_2_7(qr_content);
   else if (display_type == "GxEPD2_270_GDEY027T91")
     qr_withdrawl_screen_waveshare_2_7(qr_content);
-  else if (display_type == "GxEPD2_213_flex")
+  else if (display_type == "GxEPD2_213_B74")
     qr_withdrawl_screen_waveshare_2_13(qr_content);
+  else if (display_type == "GxEPD2_213_flex")
+    qr_withdrawl_screen_waveshare_2_13_flex(qr_content);
   else
     Serial.println("No suitable display class defined.");
   if (DEBUG_MODE)
@@ -293,8 +304,10 @@ void clean_screen()
     clean_screen_waveshare_2_7();
   else if (display_type == "GxEPD2_270_GDEY027T91")
     clean_screen_waveshare_2_7();
-  else if (display_type == "GxEPD2_213_flex")
+  else if (display_type == "GxEPD2_213_B74")
     clean_screen_waveshare_2_13();
+  else if (display_type == "GxEPD2_213_flex")
+    clean_screen_waveshare_2_13_flex();
   else
     Serial.println("No suitable display class defined.");
 }
@@ -648,9 +661,9 @@ void clean_screen_waveshare_2_7()
   display.hibernate();
 }
 
-// ###############################################
-// # Waveshare 2.13 inch e-ink display functions #
-// ###############################################
+// #########################################################
+// # Waveshare 2.13 inch e-ink display (250x122) functions #
+// #########################################################
 
 void home_screen_waveshare_2_13()
 {
@@ -658,15 +671,23 @@ void home_screen_waveshare_2_13()
   display.setFullWindow();
   display.firstPage();
 
-  display.setCursor(0, 10);
-  display.setTextSize(3);
+  display.setCursor(5, 5);
+  display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println("Insert\nEuro coins\non the\nright\nside to\nstart ->");
+  display.println("LIGHTNING ATM");
+  display.setCursor(3, 33);
+  display.println("Insert coins");
+  display.setCursor(3, 50);
+  display.println("on the right");
+  display.setCursor(3, 67);
+  display.println("side to start");
 
-  display.setCursor(0, 160);
+  display.drawBitmap(180, 15, bitcoin_logo, 64, 64, GxEPD_BLACK);
+
+  display.setCursor(0, 95);
   display.setTextSize(1);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println("Prepare Lightning enabled Bitcoin\nwallet before starting!\nSupported coins: 5ct, 10ct, \n20ct, 50ct, 1eur, 2eur");
+  display.println(" Prepare Lightning enabled Bitcoin\n wallet before starting!\n Supported coins: 2 cent to 2 euro");
   display.nextPage();
   display.hibernate();
 }
@@ -677,20 +698,20 @@ void show_inserted_amount_waveshare_2_13(String amount_in_euro)
   display.setFullWindow();
   display.firstPage();
 
-  display.setCursor(0, 4);
+  display.setCursor(10, 4);
   display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println("Inserted amount:");
 
-  display.setCursor(10, 90);
+  display.setCursor(35, 45);
   display.setTextSize(3);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
   display.println(amount_in_euro);
 
-  display.setCursor(0, 160);
+  display.setCursor(0, 85);
   display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println(" Press button\n once finished.");
+  display.println(" Press button\n to show QR code");
 
   display.nextPage();
 }
@@ -703,8 +724,8 @@ void qr_withdrawl_screen_waveshare_2_13(const char* qr_content)
 
   qrcode_initText(&qrcoded, qrcodeData, QR_VERSION, 0, qr_content);
   qr.qr_size = qrcoded.size * 2;
-  qr.start_x = (200 - qr.qr_size) / 2;
-  qr.start_y = (200 - qr.qr_size) / 2;
+  qr.start_x = (230 - qr.qr_size) / 2;
+  qr.start_y = (122 - qr.qr_size) / 2;
   qr.module_size = 2;
 
   display.setRotation(1);
@@ -722,19 +743,130 @@ void qr_withdrawl_screen_waveshare_2_13(const char* qr_content)
           qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
     }
   }
-  display.setCursor(0, 4);
+  display.setCursor(0, 20);
   display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println("Please scan QR code:");  // top message
-  display.setCursor(0, 170);
+  display.println(" Scan\n\n  QR\n\n code");  // top message
+
+  display.setCursor(181, 32);
   display.setTextSize(2);
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.println("Reset - press button");
+  display.println("Reset");
+  display.setCursor(181, 53);
+  display.println("press");
+  display.setCursor(176, 77);
+  display.println("button");
   display.nextPage();
   display.hibernate();
 }
 
 void clean_screen_waveshare_2_13()
+{
+  display.firstPage();
+  display.nextPage();
+  display.hibernate();
+}
+
+// ###########################################################################
+// # Waveshare 2.13 inch e-ink display (D) flex (yellow) (212x104) functions #
+// ###########################################################################
+
+void home_screen_waveshare_2_13_flex()
+{
+  display.setRotation(1);
+  display.setFullWindow();
+  display.firstPage();
+
+  display.setCursor(5, 5);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println("LIGHTNING ATM");
+  display.setCursor(3, 25);
+  display.println("Insert coins");
+  display.setCursor(3, 42);
+  display.println("on the right");
+  display.setCursor(3, 59);
+  display.println("side to start");
+
+  display.drawBitmap(151, 8, bitcoin_logo, 64, 64, GxEPD_BLACK);
+
+  display.setCursor(0, 80);
+  display.setTextSize(1);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(" Prepare Lightning enabled Bitcoin\n wallet before starting!\n Supported coins: 2 cent to 2 euro");
+  display.nextPage();
+  display.hibernate();
+}
+
+void show_inserted_amount_waveshare_2_13_flex(String amount_in_euro)
+{
+  display.setRotation(1);
+  display.setFullWindow();
+  display.firstPage();
+
+  display.setCursor(0, 4);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(" Inserted amount:");
+
+  display.setCursor(30, 35);
+  display.setTextSize(3);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(amount_in_euro);
+
+  display.setCursor(0, 70);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(" Press button\n to show QR code");
+
+  display.nextPage();
+}
+
+void qr_withdrawl_screen_waveshare_2_13_flex(const char* qr_content)
+{
+  QRCode qrcoded;
+  uint8_t qrcodeData[qrcode_getBufferSize(QR_VERSION)]; // 20 is "qr version"
+  t_qrdata qr;
+
+  qrcode_initText(&qrcoded, qrcodeData, QR_VERSION, 0, qr_content);
+  qr.qr_size = qrcoded.size * 2;
+  qr.start_x = (220 - qr.qr_size) / 2;
+  qr.start_y = (105 - qr.qr_size) / 2;
+  qr.module_size = 2;
+
+  display.setRotation(1);
+  display.setFullWindow();
+  display.firstPage();
+  for (qr.current_y = 0; qr.current_y < qrcoded.size; qr.current_y++)
+  {
+    for (qr.current_x = 0; qr.current_x < qrcoded.size; qr.current_x++)
+    {
+      if (qrcode_getModule(&qrcoded, qr.current_x, qr.current_y))
+        display.fillRect(qr.start_x + qr.module_size * qr.current_x,
+          qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_BLACK);
+      else
+        display.fillRect(qr.start_x + qr.module_size * qr.current_x,
+          qr.start_y + qr.module_size * qr.current_y, qr.module_size, qr.module_size, GxEPD_WHITE);
+    }
+  }
+  display.setCursor(0, 12);
+  display.setTextSize(2);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println(" Scan\n\n  QR\n\n code");  // top message
+
+  display.setCursor(170, 37);
+  display.setTextSize(1);
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.println("Reset");
+  display.setCursor(170, 47);
+  display.println("press");
+  display.setCursor(167, 57);
+  display.println("button");
+  display.nextPage();
+  display.hibernate();
+}
+
+void clean_screen_waveshare_2_13_flex()
 {
   display.firstPage();
   display.nextPage();

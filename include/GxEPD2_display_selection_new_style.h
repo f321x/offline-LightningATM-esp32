@@ -33,11 +33,14 @@
 // #define GxEPD2_DRIVER_CLASS GxEPD2_150_BN // 1.54 inch Waveshare e-paper display
 // const String display_type = "GxEPD2_150_BN";
 
-// #define GxEPD2_DRIVER_CLASS GxEPD2_213_flex // Waveshare 2.13 inch e-paper display
-// const String display_type = "GxEPD2_213_flex";
+// #define GxEPD2_DRIVER_CLASS GxEPD2_213_B74 // Waveshare 2.13 inch e-paper display - Version 3
+// const String display_type = "GxEPD2_213_B74";
 
-#define GxEPD2_DRIVER_CLASS GxEPD2_270 // Waveshare 264x176, 2.7inch E-Ink display - Version 1
-const String display_type = "GxEPD2_270";
+#define GxEPD2_DRIVER_CLASS GxEPD2_213_flex // Waveshare 2.13 inch e-paper display - (D) flex (yellow)
+const String display_type = "GxEPD2_213_flex";
+
+// #define GxEPD2_DRIVER_CLASS GxEPD2_270 // Waveshare 264x176, 2.7inch E-Ink display - Version 1
+// const String display_type = "GxEPD2_270";
 
 // #define GxEPD2_DRIVER_CLASS GxEPD2_270_GDEY027T91 // Waveshare 264x176, 2.7inch E-Ink display - Version 2
 // const String display_type = "GxEPD2_270_GDEY027T91";
@@ -53,6 +56,7 @@ const String display_type = "GxEPD2_270";
 // #define GxEPD2_DRIVER_CLASS GxEPD2_213_B72 // GDEH0213B72 122x250, SSD1675A (IL3897), (HINK-E0213A22-A0 SLH1852)
 // #define GxEPD2_DRIVER_CLASS GxEPD2_213_B73 // GDEH0213B73 122x250, SSD1675B, (HINK-E0213A22-A0 SLH1914)
 // #define GxEPD2_DRIVER_CLASS GxEPD2_213_B74 // GDEM0213B74 122x250, SSD1680, FPC-7528B)
+// #define GxEPD2_DRIVER_CLASS GxEPD2_213_flex // GDEW0213I5F 104x212, UC8151 (IL0373)
 // #define GxEPD2_DRIVER_CLASS GxEPD2_213_M21 // GDEW0213M21 104x212, UC8151 (IL0373), (WFT0213CZ16)
 // #define GxEPD2_DRIVER_CLASS GxEPD2_213_T5D // GDEW0213T5D 104x212, UC8151D, (WFT0213CZ16)
 // #define GxEPD2_DRIVER_CLASS GxEPD2_213_BN // DEPG0213BN  122x250, SSD1680, (FPC-7528B), TTGO T5 V2.4.1, V2.3.1
