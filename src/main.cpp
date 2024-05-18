@@ -14,6 +14,7 @@ SPIClass hspi(HSPI);
 #endif
 // *** end Waveshare ESP32 Driver board *** //
 
+BlockClock* blockClock;
 
 void setup()
 {
@@ -42,10 +43,23 @@ void setup()
   baseURLATM = getValue(lnurlDeviceString, ',', 0);         // setup wallet data from string
   secretATM = getValue(lnurlDeviceString, ',', 1);
   currencyATM = getValue(lnurlDeviceString, ',', 2);
+  if (BLOCKCLOCK_ACTIVE)
+  {
+    try {
+      blockClock = new BlockClock(currencyATM.c_str(), WIFI_SSID, WIFI_PW, DEBUG_MODE);
+    }
+    catch (const std::exception& e) {
+      Serial.println(e.what());
+      BLOCKCLOCK_ACTIVE = false; // disable blockclock if there is an error
+    }
+  }
 }
 
 void loop()
 {
+  while (true && BLOCKCLOCK_ACTIVE) {
+    print_blockclock_homescreen();
+  }
   unsigned int pulses = 0;
   unsigned long long time_last_press;
 
@@ -200,6 +214,22 @@ unsigned int detect_coin()
 /*
 ** DISPLAY UTILS
 */
+
+// dummy function to showcase blockClock class
+void print_blockclock_homescreen() {
+  uint block_height = blockClock->getBlockHeight();
+  uint exchange_rate = blockClock->getExchangeRate();
+
+  if (block_height == 0 || exchange_rate == 0) {
+    if (DEBUG_MODE)
+      Serial.println("Error fetching block height or exchange rate");
+    return;
+  }
+  Serial.println(block_height);
+  delay(5000);
+  Serial.println(exchange_rate);
+  delay(5000);
+}
 
 // sleep is to put the screen in hibernation mode for longer static frames
 void display_sleep()

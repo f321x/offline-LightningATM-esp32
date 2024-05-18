@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <Hash.h>
 #include <ctype.h>
+#include "blockclock.hpp"
 
 // ########################################
 // ###########    USER ACTION   ###########
@@ -29,10 +30,16 @@ const String lnurlDeviceString = "https://legend.lnbits.com/lnurldevice/api/v1/l
 // use search to find the correct line, and uncomment the other display drivers in this header file:
 #include "GxEPD2_display_selection_new_style.h"
 
+// OPTIONAL: WIFI credentials to show exchange rate and block height on standby screen
+// Comment out the variables, and set the WIFI_SSID and WIFI_PW to your wifi credentials.
+bool BLOCKCLOCK_ACTIVE = false;
+const char* WIFI_SSID = "your_wifi_ssid";  // your_wifi_ssid
+const char* WIFI_PW = "your_password"; // your_password
+
 //  OTHER OPTIONS:
 
 // Activate for debugging over Serial (1), deactivate in production use (0)
-#define DEBUG_MODE 0
+#define DEBUG_MODE 1
 
 #define COIN_PIN 17
 #define PULSE_TIMEOUT 200
@@ -106,7 +113,7 @@ void IRAM_ATTR button_pressed_itr();
 void wait_for_user_to_scan();
 String getValue(String data, char separator, int index);
 void display_sleep();
-void test_macro();
+void print_blockclock_homescreen();
 
 // Waveshare 1.54 inch e-ink display functions
 void home_screen_waveshare_1_54();
