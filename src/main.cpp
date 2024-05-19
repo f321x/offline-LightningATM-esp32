@@ -1,11 +1,13 @@
 #include "lightning_atm.h"
 
+// global variables
 const unsigned int COINS[] = { 0, 0, 5, 10, 20, 50, 100, 200, 1, 2 };
 bool button_pressed = false;
 unsigned int inserted_cents = 0;
 unsigned long long time_last_press = millis();
 LnurlPoS lnurl_utils;
 String currencyATM;
+BlockClock blockClock;
 
 // *** for Waveshare ESP32 Driver board *** //
 #if defined(ESP32) && defined(USE_HSPI_FOR_EPD)
@@ -13,7 +15,6 @@ SPIClass hspi(HSPI);
 #endif
 // *** end Waveshare ESP32 Driver board *** //
 
-BlockClock* blockClock;
 
 void setup()
 {
@@ -44,7 +45,7 @@ void setup()
   if (BLOCKCLOCK_ACTIVE)
   {
     try {
-      blockClock = new BlockClock(currencyATM.c_str(), WIFI_SSID, WIFI_PW, DEBUG_MODE);
+      blockClock.init(currencyATM, WIFI_SSID, WIFI_PW, DEBUG_MODE);
     }
     catch (const std::exception& e) {
       Serial.println(e.what());
@@ -215,8 +216,8 @@ unsigned int detect_coin()
 
 // dummy function to showcase blockClock class
 void print_blockclock_homescreen() {
-  uint block_height = blockClock->getBlockHeight();
-  uint exchange_rate = blockClock->getExchangeRate();
+  uint block_height = blockClock.getBlockHeight();
+  uint exchange_rate = blockClock.getExchangeRate();
 
   if (block_height == 0 || exchange_rate == 0) {
     if (DEBUG_MODE)

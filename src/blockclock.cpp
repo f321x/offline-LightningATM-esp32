@@ -1,11 +1,33 @@
 #include "blockclock.hpp"
 
-BlockClock::BlockClock(const std::string& currency, const std::string& wifi_ssid, const std::string& wifi_password, const bool debug_mode)
-    : _currency(currency), _wifi_ssid(wifi_ssid.c_str()), _wifi_password(wifi_password.c_str()), _debug_mode(debug_mode) {
-    if (currency.empty() || std::find(_supported_currencies.begin(), _supported_currencies.end(), currency) == _supported_currencies.end()) {
+BlockClock::BlockClock() {
+    _blockclock_deactivated = true;
+}
+
+BlockClock::~BlockClock() {
+}
+
+BlockClock::BlockClock(const BlockClock& other) {
+    _currency = other._currency;
+    _wifi_ssid = other._wifi_ssid;
+    _wifi_password = other._wifi_password;
+    _debug_mode = other._debug_mode;
+    _blockclock_deactivated = other._blockclock_deactivated;
+    _client = other._client;
+    _supported_currencies = other._supported_currencies;
+    _last_wifi_connection_timestamp = other._last_wifi_connection_timestamp;
+}
+
+void    BlockClock::init(const String& currency, const String& wifi_ssid, const String& wifi_password, const bool debug_mode) {
+    _currency = currency;
+    _wifi_ssid = wifi_ssid;
+    _wifi_password = wifi_password;
+    _debug_mode = debug_mode;
+    _blockclock_deactivated = false;
+    if (currency.isEmpty() || std::find(_supported_currencies.begin(), _supported_currencies.end(), currency) == _supported_currencies.end()) {
         throw std::invalid_argument("Invalid currency for blockclock");
     }
-    if (wifi_ssid.empty() || wifi_password.empty() || wifi_ssid == "your_wifi_ssid" || wifi_password == "your_password") {
+    if (wifi_ssid.isEmpty() || wifi_password.isEmpty() || wifi_ssid == "your_wifi_ssid" || wifi_password == "your_password") {
         throw std::invalid_argument("Invalid wifi credentials for blockclock");
     }
     if (!_connect_wifi()) {
@@ -16,12 +38,6 @@ BlockClock::BlockClock(const std::string& currency, const std::string& wifi_ssid
     }
     _client.setInsecure();
 }
-
-BlockClock::~BlockClock() {
-}
-
-BlockClock::BlockClock(const BlockClock& other)
-    : _currency(other._currency), _wifi_ssid(other._wifi_ssid), _wifi_password(other._wifi_password), _debug_mode(other._debug_mode) { }
 
 bool BlockClock::_connect_wifi() {
     WiFi.mode(WIFI_STA);
@@ -44,7 +60,7 @@ bool BlockClock::_connect_wifi() {
     return false;
 }
 
-std::string BlockClock::_web_request(const std::string& url) {
+std::string BlockClock::_web_request(const String& url) {
     std::string response = "";
     HTTPClient http;
 
@@ -74,6 +90,9 @@ std::string BlockClock::_web_request(const std::string& url) {
 }
 
 uint BlockClock::getBlockHeight() {
+    if (_blockclock_deactivated) {
+        return 0;
+    }
     std::string response = _web_request("https://mempool.space/api/blocks/tip/height");
     if (_debug_mode) {
         Serial.print("Block height: ");
@@ -92,6 +111,9 @@ uint BlockClock::getExchangeRate() {
     JsonDocument                exchange_rates;
     uint                        sat_per_cuckbuck;
 
+    if (_blockclock_deactivated) {
+        return 0;
+    }
     std::string response = _web_request("https://mempool.space/api/v1/prices");
     DeserializationError error = deserializeJson(exchange_rates, response);
     if (response.empty() || error) {

@@ -12,26 +12,27 @@
 
 class BlockClock {
 public:
-    BlockClock(const std::string& currency, const std::string& wifi_ssid, const std::string& wifi_password, const bool debug_mode);
+    BlockClock();
     ~BlockClock();
     BlockClock(const BlockClock& other);
 
+    void init(const String& currency, const String& wifi_ssid, const String& wifi_password, const bool debug_mode);
     uint getBlockHeight();
     uint getExchangeRate();
 
 private:
     BlockClock& operator=(const BlockClock& other);
 
-    const std::string _currency;
-    const char* _wifi_ssid;
-    const char* _wifi_password;
-    const bool _debug_mode;
+    String _currency;
+    String _wifi_ssid;
+    String _wifi_password;
+    bool _debug_mode;
     bool _blockclock_deactivated;
     WiFiClientSecure _client;
-    std::vector<std::string> _supported_currencies = { "USD", "EUR", "GBP", "CAD", "CHF", "AUD", "JPY" };
+    std::vector<String> _supported_currencies = { "USD", "EUR", "GBP", "CAD", "CHF", "AUD", "JPY" };
     unsigned long   _last_wifi_connection_timestamp;
     const unsigned long _wifi_timeout = 15000;
 
-    std::string _web_request(const std::string& url);
+    std::string _web_request(const String& url);
     bool _connect_wifi();
 };

@@ -32,8 +32,8 @@ const String lnurlDeviceString = "https://legend.lnbits.com/lnurldevice/api/v1/l
 // OPTIONAL: WIFI credentials to show exchange rate and block height on standby screen
 // Comment out the variables, and set the WIFI_SSID and WIFI_PW to your wifi credentials.
 bool BLOCKCLOCK_ACTIVE = false;
-const char* WIFI_SSID = "your_wifi_ssid";  // your_wifi_ssid
-const char* WIFI_PW = "your_password"; // your_password
+const String WIFI_SSID = "your_wifi_ssid";  // your_wifi_ssid
+const String WIFI_PW = "your_password"; // your_password
 
 //  OTHER OPTIONS:
 
