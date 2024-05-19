@@ -37,5 +37,8 @@ For the case **needed** are 3 Parts:
 <img src="images/mounting_rim.jpeg"  width="480">
 5. this is what it should look like without the rim
 <img src="images/glued_lid.jpeg"  width="480">
+
+# Fiat hell addon
+fiat-hell-addon-big and small.3mf are boxes you can mount below the atm with a hole in the bottom to increase coin storage capacity and prevent issues from clogged coin acceptor outlet.
    
 
