@@ -111,7 +111,7 @@ void LnurlPoS::_to_upper(char* arr)
     }
 }
 
-char* LnurlPoS::makeLNURL(int total)
+String LnurlPoS::makeLNURL(int total)
 {
     int randomPin = random(1000, 9999);
     byte nonce[8];
@@ -142,6 +142,8 @@ char* LnurlPoS::makeLNURL(int total)
     bech32_encode(charLnurl, "lnurl", data, len);
     _to_upper(charLnurl);
     free(data);
-    return (charLnurl);
+    String lnurl(charLnurl);
+    free(charLnurl);
+    return (lnurl);
 }
 

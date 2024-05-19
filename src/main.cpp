@@ -73,9 +73,8 @@ void loop()
   {
     digitalWrite(MOSFET_PIN, HIGH);
     button_pressed = false;
-    char* lnurl = lnurl_utils.makeLNURL(inserted_cents);
-    qr_withdrawl_screen(lnurl);
-    free(lnurl);
+    String lnurl = lnurl_utils.makeLNURL(inserted_cents);
+    qr_withdrawl_screen(lnurl.c_str());
     wait_for_user_to_scan();
     digitalWrite(LED_BUTTON_PIN, HIGH);
     home_screen();

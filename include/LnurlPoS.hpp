@@ -17,7 +17,7 @@ public:
     ~LnurlPoS();
     LnurlPoS(const LnurlPoS& other);
 
-    char* makeLNURL(int amount_in_cents);
+    String makeLNURL(int amount_in_cents);
     String getCurrency() const;
 
 private:
