@@ -12,7 +12,7 @@
 
 class BlockClock {
 public:
-    BlockClock(const std::string& currency, const std::string& wifi_ssid, const std::string& wifi_password, const bool debug_mode = false);
+    BlockClock(const std::string& currency, const std::string& wifi_ssid, const std::string& wifi_password, const bool debug_mode);
     ~BlockClock();
     BlockClock(const BlockClock& other);
 

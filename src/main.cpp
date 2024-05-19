@@ -54,9 +54,10 @@ void setup()
 
 void loop()
 {
-  while (true && BLOCKCLOCK_ACTIVE) {
+  while (true && BLOCKCLOCK_ACTIVE) {  // testing/demonstration function of Blockclock
     print_blockclock_homescreen();
   }
+
   unsigned int pulses = 0;
   unsigned long long time_last_press;
 

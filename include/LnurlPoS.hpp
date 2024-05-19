@@ -13,7 +13,7 @@
 
 class LnurlPoS {
 public:
-    LnurlPoS(const String& lnurl_device_string, const bool debug_mode = false);
+    LnurlPoS(const String& lnurl_device_string, const bool debug_mode);
     ~LnurlPoS();
     LnurlPoS(const LnurlPoS& other);
 
