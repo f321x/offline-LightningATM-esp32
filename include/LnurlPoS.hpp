@@ -13,19 +13,21 @@
 
 class LnurlPoS {
 public:
-    LnurlPoS(const String& lnurl_device_string, const bool debug_mode);
+    LnurlPoS();
     ~LnurlPoS();
     LnurlPoS(const LnurlPoS& other);
 
+    void init(const String& lnurl_device_string, const bool debug_mode);
     String makeLNURL(int amount_in_cents);
     String getCurrency() const;
 
 private:
+    bool        _initialized;
     uint8_t* _secretATM;
-    String    _baseURL;
-    const bool      _debugMode;
-    size_t          _secretLength;
-    String          _currencyATM;
+    String      _baseURL;
+    bool        _debugMode;
+    size_t      _secretLength;
+    String      _currencyATM;
 
     LnurlPoS& operator=(const LnurlPoS& other);
     String _getValue(const String& data, char separator, int index);

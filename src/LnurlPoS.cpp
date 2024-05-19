@@ -1,6 +1,20 @@
 #include "LnurlPoS.hpp"
 
-LnurlPoS::LnurlPoS(const String& lnurl_device_string, const bool debug_mode) : _debugMode(debug_mode) {
+LnurlPoS::LnurlPoS() : _initialized(false) { }
+
+LnurlPoS::~LnurlPoS() { }
+
+LnurlPoS::LnurlPoS(const LnurlPoS& other) {
+    _secretATM = other._secretATM;
+    _baseURL = other._baseURL;
+    _currencyATM = other._currencyATM;
+    _debugMode = other._debugMode;
+    _secretLength = other._secretLength;
+    _initialized = other._initialized;
+}
+
+void    LnurlPoS::init(const String& lnurl_device_string, const bool debug_mode) {
+    _debugMode = debug_mode;
     if (_debugMode)
         Serial.println("LnurlPoS created");
     if (lnurl_device_string == "https://legend.lnbits.com/lnurldevice/api/v1/lnurl/idexample,keyexample,EUR" && _debugMode) {
@@ -18,11 +32,8 @@ LnurlPoS::LnurlPoS(const String& lnurl_device_string, const bool debug_mode) : _
     if (_secretATM == NULL || _secretLength == 0 || _baseURL.length() == 0) {
         throw std::invalid_argument("LnurlPoS: secretATM and baseURL must be non-empty");
     }
+    _initialized = true;
 }
-
-LnurlPoS::~LnurlPoS() { }
-
-LnurlPoS::LnurlPoS(const LnurlPoS& other) : _secretATM(other._secretATM), _baseURL(other._baseURL), _debugMode(other._debugMode) { }
 
 // Function to seperate the LNURLDevice string in key, url and currency
 String LnurlPoS::_getValue(const String& data, char separator, int index)
@@ -45,6 +56,10 @@ String LnurlPoS::_getValue(const String& data, char separator, int index)
 
 String LnurlPoS::getCurrency() const
 {
+    if (!_initialized)
+    {
+        throw std::invalid_argument("LnurlPoS: not initialized");
+    }
     return _currencyATM;
 }
 
@@ -113,6 +128,10 @@ void LnurlPoS::_to_upper(char* arr)
 
 String LnurlPoS::makeLNURL(int total)
 {
+    if (!_initialized)
+    {
+        throw std::invalid_argument("LnurlPoS: not initialized");
+    }
     int randomPin = random(1000, 9999);
     byte nonce[8];
     for (int i = 0; i < 8; i++)
@@ -130,14 +149,14 @@ String LnurlPoS::makeLNURL(int total)
     char* url = Buf;
     byte* data = (byte*)calloc(strlen(url) * 2, sizeof(byte));
     if (!data)
-        return (NULL);
+        return (String(""));
     size_t len = 0;
     int res = convert_bits(data, &len, 5, (byte*)url, strlen(url), 8, 1);
     char* charLnurl = (char*)calloc(strlen(url) * 2, sizeof(byte));
     if (!charLnurl)
     {
         free(data);
-        return (NULL);
+        return (String(""));
     }
     bech32_encode(charLnurl, "lnurl", data, len);
     _to_upper(charLnurl);

@@ -4,8 +4,8 @@ const unsigned int COINS[] = { 0, 0, 5, 10, 20, 50, 100, 200, 1, 2 };
 bool button_pressed = false;
 unsigned int inserted_cents = 0;
 unsigned long long time_last_press = millis();
-LnurlPoS lnurl_utils(lnurlDeviceString, DEBUG_MODE);
-String currencyATM = lnurl_utils.getCurrency();
+LnurlPoS lnurl_utils;
+String currencyATM;
 
 // *** for Waveshare ESP32 Driver board *** //
 #if defined(ESP32) && defined(USE_HSPI_FOR_EPD)
@@ -39,7 +39,8 @@ void setup()
   attachInterrupt(BUTTON_PIN, button_pressed_itr, FALLING); // interrupt, will set button_pressed to true when button is pressed
   home_screen();                                            // will show first screen
   digitalWrite(LED_BUTTON_PIN, HIGH);                       // light up the led
-
+  lnurl_utils.init(lnurlDeviceString, DEBUG_MODE);          // initialize the lnurl class
+  currencyATM = lnurl_utils.getCurrency();                  // get the currency from the lnurl class
   if (BLOCKCLOCK_ACTIVE)
   {
     try {
