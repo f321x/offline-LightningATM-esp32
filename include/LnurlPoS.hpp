@@ -21,6 +21,7 @@ public:
     void init(const String& lnurl_device_string, const bool debug_mode);
     String makeLNURL(int amount_in_cents);
     String getCurrency() const;
+    String getAmountString(int amount_in_cents);
 
 private:
     bool        _initialized;

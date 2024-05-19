@@ -286,7 +286,7 @@ void show_inserted_amount(int amount_in_cents)
 {
   String amount_in_euro_string;
 
-  amount_in_euro_string = get_amount_string(amount_in_cents);
+  amount_in_euro_string = lnurl_utils.getAmountString(amount_in_cents);
   if (display_type == "GxEPD2_150_BN")
     show_inserted_amount_waveshare_1_54(amount_in_euro_string);
   else if (display_type == "GxEPD2_270")
@@ -340,28 +340,6 @@ void clean_screen()
     clean_screen_waveshare_2_13_flex();
   else
     Serial.println("No suitable display class defined.");
-}
-
-// converts a cent amount to a String like "1.15 Euro"
-String get_amount_string(int amount_in_cents)
-{
-  String euro;
-  String cents;
-  String return_value;
-  int euro_value;
-  int cent_remainder;
-
-  euro_value = amount_in_cents / 100;
-  cent_remainder = amount_in_cents % 100;
-  euro = String(euro_value);
-  if (cent_remainder > 9)
-    cents = String(cent_remainder);
-  else if (cent_remainder < 10)
-    cents = "0" + String(cent_remainder);
-  return_value = String(euro) + "." + String(cents) + " " + currencyATM;
-  if (DEBUG_MODE)
-    Serial.println("Calculated amount string: " + return_value);
-  return (return_value);
 }
 
 // Display functions for specific display types

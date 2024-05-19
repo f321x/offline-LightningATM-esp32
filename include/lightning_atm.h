@@ -100,7 +100,6 @@ void clean_screen();
 void initialize_display();
 void qr_withdrawl_screen(const char* qr_content);
 void show_inserted_amount(int amount_in_cents);
-String get_amount_string(int amount_in_cents);
 unsigned int detect_coin();
 void home_screen();
 void IRAM_ATTR button_pressed_itr();

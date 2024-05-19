@@ -66,6 +66,26 @@ String LnurlPoS::_getValue(const String& data, char separator, int index)
     return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
+String LnurlPoS::getAmountString(int amount_in_cents) {
+    String euro;
+    String cents;
+    String return_value;
+    int euro_value;
+    int cent_remainder;
+
+    euro_value = amount_in_cents / 100;
+    cent_remainder = amount_in_cents % 100;
+    euro = String(euro_value);
+    if (cent_remainder > 9)
+        cents = String(cent_remainder);
+    else if (cent_remainder < 10)
+        cents = "0" + String(cent_remainder);
+    return_value = String(euro) + "." + String(cents) + " " + _currencyATM;
+    if (_debugMode)
+        Serial.println("Calculated amount string: " + return_value);
+    return (return_value);
+}
+
 String LnurlPoS::getCurrency() const
 {
     if (!_initialized)
