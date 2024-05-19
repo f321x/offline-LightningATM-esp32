@@ -57,7 +57,7 @@ bool BlockClock::_connect_wifi() {
     if (WiFi.status() != WL_CONNECTED) {
         return false;
     }
-    return false;
+    return true;
 }
 
 std::string BlockClock::_web_request(const String& url) {

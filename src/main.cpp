@@ -58,6 +58,7 @@ void loop()
 {
   while (true && BLOCKCLOCK_ACTIVE) {  // testing/demonstration function of Blockclock
     print_blockclock_homescreen();
+    delay(5000);
   }
 
   unsigned int pulses = 0;
@@ -217,6 +218,7 @@ unsigned int detect_coin()
 // dummy function to showcase blockClock class
 void print_blockclock_homescreen() {
   uint block_height = blockClock.getBlockHeight();
+  delay(1000);
   uint exchange_rate = blockClock.getExchangeRate();
 
   if (block_height == 0 || exchange_rate == 0) {
@@ -225,9 +227,7 @@ void print_blockclock_homescreen() {
     return;
   }
   Serial.println(block_height);
-  delay(5000);
   Serial.println(exchange_rate);
-  delay(5000);
 }
 
 // sleep is to put the screen in hibernation mode for longer static frames
