@@ -13,6 +13,18 @@ LnurlPoS::LnurlPoS(const LnurlPoS& other) {
     _initialized = other._initialized;
 }
 
+LnurlPoS& LnurlPoS::operator=(const LnurlPoS& other) {
+    if (this == &other)
+        return *this;
+    _secretATM = other._secretATM;
+    _baseURL = other._baseURL;
+    _currencyATM = other._currencyATM;
+    _debugMode = other._debugMode;
+    _secretLength = other._secretLength;
+    _initialized = other._initialized;
+    return *this;
+}
+
 void    LnurlPoS::init(const String& lnurl_device_string, const bool debug_mode) {
     _debugMode = debug_mode;
     if (_debugMode)
