@@ -36,10 +36,6 @@ void setup()
   pinMode(LED_BUTTON_PIN, OUTPUT);                          // LED of the LED Button
   pinMode(BUTTON_PIN, INPUT_PULLUP);                        // Button
   pinMode(MOSFET_PIN, OUTPUT);                              // mosfet relay to block the coin acceptor
-  digitalWrite(MOSFET_PIN, LOW);                            // set it low to accept coins, high to block coins
-  attachInterrupt(BUTTON_PIN, button_pressed_itr, FALLING); // interrupt, will set button_pressed to true when button is pressed
-  home_screen();                                            // will show first screen
-  digitalWrite(LED_BUTTON_PIN, HIGH);                       // light up the led
   lnurl_utils.init(lnurlDeviceString, DEBUG_MODE);          // initialize the lnurl class
   currencyATM = lnurl_utils.getCurrency();                  // get the currency from the lnurl class
   if (BLOCKCLOCK_ACTIVE)
@@ -48,10 +44,15 @@ void setup()
       blockClock.init(currencyATM, WIFI_SSID, WIFI_PW, DEBUG_MODE);
     }
     catch (const std::exception& e) {
-      Serial.println(e.what());
-      BLOCKCLOCK_ACTIVE = false; // disable blockclock if there is an error
+      if (DEBUG_MODE)
+        Serial.println(e.what());
+      BLOCKCLOCK_ACTIVE = false; // disable blockclock if there is an error with wifi
     }
   }
+  digitalWrite(MOSFET_PIN, LOW);                            // set it low to accept coins, high to block coins
+  attachInterrupt(BUTTON_PIN, button_pressed_itr, FALLING); // interrupt, will set button_pressed to true when button is pressed
+  home_screen();                                            // will show first screen
+  digitalWrite(LED_BUTTON_PIN, HIGH);                       // light up the led
 }
 
 void loop()
