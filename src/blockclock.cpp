@@ -89,8 +89,8 @@ uint BlockClock::getBlockHeight() {
 }
 
 uint BlockClock::getExchangeRate() {
-    JsonDocument    exchange_rates;
-    uint            sat_per_cuckbuck;
+    JsonDocument                exchange_rates;
+    uint                        sat_per_cuckbuck;
 
     std::string response = _web_request("https://mempool.space/api/v1/prices");
     DeserializationError error = deserializeJson(exchange_rates, response);
