@@ -2,13 +2,11 @@
 #define LIGHTNING_ATM_H
 
 #include <Arduino.h>
-#include <GxEPD2_BW.h>
-#include <Fonts/FreeMonoBold9pt7b.h>
-#include "qrcode.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include "blockclock.hpp"
 #include "LnurlPoS.hpp"
+#include "Display.hpp"
 
 // ########################################
 // ###########    USER ACTION   ###########
@@ -21,13 +19,14 @@ const String lnurlDeviceString = "https://legend.lnbits.com/lnurldevice/api/v1/l
 // ########################################
 
 // select the display class and display driver class in the following file (new style):
-// 1.54 inch Waveshare e-paper display is "GxEPD2_DRIVER_CLASS GxEPD2_150_BN"
-// Waveshare 264x176, 2.7inch E-Ink display - Version 1 = "GxEPD2_DRIVER_CLASS GxEPD2_270"
-// Waveshare 264x176, 2.7inch E-Ink display - Version 2 = "GxEPD2_DRIVER_CLASS GxEPD2_270_GDEY027T91" 
-// Waveshare 2.13 inch e-paper display version 3 is "GxEPD2_DRIVER_CLASS GxEPD2_213_B74"
-// Waveshare 2.13 inch e-paper display (D) flex (yellow) is "GxEPD2_DRIVER_CLASS GxEPD2_213_flex"
+// 1.54 inch Waveshare e-paper display is "GxEPD2_150_BN"
+// Waveshare 264x176, 2.7inch E-Ink display - Version 1 = "GxEPD2_270"
+// Waveshare 264x176, 2.7inch E-Ink display - Version 2 = "GxEPD2_270_GDEY027T91" 
+// Waveshare 2.13 inch e-paper display version 3 is "GxEPD2_213_B74"
+// Waveshare 2.13 inch e-paper display (D) flex (yellow) is "GxEPD2_213_flex"
 // use search to find the correct line, and uncomment the other display drivers in this header file:
-#include "GxEPD2_display_selection_new_style.h"
+const String display_type = "GxEPD2_213_flex";  // GxEPD2_270 or GxEPD2_270_GDEY027T91 or GxEPD2_213_B74 or GxEPD2_150_BN
+const String board_type = "Waveshare";  // ESP32 or Waveshare
 
 // OPTIONAL: WIFI credentials to show exchange rate and block height on standby screen
 // Comment out the variables, and set the WIFI_SSID and WIFI_PW to your wifi credentials.
