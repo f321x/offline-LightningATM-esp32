@@ -9,7 +9,7 @@ The lightning network is a 2nd layer protocol on top of the bitcoin protocol ena
 LNBits, Ben Arc and Stepan Snigirev for the cryptograpy used to make this ATM working without internet connection  
 [Fossa ATM repository](https://github.com/lnbits/fossa) | [LNBits Homepage](https://lnbits.com/) | [uBitcoin library](https://github.com/micro-bitcoin/uBitcoin)
 
-Axel Hambuch for the very detailed guide in german language on assembly of the electronics  
+Axel Hamburch for the very detailed guide in german language on assembly of the electronics  
 [Ereignishorizont Blog](https://ereignishorizont.xyz/lightning-atm/)
 
 ## Used parts
