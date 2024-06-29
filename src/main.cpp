@@ -167,6 +167,7 @@ unsigned int detect_coin()
       {
         pulses++;
         last_pulse = millis();
+        digitalWrite(MOSFET_PIN, HIGH);
       }
     }
     prev_value = read_value;
