@@ -4,7 +4,6 @@
 #include <vector>
 #include <Arduino.h>
 #include <WiFiClientSecure.h>
-#include <ArduinoHttpClient.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <stdexcept>
