@@ -10,7 +10,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
 
     let url = env::var("LNBITS_URL").expect("URL not set in .env file");
-    let min_balance: u64 = env::var("MIN_BALANCE")
+    let min_balance: i64 = env::var("MIN_BALANCE")
         .expect("MIN_BALANCE not set in .env file")
         .parse()?;
     let refresh_interval: u64 = env::var("REFRESH_INTERVAL")
@@ -21,7 +21,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         env::var("TELEGRAM_BOT_TOKEN").expect("TELEGRAM_BOT_TOKEN not set in .env file");
     let chat_id = env::var("TELEGRAM_CHAT_ID").expect("TELEGRAM_CHAT_ID not set in .env file");
 
-    let mut previous_balance = 0;
+    let mut previous_balance: i64 = 0;
 
     loop {
         match get_wallet_balance(&api_key, &url) {
@@ -50,7 +50,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 }
 
-fn get_wallet_balance(api_key: &str, url: &str) -> Result<u64, Box<dyn std::error::Error>> {
+fn get_wallet_balance(api_key: &str, url: &str) -> Result<i64, Box<dyn std::error::Error>> {
     let client = Client::new();
     let mut headers = HeaderMap::new();
     headers.insert("X-Api-Key", HeaderValue::from_str(api_key)?);
@@ -60,7 +60,7 @@ fn get_wallet_balance(api_key: &str, url: &str) -> Result<u64, Box<dyn std::erro
     if response.status().is_success() {
         let data: Value = response.json()?;
         Ok(data["balance"]
-            .as_u64()
+            .as_i64()
             .expect("Failed to unwrap balance from returned JSON"))
     } else {
         Err(format!("Failed to get balance, status code: {}", response.status()).into())
