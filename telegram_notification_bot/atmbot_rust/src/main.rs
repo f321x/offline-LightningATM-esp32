@@ -7,7 +7,7 @@ use std::thread::sleep;
 use std::time::Duration;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // dotenv().ok();
+    dotenv().ok();
 
     let url = env::var("LNBITS_URL").expect("URL not set in .env file");
     let min_balance: i64 = env::var("MIN_BALANCE")
