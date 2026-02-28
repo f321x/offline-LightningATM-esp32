@@ -417,9 +417,13 @@ String aes_encrypt_fossa(const char* key, size_t key_len, int pin, int amount_ce
   //    aes_key = d0 || d1 (first 32 bytes)
   //    aes_iv  = d2        (bytes 32-47)
   uint8_t key_data[256];
-  size_t  kd_len = key_len + 8;
-  memcpy(key_data, key, key_len);
-  memcpy(key_data + key_len, salt, 8);
+  // Ensure we never write past key_data[256] or tmp[16 + 256]:
+  // key_data holds (effective_key_len + 8) bytes; tmp holds (16 + kd_len) bytes.
+  const size_t max_key_len = 256 - 8; // 248 bytes
+  size_t       effective_key_len = key_len > max_key_len ? max_key_len : key_len;
+  size_t       kd_len = effective_key_len + 8;
+  memcpy(key_data, key, effective_key_len);
+  memcpy(key_data + effective_key_len, salt, 8);
 
   // helper lambda to compute MD5 via Arduino MD5Builder (avoids mbedTLS version issues)
   auto md5_once = [](const uint8_t* buf, size_t len, uint8_t out[16]) {
@@ -450,10 +454,18 @@ String aes_encrypt_fossa(const char* key, size_t key_len, int pin, int amount_ce
   // 3. Plaintext: "pin:amount_cents"
   char    plaintext[33];
   int     pt_len = snprintf(plaintext, sizeof(plaintext), "%d:%d", pin, amount_cents);
+  // Guard: snprintf truncated, or padded block would exceed our fixed buffers (max 16 bytes padded)
+  if (pt_len < 0 || pt_len >= (int)sizeof(plaintext) || pt_len > 15) {
+#ifdef DEBUG_MODE
+    Serial.println(F("aes_encrypt_fossa: plaintext too long"));
+#endif
+    return String();
+  }
 
   // 4. PKCS7 padding to next multiple of 16 (always at least 1 byte of padding)
-  int     padded_len = ((pt_len / 16) + 1) * 16;
-  uint8_t padded[32];
+  //    pt_len <= 15 => padded_len == 16, fits into padded[16] / ciphertext[16] / salted[32]
+  int     padded_len = 16;
+  uint8_t padded[16];
   memset(padded, 0, sizeof(padded));
   memcpy(padded, (const uint8_t*)plaintext, pt_len);
   uint8_t pad_byte = (uint8_t)(padded_len - pt_len);
@@ -461,15 +473,32 @@ String aes_encrypt_fossa(const char* key, size_t key_len, int pin, int amount_ce
     padded[i] = pad_byte;
 
   // 5. AES-256-CBC encrypt
-  uint8_t ciphertext[32];
+  uint8_t ciphertext[16]; // padded_len is always 16
   mbedtls_aes_context aes_ctx;
   mbedtls_aes_init(&aes_ctx);
-  mbedtls_aes_setkey_enc(&aes_ctx, aes_key, 256);
-  mbedtls_aes_crypt_cbc(&aes_ctx, MBEDTLS_AES_ENCRYPT, padded_len, aes_iv, padded, ciphertext);
+  int ret = mbedtls_aes_setkey_enc(&aes_ctx, aes_key, 256);
+  if (ret != 0) {
+#ifdef DEBUG_MODE
+    Serial.print(F("AES setkey_enc failed: "));
+    Serial.println(ret);
+#endif
+    mbedtls_aes_free(&aes_ctx);
+    return String();
+  }
+
+  ret = mbedtls_aes_crypt_cbc(&aes_ctx, MBEDTLS_AES_ENCRYPT, padded_len, aes_iv, padded, ciphertext);
+  if (ret != 0) {
+#ifdef DEBUG_MODE
+    Serial.print(F("AES crypt_cbc failed: "));
+    Serial.println(ret);
+#endif
+    mbedtls_aes_free(&aes_ctx);
+    return String();
+  }
   mbedtls_aes_free(&aes_ctx);
 
   // 6. Assemble: "Salted__" (8) | salt (8) | ciphertext (padded_len)
-  uint8_t salted[16 + 32];
+  uint8_t salted[16 + 16]; // 8 header + 8 salt + 16 ciphertext
   memcpy(salted, "Salted__", 8);
   memcpy(salted + 8, salt, 8);
   memcpy(salted + 16, ciphertext, padded_len);
@@ -522,7 +551,7 @@ char* makeLNURL(float total)
   to_upper(charLnurl);
   free(data);
   return (charLnurl);
-  }
+}
 
 void to_upper(char* arr)
 {
