@@ -73,12 +73,13 @@ void boot_info_screen()
 
   String modeStr = fossaMode ? "Ext. FOSSA" : "Ext. LNURL";
 
-  bool is27 = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
+  bool is27  = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
   bool is154 = (display_type == "GxEPD2_150_BN");
+  bool isFlex = (display_type == "GxEPD2_213_flex");
 
   // URL truncation: size-2 font → 12px/char
-  // 2.7" (264px): 20; 2.13" (250px): 18; 1.54" (200px): 14
-  int urlMaxChars = is27 ? 20 : (is154 ? 14 : 18);
+  // 2.7" (264px): 20; 2.13" (250px): 18; 2.13D (212px): 16; 1.54" (200px): 14
+  int urlMaxChars = is27 ? 20 : (is154 ? 14 : (isFlex ? 16 : 18));
   String shortURL = (baseURLATM.length() > (unsigned)urlMaxChars)
     ? baseURLATM.substring(0, urlMaxChars) + ".."
     : baseURLATM;
@@ -105,8 +106,16 @@ void boot_info_screen()
     display.setCursor(0, 126); display.print("Currency: "); display.print(currencyATM);
     display.setCursor(0, 163); display.print(shortURL);
   }
+  else if (isFlex) {
+    // 2.13" D (flex) = 212x104 px (rotation 1), 5 rows à size-2 (16px), step 17px
+    display.setCursor(0, 7);  display.print("BOOT CONFIG");
+    display.setCursor(0, 24); display.print("FW: "); display.print(shortVer);
+    display.setCursor(0, 41); display.print(modeStr);
+    display.setCursor(0, 58); display.print("Currency: "); display.print(currencyATM);
+    display.setCursor(0, 75); display.print(shortURL);
+  }
   else {
-    // 2.13" = 250x122 px, 5 rows à size-2 (16px), step 20px
+    // 2.13" v3 = 250x122 px, 5 rows à size-2 (16px), step 20px
     display.setCursor(0, 16);  display.print("BOOT CONFIG");
     display.setCursor(0, 36);  display.print("FW: "); display.print(shortVer);
     display.setCursor(0, 56);  display.print(modeStr);
@@ -340,20 +349,24 @@ void configMode()
 
   // ── Show config mode screen on e-paper ───────────────────────────────────
   {
-    bool is27 = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
-    bool is154 = (display_type == "GxEPD2_150_BN");
+    bool is27  = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
+    bool is154  = (display_type == "GxEPD2_150_BN");
+    bool isFlex = (display_type == "GxEPD2_213_flex");
     display.setRotation(1);
     display.setFullWindow();
     display.firstPage();
     display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-    // 2 lines ohne Leerzeile: gap = 1 Zeilenhöhe
-    // 2.7":  264x176 → y=78, y=98  (gap 20px)
-    // 2.13": 250x122 → y=44, y=64  (gap 20px)
-    // 1.54": 200x200 → size-1 y=92, y=108 (gap 16px)
-    if (is154) {
+    // 2 Zeilen, eng beieinander:
+    // 2.7":      264x176 → size-2, y=78 / y=98
+    // 2.13" v3:  250x122 → size-2, y=44 / y=64
+    // 2.13" D:   212x104 → size-1, y=44 / y=58
+    // 1.54":     200x200 → size-1, y=92 / y=108
+    if (is154 || isFlex) {
       display.setTextSize(1);
-      display.setCursor(0, 92);  display.print("ATM ready for config");
-      display.setCursor(0, 108); display.print("Use web installer..");
+      int y1 = isFlex ? 44 : 92;
+      int y2 = isFlex ? 58 : 108;
+      display.setCursor(0, y1); display.print("ATM ready for config");
+      display.setCursor(0, y2); display.print("Use web installer..");
     }
     else {
       display.setTextSize(2);
