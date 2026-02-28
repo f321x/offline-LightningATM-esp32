@@ -606,8 +606,30 @@
 
             const successMsg = document.createElement('span');
             successMsg.style.color = '#00ff00';
-            successMsg.textContent = '✓ Data written\n\n⚠️ To apply changes:\n- Press 🔄 Restart (if in Config Mode), or\n- Press 🔌 Disconnect and reset device manually\n';
+            successMsg.textContent = '✓ Data written\n';
             consoleDebug.appendChild(successMsg);
+            consoleDebug.scrollTop = consoleDebug.scrollHeight;
+
+            // Automatically exit config mode and restart device
+            const restartMsg = document.createElement('span');
+            restartMsg.style.color = '#ffaa00';
+            restartMsg.textContent = 'Sending restart command to device...\n';
+            consoleDebug.appendChild(restartMsg);
+            consoleDebug.scrollTop = consoleDebug.scrollHeight;
+
+            serial.writeLine("/config-soft-reset");
+            configModeVerified = false;
+            justRestarted = true;
+
+            document.getElementById("read-config-button").disabled = true;
+            document.getElementById("write-config-button").disabled = true;
+
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            const doneMsg = document.createElement('span');
+            doneMsg.style.color = '#00ff00';
+            doneMsg.textContent = '✓ Device restarted with new config\n\n⚠️ Device is now in normal mode.\nTo write new config, disconnect and enter config mode again (hold BOOT 5s)\n';
+            consoleDebug.appendChild(doneMsg);
             consoleDebug.scrollTop = consoleDebug.scrollHeight;
         }
 
