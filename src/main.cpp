@@ -65,43 +65,44 @@ SPIClass hspi(HSPI);
 // on the e-paper display for ~5 seconds right after booting with a stored config.
 void boot_info_screen()
 {
-  // FW: first 4 chars + ".." + last 8 chars  →  e.g. "v938..3-v3-rc9"
-  String verStr = String(VERSION);
+  // FW: first 4 chars + ".." + last 8 chars  →  e.g. "v938..7-v1-rc1"
+  String verStr  = String(VERSION);
   String shortVer = (verStr.length() > 12)
     ? (verStr.substring(0, 4) + ".." + verStr.substring(verStr.length() - 8))
     : verStr;
 
-  // Mode label
   String modeStr = fossaMode ? "Ext. FOSSA" : "Ext. LNURL";
 
-  // URL: with textSize 2, ~20 chars fit (250px / 12px); truncate at 18 + ".."
-  String shortURL = (baseURLATM.length() > 18)
-    ? baseURLATM.substring(0, 18) + ".."
+  bool is27 = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
+
+  // URL truncation: size-2 font → 12px/char
+  // 2.7" (264px): ~22 chars → truncate at 20; 2.13" (250px): ~20 chars → truncate at 18
+  int urlMaxChars = is27 ? 20 : 18;
+  String shortURL = (baseURLATM.length() > (unsigned)urlMaxChars)
+    ? baseURLATM.substring(0, urlMaxChars) + ".."
     : baseURLATM;
 
   display.setRotation(1);
   display.setFullWindow();
   display.firstPage();
   display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.setTextSize(2); // size 2 = 16 px tall, 12 px wide per char
+  display.setTextSize(2);
 
-  // 5 rows à 16 px, step 20 px → fits in 122 px
-  display.setCursor(0, 16);
-  display.print("BOOT CONFIG");
-
-  display.setCursor(0, 36);
-  display.print("FW: ");
-  display.print(shortVer);
-
-  display.setCursor(0, 56);
-  display.print(modeStr);
-
-  display.setCursor(0, 76);
-  display.print("Currency: ");
-  display.print(currencyATM);
-
-  display.setCursor(0, 96);
-  display.print(shortURL);
+  if (is27) {
+    // 2.7" = 264x176 px, 5 rows à size-2 (16px), step 32px
+    display.setCursor(0, 20);  display.print("BOOT CONFIG");
+    display.setCursor(0, 52);  display.print("FW: "); display.print(shortVer);
+    display.setCursor(0, 84);  display.print(modeStr);
+    display.setCursor(0, 116); display.print("Currency: "); display.print(currencyATM);
+    display.setCursor(0, 148); display.print(shortURL);
+  } else {
+    // 2.13" = 250x122 px, 5 rows à size-2 (16px), step 20px
+    display.setCursor(0, 16);  display.print("BOOT CONFIG");
+    display.setCursor(0, 36);  display.print("FW: "); display.print(shortVer);
+    display.setCursor(0, 56);  display.print(modeStr);
+    display.setCursor(0, 76);  display.print("Currency: "); display.print(currencyATM);
+    display.setCursor(0, 96);  display.print(shortURL);
+  }
 
   display.nextPage();
   display.hibernate();
@@ -326,17 +327,21 @@ void configMode()
   Serial.println(F("[CONFIG] Coin acceptor locked (MOSFET HIGH)"));
 
   // ── Show config mode screen on e-paper ───────────────────────────────────
-  display.setRotation(1);
-  display.setFullWindow();
-  display.firstPage();
-  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
-  display.setTextSize(2);
-  display.setCursor(0, 24);
-  display.print("ATM ready for config");
-  display.setCursor(0, 68);
-  display.print("Use web installer..");
-  display.nextPage();
-  display.hibernate();
+  {
+    bool is27 = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
+    display.setRotation(1);
+    display.setFullWindow();
+    display.firstPage();
+    display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+    display.setTextSize(2);
+    // 2.7": 264x176 → rows at y=50, y=112  |  2.13": 250x122 → rows at y=24, y=68
+    display.setCursor(0, is27 ? 50  : 24);
+    display.print("ATM ready for config");
+    display.setCursor(0, is27 ? 112 : 68);
+    display.print("Use web installer..");
+    display.nextPage();
+    display.hibernate();
+  }
 
   Serial.flush();
   delay(300);

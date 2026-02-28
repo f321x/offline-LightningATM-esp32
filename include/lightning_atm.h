@@ -32,7 +32,7 @@ const String lnurlDeviceString = "";  // optional hard-coded fallback (leave emp
 // ########################################
 // ##########    currently set   ##########
 // ########################################
-// -> Waveshare 2.13 inch e-paper display version 3 is "GxEPD2_DRIVER_CLASS GxEPD2_213_B74"
+// -> Waveshare 264x176, 2.7inch E-Ink display - Version 1 = "GxEPD2_DRIVER_CLASS GxEPD2_270"
 // ########################################
 
 
