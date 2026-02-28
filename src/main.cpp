@@ -1,4 +1,7 @@
 #include "lightning_atm.h"
+#include <mbedtls/aes.h>
+#include <MD5Builder.h>
+#include <math.h>
 
 const unsigned int COINS[] = { 0, 0, 5, 10, 20, 50, 100, 200, 1, 2 };
 bool button_pressed = false;
@@ -7,6 +10,7 @@ unsigned long long time_last_press = millis();
 String baseURLATM;
 String secretATM;
 String currencyATM;
+bool fossaMode = false;  // set automatically from lnurlDeviceString in setup()
 
 // *** for Waveshare ESP32 Driver board *** //
 #if defined(ESP32) && defined(USE_HSPI_FOR_EPD)
@@ -42,6 +46,7 @@ void setup()
   baseURLATM = getValue(lnurlDeviceString, ',', 0);         // setup wallet data from string
   secretATM = getValue(lnurlDeviceString, ',', 1);
   currencyATM = getValue(lnurlDeviceString, ',', 2);
+  fossaMode = (lnurlDeviceString.indexOf("/fossa/") >= 0); // auto-detect backend from URL
 }
 
 void loop()
@@ -393,18 +398,140 @@ int xor_encrypt(uint8_t* output, size_t outlen, uint8_t* key, size_t keylen, uin
   return cur;
 }
 
+// AES-256-CBC encryption compatible with LNbits AESCipher (OpenSSL/CryptoJS "Salted__" format).
+// The server (fossa extension) decrypts with AESCipher.decrypt(payload, urlsafe=True).
+// Plaintext format: "pin:amount_cents" (e.g. "1234:150" for a 1.50 EUR voucher)
+// Key derivation: EVP_BytesToKey with MD5 (same as OpenSSL -k flag / CryptoJS default)
+// Returns base64url-encoded "Salted__" | salt(8) | ciphertext
+// Length is always a multiple of 22 base64 chars (= multiple of 16 raw bytes) as the server checks.
+String aes_encrypt_fossa(const char* key, size_t key_len, int pin, int amount_cents)
+{
+  // 1. Random 8-byte salt
+  uint8_t salt[8];
+  for (int i = 0; i < 8; i++)
+    salt[i] = (uint8_t)random(256);
+
+  // 2. EVP_BytesToKey: digest chain over (key || salt) until 48 bytes (32 key + 16 IV)
+  //    d0 = MD5(key || salt)
+  //    d1 = MD5(d0 || key || salt)
+  //    d2 = MD5(d1 || key || salt)
+  //    aes_key = d0 || d1 (first 32 bytes)
+  //    aes_iv  = d2        (bytes 32-47)
+  uint8_t key_data[256];
+  // Ensure we never write past key_data[256] or tmp[16 + 256]:
+  // key_data holds (effective_key_len + 8) bytes; tmp holds (16 + kd_len) bytes.
+  const size_t max_key_len = 256 - 8; // 248 bytes
+  size_t       effective_key_len = key_len > max_key_len ? max_key_len : key_len;
+  size_t       kd_len = effective_key_len + 8;
+  memcpy(key_data, key, effective_key_len);
+  memcpy(key_data + effective_key_len, salt, 8);
+
+  // helper lambda to compute MD5 via Arduino MD5Builder (avoids mbedTLS version issues)
+  auto md5_once = [](const uint8_t* buf, size_t len, uint8_t out[16]) {
+    MD5Builder md5;
+    md5.begin();
+    md5.add(const_cast<uint8_t*>(buf), (uint16_t)len);
+    md5.calculate();
+    md5.getBytes(out);
+    };
+
+  uint8_t d[48];
+  uint8_t tmp[16 + 256]; // scratch for d_prev || key_data
+
+  md5_once(key_data, kd_len, d);                 // d0
+
+  memcpy(tmp, d, 16);                // d1 = MD5(d0 || key_data)
+  memcpy(tmp + 16, key_data, kd_len);
+  md5_once(tmp, 16 + kd_len, d + 16);
+
+  memcpy(tmp, d + 16, 16);                // d2 = MD5(d1 || key_data)
+  memcpy(tmp + 16, key_data, kd_len);
+  md5_once(tmp, 16 + kd_len, d + 32);
+
+  uint8_t* aes_key = d;       // bytes  0-31
+  uint8_t  aes_iv[16];
+  memcpy(aes_iv, d + 32, 16); // bytes 32-47
+
+  // 3. Plaintext: "pin:amount_cents"
+  char    plaintext[33];
+  int     pt_len = snprintf(plaintext, sizeof(plaintext), "%d:%d", pin, amount_cents);
+  // Guard: snprintf truncated, or padded block would exceed our fixed buffers (max 16 bytes padded)
+  if (pt_len < 0 || pt_len >= (int)sizeof(plaintext) || pt_len > 15) {
+#ifdef DEBUG_MODE
+    Serial.println(F("aes_encrypt_fossa: plaintext too long"));
+#endif
+    return String();
+  }
+
+  // 4. PKCS7 padding to next multiple of 16 (always at least 1 byte of padding)
+  //    pt_len <= 15 => padded_len == 16, fits into padded[16] / ciphertext[16] / salted[32]
+  int     padded_len = 16;
+  uint8_t padded[16];
+  memset(padded, 0, sizeof(padded));
+  memcpy(padded, (const uint8_t*)plaintext, pt_len);
+  uint8_t pad_byte = (uint8_t)(padded_len - pt_len);
+  for (int i = pt_len; i < padded_len; i++)
+    padded[i] = pad_byte;
+
+  // 5. AES-256-CBC encrypt
+  uint8_t ciphertext[16]; // padded_len is always 16
+  mbedtls_aes_context aes_ctx;
+  mbedtls_aes_init(&aes_ctx);
+  int ret = mbedtls_aes_setkey_enc(&aes_ctx, aes_key, 256);
+  if (ret != 0) {
+#ifdef DEBUG_MODE
+    Serial.print(F("AES setkey_enc failed: "));
+    Serial.println(ret);
+#endif
+    mbedtls_aes_free(&aes_ctx);
+    return String();
+  }
+
+  ret = mbedtls_aes_crypt_cbc(&aes_ctx, MBEDTLS_AES_ENCRYPT, padded_len, aes_iv, padded, ciphertext);
+  if (ret != 0) {
+#ifdef DEBUG_MODE
+    Serial.print(F("AES crypt_cbc failed: "));
+    Serial.println(ret);
+#endif
+    mbedtls_aes_free(&aes_ctx);
+    return String();
+  }
+  mbedtls_aes_free(&aes_ctx);
+
+  // 6. Assemble: "Salted__" (8) | salt (8) | ciphertext (padded_len)
+  uint8_t salted[16 + 16]; // 8 header + 8 salt + 16 ciphertext
+  memcpy(salted, "Salted__", 8);
+  memcpy(salted + 8, salt, 8);
+  memcpy(salted + 16, ciphertext, padded_len);
+  int total_len = 16 + padded_len; // 32 bytes for typical amounts → 44 base64 chars (44 % 22 == 0 ✓)
+
+  // 7. Base64url WITH padding (required: server checks len(payload) % 22 == 0)
+  return toBase64(salted, total_len, BASE64_URLSAFE);
+}
+
 char* makeLNURL(float total)
 {
   int randomPin = random(1000, 9999);
-  byte nonce[8];
-  for (int i = 0; i < 8; i++)
-  {
-    nonce[i] = random(256);
-  }
-  byte payload[51]; // 51 bytes is max one can get with xor-encryption
-  size_t payload_len = xor_encrypt(payload, sizeof(payload), (uint8_t*)secretATM.c_str(), secretATM.length(), nonce, sizeof(nonce), randomPin, float(total));
   String preparedURL = baseURLATM + "?atm=1&p=";
-  preparedURL += toBase64(payload, payload_len, BASE64_URLSAFE | BASE64_NOPADDING);
+
+  if (fossaMode)
+  {
+    // fossa extension: AES-256-CBC (OpenSSL "Salted__" format, plaintext "pin:amount_cents")
+    preparedURL += aes_encrypt_fossa(secretATM.c_str(), secretATM.length(), randomPin, (int)lroundf(total));
+  }
+  else
+  {
+    // lnurldevice extension: XOR-HMAC encryption (legacy)
+    byte nonce[8];
+    for (int i = 0; i < 8; i++)
+    {
+      nonce[i] = random(256);
+    }
+    byte payload[51]; // 51 bytes is max one can get with xor-encryption
+    size_t payload_len = xor_encrypt(payload, sizeof(payload), (uint8_t*)secretATM.c_str(), secretATM.length(), nonce, sizeof(nonce), randomPin, float(total));
+    preparedURL += toBase64(payload, payload_len, BASE64_URLSAFE | BASE64_NOPADDING);
+  }
+
   if (DEBUG_MODE)
     Serial.println(preparedURL);
   char Buf[200];
