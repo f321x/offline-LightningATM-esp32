@@ -73,7 +73,7 @@ void boot_info_screen()
 
   String modeStr = fossaMode ? "Ext. FOSSA" : "Ext. LNURL";
 
-  bool is27  = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
+  bool is27 = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
   bool is154 = (display_type == "GxEPD2_150_BN");
   bool isFlex = (display_type == "GxEPD2_213_flex");
 
@@ -349,8 +349,8 @@ void configMode()
 
   // ── Show config mode screen on e-paper ───────────────────────────────────
   {
-    bool is27  = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
-    bool is154  = (display_type == "GxEPD2_150_BN");
+    bool is27 = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
+    bool is154 = (display_type == "GxEPD2_150_BN");
     bool isFlex = (display_type == "GxEPD2_213_flex");
     display.setRotation(1);
     display.setFullWindow();
@@ -463,10 +463,10 @@ void configMode()
     // ── Commands ───────────────────────────────────────────────────────────
     if (cmd == "/hello") {
       // ASCII art: ATM
-      Serial.println(F("  ___  _____  __  ___"));
-      Serial.println(F(" / _ |/_  _/  / |/ /"));
-      Serial.println(F("/ __ | / /   /    /"));
-      Serial.println(F("/_/ |_|/_/  /_/|_/"));
+      Serial.println(F("  ___  _____ |\\   /|"));
+      Serial.println(F(" / _ |/_  _/ | \\ / |"));
+      Serial.println(F("/ __ | / /   |  V  |"));
+      Serial.println(F("/_/ |_|/_/   |_| |_|"));
       Serial.println(F("[CONFIG_MODE_ENTER]"));
       Serial.flush();
 
