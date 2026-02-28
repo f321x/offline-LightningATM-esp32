@@ -73,7 +73,7 @@ void boot_info_screen()
 
   String modeStr = fossaMode ? "Ext. FOSSA" : "Ext. LNURL";
 
-  bool is27  = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
+  bool is27 = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
   bool is154 = (display_type == "GxEPD2_150_BN");
 
   // URL truncation: size-2 font → 12px/char
@@ -338,7 +338,7 @@ void configMode()
 
   // ── Show config mode screen on e-paper ───────────────────────────────────
   {
-    bool is27  = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
+    bool is27 = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
     bool is154 = (display_type == "GxEPD2_150_BN");
     display.setRotation(1);
     display.setFullWindow();
@@ -352,7 +352,8 @@ void configMode()
       display.setTextSize(1);
       display.setCursor(0, 92);  display.print("ATM ready for config");
       display.setCursor(0, 108); display.print("Use web installer..");
-    } else {
+    }
+    else {
       display.setTextSize(2);
       display.setCursor(0, is27 ? 78 : 44);
       display.print("ATM ready for config");

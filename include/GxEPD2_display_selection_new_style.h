@@ -30,8 +30,8 @@
 
 // select the display driver class (only one) for your  panel
 
-#define GxEPD2_DRIVER_CLASS GxEPD2_150_BN // 1.54 inch Waveshare e-paper display
-const String display_type = "GxEPD2_150_BN";
+// #define GxEPD2_DRIVER_CLASS GxEPD2_150_BN // 1.54 inch Waveshare e-paper display
+// const String display_type = "GxEPD2_150_BN";
 
 // #define GxEPD2_DRIVER_CLASS GxEPD2_213_B74 // Waveshare 2.13 inch e-paper display - Version 3
 // const String display_type = "GxEPD2_213_B74";
@@ -42,8 +42,8 @@ const String display_type = "GxEPD2_150_BN";
 // #define GxEPD2_DRIVER_CLASS GxEPD2_270 // Waveshare 264x176, 2.7inch E-Ink display - Version 1
 // const String display_type = "GxEPD2_270";
 
-// #define GxEPD2_DRIVER_CLASS GxEPD2_270_GDEY027T91 // Waveshare 264x176, 2.7inch E-Ink display - Version 2
-// const String display_type = "GxEPD2_270_GDEY027T91";
+#define GxEPD2_DRIVER_CLASS GxEPD2_270_GDEY027T91 // Waveshare 264x176, 2.7inch E-Ink display - Version 2
+const String display_type = "GxEPD2_270_GDEY027T91";
 
 // #define GxEPD2_DRIVER_CLASS GxEPD2_154     // GDEP015OC1  200x200, IL3829, (WFC0000CZ07), no longer available
 // #define GxEPD2_DRIVER_CLASS GxEPD2_154_D67 // GDEH0154D67 200x200, SSD1681, (HINK-E154A07-A1)
