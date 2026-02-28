@@ -463,9 +463,9 @@ void configMode()
     // ── Commands ───────────────────────────────────────────────────────────
     if (cmd == "/hello") {
       // ASCII art: ATM
-      Serial.println(F("  ___  _____ /\\  /\\ "));
-      Serial.println(F(" / _ |/_  _/ / \\/ \\ "));
-      Serial.println(F("/ __ | / /   /  |  \\"));
+      Serial.println(F("   ___  _____ __  __ "));
+      Serial.println(F("  / _ |/_  _/ / \\/ \\ "));
+      Serial.println(F(" / __ | / /   /  |  \\"));
       Serial.println(F("/_/ |_|/_/   /_/|\\_\\"));
       Serial.println(F("[CONFIG_MODE_ENTER]"));
       Serial.flush();
