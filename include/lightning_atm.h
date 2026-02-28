@@ -13,11 +13,13 @@
 // ########################################
 // ###########    USER ACTION   ###########
 // ########################################
-// Generate and copy in LNbits the device string for the ATM and paste it here.
-// Example:
-// const String lnurlDeviceString = "https://myserver.com/fossa/api/v1/lnurl/idexample,keyexample,EUR";
-const String lnurlDeviceString = "";  // MUST be set by user before deployment
-// The correct encryption mode is detected automatically from the URL path (/fossa/ vs /lnurldevice/).
+// Preferred: use the Web Installer (installer/index.html) to configure the device.
+// The device string is then stored in SPIFFS and loaded automatically at boot.
+//
+// Legacy fallback: paste your LNbits device string below to hard-code it at compile time.
+// Example: "https://myserver.com/fossa/api/v1/lnurl/idexample,keyexample,EUR"
+const String lnurlDeviceString = "";  // optional hard-coded fallback (leave empty when using Web Installer)
+// Encryption mode (FOSSA/AES or lnurldevice/XOR) is auto-detected from the URL path.
 // ########################################
 // #########    Driver settings   #########
 // ########################################
