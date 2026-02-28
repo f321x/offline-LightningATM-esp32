@@ -121,16 +121,18 @@ void boot_info_screen()
 
 void setup()
 {
-  initialize_display(); // connection to the e-ink display
-  Serial.begin(115200);
-  delay(200);
-  Serial.println("\n[BOOT] Offline-LightningATM-esp32 firmware " VERSION);
-  // *** for Waveshare ESP32 Driver board *** //
+  // *** for Waveshare ESP32 Driver board: HSPI must start BEFORE display.init() *** //
 #if defined(ESP32) && defined(USE_HSPI_FOR_EPD)
-  hspi.begin(13, 12, 14, 15); // remap hspi for EPD (swap pins)
+  hspi.begin(13, 12, 14, 15); // remap hspi for EPD (must be before display.init)
+#endif
+  initialize_display(); // connection to the e-ink display
+#if defined(ESP32) && defined(USE_HSPI_FOR_EPD)
   display.epd2.selectSPI(hspi, SPISettings(4000000, MSBFIRST, SPI_MODE0));
 #endif
   // *** end Waveshare ESP32 Driver board *** //
+  Serial.begin(115200);
+  delay(200);
+  Serial.println("\n[BOOT] Offline-LightningATM-esp32 firmware " VERSION);
   if (DEBUG_MODE)                                           // serial connection for debugging over USB
   {
     sleep(3);
@@ -649,7 +651,7 @@ void initialize_display()
   else if (display_type == "GxEPD2_270_GDEY027T91")
     display.init(115200, true, 2, false);
   else if (display_type == "GxEPD2_213_B74")
-    display.init(115200, true, 2, false);
+    display.init(115200, true, 10, false); // reset_duration=10ms for GDEM0213B74/SSD1680
   else if (display_type == "GxEPD2_213_flex")
     display.init(115200, true, 2, false);
   else

@@ -17,8 +17,8 @@
 // mapping of Waveshare ESP32 Driver Board
 // BUSY -> 25, RST -> 26, DC -> 27, CS-> 15, CLK -> 13, DIN -> 14
 // uncomment next two lines for Waveshare ESP32 Driver Board
-#define USE_HSPI_FOR_EPD
-#define ENABLE_GxEPD2_GFX 0
+// #define USE_HSPI_FOR_EPD
+// #define ENABLE_GxEPD2_GFX 0
 // *** end Waveshare ESP32 Driver board *** //
 
 // NOTE: you may need to adapt or select for your wiring in the processor specific conditional compile sections below
