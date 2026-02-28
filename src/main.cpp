@@ -1,6 +1,7 @@
 #include "lightning_atm.h"
 #include <mbedtls/aes.h>
 #include <MD5Builder.h>
+#include <math.h>
 
 const unsigned int COINS[] = { 0, 0, 5, 10, 20, 50, 100, 200, 1, 2 };
 bool button_pressed = false;
@@ -516,7 +517,7 @@ char* makeLNURL(float total)
   if (fossaMode)
   {
     // fossa extension: AES-256-CBC (OpenSSL "Salted__" format, plaintext "pin:amount_cents")
-    preparedURL += aes_encrypt_fossa(secretATM.c_str(), secretATM.length(), randomPin, (int)total);
+    preparedURL += aes_encrypt_fossa(secretATM.c_str(), secretATM.length(), randomPin, (int)lroundf(total));
   }
   else
   {
