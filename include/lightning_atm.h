@@ -21,18 +21,11 @@
 const String lnurlDeviceString = "";  // optional hard-coded fallback (leave empty when using Web Installer)
 // Encryption mode (FOSSA/AES or lnurldevice/XOR) is auto-detected from the URL path.
 // ########################################
+
+// ########################################
 // #########    Driver settings   #########
 // ########################################
-// ### Use one of these five display classes and customize it below.###
-// 1. 1.54 inch Waveshare e-paper display is "GxEPD2_DRIVER_CLASS GxEPD2_150_BN"
-// 2. Waveshare 264x176, 2.7inch E-Ink display - Version 1 = "GxEPD2_DRIVER_CLASS GxEPD2_270"
-// 3. Waveshare 264x176, 2.7inch E-Ink display - Version 2 = "GxEPD2_DRIVER_CLASS GxEPD2_270_GDEY027T91" 
-// 4. Waveshare 2.13 inch e-paper display version 3 is "GxEPD2_DRIVER_CLASS GxEPD2_213_B74"
-// 5. Waveshare 2.13 inch e-paper display (D) flex (yellow) is "GxEPD2_DRIVER_CLASS GxEPD2_213_flex"
-// ########################################
-// ##########    currently set   ##########
-// ########################################
-// -> Waveshare 264x176, 2.7inch E-Ink display - Version 1 = "GxEPD2_DRIVER_CLASS GxEPD2_270"
+// -> GxEPD2_display_selection_new_style.h
 // ########################################
 
 

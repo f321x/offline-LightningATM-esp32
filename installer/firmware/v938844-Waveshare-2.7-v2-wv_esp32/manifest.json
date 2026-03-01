@@ -1,6 +1,6 @@
 {
   "name": "Offline-ATM",
-  "version": "v938776-Waveshare-2.13-D",
+  "version": "v938844-Waveshare-2.7-v2-wv_esp32",
   "new_install_prompt_erase": true,
   "builds": [{ "chipFamily": "ESP32", "parts": [
     { "path": "bootloader.bin", "offset": 4096 },

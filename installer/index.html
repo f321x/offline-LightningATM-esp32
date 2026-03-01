@@ -31,7 +31,8 @@
         <h2 id="flash">1- Flash firmware</h2>
 
         <ul>
-            <li>Connect your ATM to the USB port of the esp32dev board</li>
+            <li>Connect your ATM to the USB port of the esp32</li>
+            <li>Choose the firmware that matches the display and the board wiring.</li>
             <li>Press <span style="background-color: #e0e0e0; padding: 2px 6px; border-radius: 3px;">🔥 Flash</span> - select the connection and follow screen instructions</li>
         </ul>
 
@@ -39,14 +40,14 @@
 
         <div class="buttons" style="display: flex; gap: 10px; align-items: center; margin-top: 5px;">
             <select id="firmware-version" style="padding: 10px; font-size: 16px; border-radius: 4px;">
-                <option value="./firmware/v938757-Waveshare-2.13-v3/manifest.json">v938757-Waveshare-2.13-v3 (Pilot 👨‍✈️🛫)</option>
-                <option value="./firmware/v938776-Waveshare-2.13-D/manifest.json">v938776-Waveshare-2.13-D (Pilot 👨‍✈️🛫)</option>
-                <option value="./firmware/v938757-Waveshare-2.7-v1/manifest.json">v938757-Waveshare-2.7-v1 (Pilot 👨‍✈️🛫)</option>
-                <option value="./firmware/v938776-Waveshare-2.7-v2/manifest.json">v938776-Waveshare-2.7-v2 (Pilot 👨‍✈️🛫)</option>
-                <option value="./firmware/v938776-Waveshare-1.54-v1/manifest.json">v938776-Waveshare-1.54-v1 (Pilot 👨‍✈️🛫)</option>
+                <option value="./firmware/v938844-Waveshare-2.13-v3-std_esp32/manifest.json">v938844-Waveshare-2.13-v3-std_esp32 (Pilot 👨‍✈️🛫)</option>
+                <option value="./firmware/v938844-Waveshare-2.13-D-std_esp32/manifest.json">v938844-Waveshare-2.13-D-std_esp32 (Pilot 👨‍✈️🛫)</option>
+                <option value="./firmware/v938844-Waveshare-2.7-v1-wv_esp32/manifest.json">v938844-Waveshare-2.7-v1-wv_esp32 (Pilot 👨‍✈️🛫)</option>
+                <option value="./firmware/v938844-Waveshare-2.7-v2-wv_esp32/manifest.json">v938844-Waveshare-2.7-v2-wv_esp32 (Pilot 👨‍✈️🛫)</option>
+                <option value="./firmware/v938844-Waveshare-1.54-v1-std_esp32/manifest.json">v938844-Waveshare-1.54-v1-std_esp32 (Pilot 👨‍✈️🛫)</option>
             </select>
 
-            <esp-web-install-button id="flash-button" manifest="./firmware/v938757-Waveshare-2.13-v3/manifest.json">
+            <esp-web-install-button id="flash-button" manifest="./firmware/v938844-Waveshare-2.13-v3-std_esp32/manifest.json">
                 <button slot="activate">🔥 Flash</button>
                 <span slot="unsupported">Your browser does not support installing things on ESP devices. Use Google Chrome or Microsoft Edge.</span>
                 <span slot="not-allowed">Ah snap, you are not allowed to use this on HTTP!</span>
@@ -59,6 +60,9 @@
             });
         </script>
 
+        <p><i><strong>Note:</strong> There are two ESP32 board types with different wiring (see <a href="https://github.com/f321x/offline-LightningATM-esp32">GitHub</a>)<br>
+                 -> The standard ESP32 (std_esp32) and the Waveshare ESP32 (wv_esp32)</i></p>
+
         <p><i><strong>Note:</strong> The configuration data can be deleted using "Erase device." Otherwise, it will be retained even with the new firmware. LOGS &amp; CONSOLE is not needed.</i></p>
 
         <div style="background-color: #d4edda; border-left: 4px solid #28a745; padding: 12px 16px; border-radius: 4px; margin: 10px 0;">
@@ -68,7 +72,7 @@
 
         <hr>
 
-        <h2 id="prepare-connection">2- Prepare connection</h2>
+        <h2 id="prepare-connection">2- Note on establishing a connection for parameterization</h2>
 
         <p>When you flash a new ESP32 or use "Erase device." the ATM automatically starts in configuration mode.</p>
 
@@ -76,12 +80,10 @@
             💡 <strong>Config mode indicator:</strong> The LED button <strong>blinks slowly</strong> (~1× per second) when the ATM is in configuration mode. Solid LED = normal operation.
         </div>
 
-        <p>→ The ATM is now ready to receive configuration data. ⚙️</p>
-
-        <p>If parameters have already been stored and need to be changed, you can also open CONF mode retrospectively:</p>
+        <p>If parameters have already been stored and need to be changed, you can also open config mode retrospectively:</p>
         <ul>
-            <li>Press and hold BOOT button for 5 seconds.</li>
-            <li>Press the LED button once briefly and then hold it down for at least 5 seconds.</li>
+            <li>Press the BOOT button on the ESP32 for at least 5 seconds.</li>
+            <li>Press the LED buttoin briefly once, then hold it down for at least 5 seconds.</li>
         </ul>
 
         <p><i><strong>Note:</strong> The connection will remain active for 3 minutes (180 seconds) before it is automatically disconnected. If data is already available, you can terminate the connection prematurely by pressing the BOOT button or pressing the external button.</i></p>
@@ -123,7 +125,7 @@
                 <div>
                     <label for="deviceString">Device String</label>
                     <input type="text" name="deviceString" id="deviceString" placeholder="https://myserver.com/fossa/api/v1/lnurl/id,key,EUR" autocomplete="off">
-                    <p style="margin: -13px 0 0 0; font-size: 11px; color: #888; font-style: italic;">Generate the device string in LNbits (fossa extension or lnurldevice extension) and paste it here.</p>
+                    <p style="margin: -13px 0 0 0; font-size: 11px; color: #888; font-style: italic;">Generate the device string in LNbits (fossa or lnurldevice extension).</p>
                 </div>
                 <div>
                     <label>Status</label>

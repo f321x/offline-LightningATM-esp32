@@ -1,6 +1,6 @@
 {
   "name": "Offline-ATM",
-  "version": "v938757-Waveshare-2.13-v3",
+  "version": "v938844-Waveshare-2.13-v3-std_esp32",
   "new_install_prompt_erase": true,
   "builds": [
     {
