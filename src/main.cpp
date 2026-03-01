@@ -272,7 +272,7 @@ void loop()
       unsigned long holdStart = millis();
       bool isLongPress = false;
       while (digitalRead(BUTTON_PIN) == LOW) {
-        if (millis() - holdStart > 5000) { isLongPress = true; break; }
+        if (millis() - holdStart > 2000) { isLongPress = true; break; }
         // Rapid LED flicker while holding to show progress
         digitalWrite(LED_BUTTON_PIN, (millis() / 120) % 2);
         delay(20);
