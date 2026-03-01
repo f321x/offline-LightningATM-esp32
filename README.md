@@ -91,17 +91,52 @@ Below are two possible wiring options. Depending on which ESP32 type and display
 
 ## Setup software
 
-1. Install VSCode and the PlattformIO IDE Extension.
-2. Clone this repository and open it as PlattformIO Project.
-3. Create an [LNbits](https://legend.lnbits.com/) wallet. Add the LNURLDevice extension and create a new LNURLDevice instance with ATM.
+### Option A – Web Installer (recommended)
+
+1. Open the [Web Installer](https://f321x.github.io/offline-LightningATM-esp32/) in Google Chrome or Microsoft Edge (Web Serial API required).
+2. Connect the ESP32 via USB.
+3. Select the firmware version matching your display and board wiring, then press **🔥 Flash**.
+4. Wait at least **15 seconds** after flashing for the e-paper display to update.
+5. Create an [LNbits](https://legend.lnbits.com/) wallet, add the **fossa** or **lnurldevice** extension and create a new ATM device. Copy the generated **Device String**.
+6. Press **🔌 Connect** in the installer, confirm config mode is active (LED blinks slowly), paste the Device String and press **🔥 Write Config**, then **🔄 Restart**.
+
+### Option B – Manual (PlatformIO)
+
+1. Install VSCode and the PlatformIO IDE Extension.
+2. Clone this repository and open it as a PlatformIO Project.
+3. Create an [LNbits](https://legend.lnbits.com/) wallet. Add the **fossa** or **lnurldevice** extension and create a new ATM instance.
 
     [![wallet_settings_02_thumb](./assets/wallet_settings_01_thumb.png)](./assets/wallet_settings_01.png)
 
-4. Copy the LNURLDevice Settings String and paste it into the code under “include/lighting_atm.h” under “USER ACTION”.
+4. Copy the Device String and paste it into `include/lightning_atm.h` under `USER ACTION`.
 
     [![wallet_settings_02_thumb](./assets/wallet_settings_02_thumb.png)](./assets/wallet_settings_02.png)
 
-5. Flash the software on the esp32. You may have to disconnect the ESP32 from the step up converter before connecting it to the computer to prevent faults, or power it up with the power supply and use an usb isolator.
+5. Flash the firmware via PlatformIO. You may have to disconnect the ESP32 from the step-up converter before connecting it to the computer to prevent faults, or power it up with the power supply and use a USB isolator.
+
+---
+
+## Button usage
+
+### Config mode
+
+The ATM enters **config mode** automatically when no device string is stored (fresh flash or "Erase device").  
+**Config mode indicator:** The LED button **blinks slowly** (~1× per second). Solid LED = normal operation.
+
+To enter config mode manually while the ATM is running:
+
+| Method | Steps |
+|--------|-------|
+| **BOOT button** (on the ESP32 board) | Press and hold for **≥ 5 seconds** – config mode activates automatically after the hold time without releasing. |
+| **LED button** (external) | Press **briefly once**, then within 3 seconds press and hold for **≥ 5 seconds** – config mode activates automatically after the hold time without releasing. |
+
+> **Note:** The serial config connection stays active for **3 minutes** before it disconnects automatically. It can be closed earlier by pressing the BOOT button or the external button.
+
+### Screen clean (storage mode)
+
+Press the LED button **6 times** in short succession (within ~4 seconds per press) to trigger a full screen clean cycle. The display goes blank, sleeps briefly (3 seconds), then returns to the home screen. Useful before storing the device.
+
+---
 
 If you need help ask me on Nostr @npub1z9n5ktfjrlpyywds9t7ljekr9cm9jjnzs27h702te5fy8p2c4dgs5zvycf
 

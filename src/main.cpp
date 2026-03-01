@@ -250,29 +250,35 @@ void loop()
   else if (button_pressed && !pulses && !inserted_cents) // two-step (brief press + 5 s hold) → config mode, short presses → clean screen
   {
     button_pressed = false;
+    Serial.println(F("[BUTTON] #1 pressed"));
 
     // ── Step 1: wait for release of the first brief press ────────────────────
-    // If the button is held longer than 5 s on the first press alone, ignore (wrong sequence).
     unsigned long firstPressStart = millis();
     while (digitalRead(BUTTON_PIN) == LOW) {
       if (millis() - firstPressStart > 5000) {
-        // Single long hold without prior brief press – not the right sequence, ignore
         while (digitalRead(BUTTON_PIN) == LOW) delay(20);
         digitalWrite(LED_BUTTON_PIN, HIGH);
         return;
       }
       delay(20);
     }
-    // First press confirmed as brief (released within 5 s)
 
-    // ── Step 2: wait up to 3 s for the second press ───────────────────────────
+    // ── Debounce: wait 80 ms after release, then discard any bounce-triggered flags ──
+    delay(80);
+    button_pressed = false;
+
+    // ── Step 2: wait up to 3 s for the second press ──────────────────────────
     digitalWrite(LED_BUTTON_PIN, HIGH);
     unsigned long windowStart = millis();
     bool secondPressDetected = false;
     while (millis() - windowStart < 3000) {
       if (digitalRead(BUTTON_PIN) == LOW || button_pressed) {
         button_pressed = false;
+        // Debounce: confirm pin is stably LOW for at least 30 ms
+        delay(30);
+        if (digitalRead(BUTTON_PIN) != LOW) continue; // spurious bounce, keep waiting
         secondPressDetected = true;
+        Serial.println(F("[BUTTON] #2 pressed"));
         break;
       }
       delay(20);
@@ -286,7 +292,6 @@ void loop()
       {
         if (button_pressed)
         {
-          if (DEBUG_MODE) Serial.println("Button pressed");
           time_last_press = millis();
           button_pressed = false;
           press_counter++;
@@ -295,23 +300,31 @@ void loop()
       }
       if (press_counter > 5)
       {
-        if (DEBUG_MODE) Serial.println("Button pressed over 5 times, will clean screen...");
         digitalWrite(LED_BUTTON_PIN, LOW);
         clean_screen();
         display_sleep();
-        delay(30000);
+        delay(3000);
         home_screen();
       }
       return;
     }
 
-    // ── Step 3: second press detected → measure 5 s hold ─────────────────────
+    // ── Step 3: wait for GPIO to be stably LOW, then measure 5 s hold ────────
+    // After detecting via interrupt flag, allow up to 200 ms for pin to settle LOW.
+    {
+      unsigned long settleStart = millis();
+      while (digitalRead(BUTTON_PIN) != LOW) {
+        if (millis() - settleStart > 200) break; // button already released → too short
+        delay(5);
+      }
+    }
+
     // Config mode activates after 5 s of holding (button does NOT need to be released).
     unsigned long holdStart = millis();
     bool isLongPress = false;
     while (digitalRead(BUTTON_PIN) == LOW) {
-      if (millis() - holdStart > 5000) { isLongPress = true; break; } // activate on time, not on release
-      digitalWrite(LED_BUTTON_PIN, (millis() / 150) % 2);             // flicker shows progress
+      if (millis() - holdStart > 5000) { isLongPress = true; break; }
+      digitalWrite(LED_BUTTON_PIN, (millis() / 150) % 2);
       delay(20);
     }
     digitalWrite(LED_BUTTON_PIN, HIGH);
@@ -324,7 +337,6 @@ void loop()
       {
         if (button_pressed)
         {
-          if (DEBUG_MODE) Serial.println("Button pressed");
           time_last_press = millis();
           button_pressed = false;
           press_counter++;
@@ -333,18 +345,17 @@ void loop()
       }
       if (press_counter > 5)
       {
-        if (DEBUG_MODE) Serial.println("Button pressed over 5 times, will clean screen...");
         digitalWrite(LED_BUTTON_PIN, LOW);
         clean_screen();
         display_sleep();
-        delay(30000);
+        delay(3000);
         home_screen();
       }
       return;
     }
 
-    // ── Config mode: activated after 5 s of holding (button may still be pressed) ──
-    Serial.println(F("[BUTTON] Two-step long-hold confirmed → entering config mode"));
+    // ── Config mode entered ───────────────────────────────────────────────────
+    Serial.println(F("[BUTTON] Config mode activated"));
     detachInterrupt(BUTTON_PIN);
     configMode();
     // Reload operative strings after potential config update
