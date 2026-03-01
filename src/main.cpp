@@ -245,60 +245,38 @@ void loop()
     digitalWrite(MOSFET_PIN, LOW);
     inserted_cents = 0;
   }
-  else if (button_pressed && !pulses && !inserted_cents) // short press → double-action config, or press counter for clean screen
+  else if (button_pressed && !pulses && !inserted_cents) // hold → config mode, short press → clean screen counter
   {
     button_pressed = false;
 
-    // Wait for full release of the first (short) press
-    while (digitalRead(BUTTON_PIN) == LOW) delay(20);
+    // Measure how long the button is held from the moment we detected it
+    unsigned long holdStart = millis();
+    bool isLongPress = false;
 
-    // ── Visual feedback: 3 quick LED blinks → "prime received, hold now" ──
-    for (int i = 0; i < 6; i++) {
-      digitalWrite(LED_BUTTON_PIN, i % 2 == 0 ? LOW : HIGH);
-      delay(80);
-    }
-    digitalWrite(LED_BUTTON_PIN, HIGH);
-
-    // ── Wait up to 2 s for a second button press ───────────────────────────
-    bool gotSecondPress = false;
-    unsigned long waitStart = millis();
-    while (millis() - waitStart < 2000) {
-      if (digitalRead(BUTTON_PIN) == LOW) { gotSecondPress = true; break; }
+    // Rapid LED flicker while holding to show progress toward config mode
+    while (digitalRead(BUTTON_PIN) == LOW) {
+      if (millis() - holdStart > 3000) { isLongPress = true; break; }
+      digitalWrite(LED_BUTTON_PIN, (millis() / 150) % 2);
       delay(20);
     }
+    digitalWrite(LED_BUTTON_PIN, HIGH);
+    while (digitalRead(BUTTON_PIN) == LOW) delay(20); // full release
 
-    if (gotSecondPress) {
-      // Measure how long the second press is held
-      unsigned long holdStart = millis();
-      bool isLongPress = false;
-      while (digitalRead(BUTTON_PIN) == LOW) {
-        if (millis() - holdStart > 2000) { isLongPress = true; break; }
-        // Rapid LED flicker while holding to show progress
-        digitalWrite(LED_BUTTON_PIN, (millis() / 120) % 2);
-        delay(20);
-      }
-      digitalWrite(LED_BUTTON_PIN, HIGH);
-      while (digitalRead(BUTTON_PIN) == LOW) delay(20); // full release
-
-      if (isLongPress) {
-        Serial.println(F("[BUTTON] Double-action confirmed → entering config mode"));
-        detachInterrupt(BUTTON_PIN);
-        configMode();
-        // Reload operative strings after potential config update
-        baseURLATM = getValue(storedDeviceString, ',', 0);
-        secretATM = getValue(storedDeviceString, ',', 1);
-        currencyATM = getValue(storedDeviceString, ',', 2);
-        fossaMode = (storedDeviceString.indexOf("/lnurldevice/") < 0);
-        attachInterrupt(BUTTON_PIN, button_pressed_itr, FALLING);
-        home_screen();
-        return;
-      }
-      // Second press was short → count it toward clean-screen counter below
-      button_pressed = false;
+    if (isLongPress) {
+      Serial.println(F("[BUTTON] Long-hold confirmed → entering config mode"));
+      detachInterrupt(BUTTON_PIN);
+      configMode();
+      // Reload operative strings after potential config update
+      baseURLATM = getValue(storedDeviceString, ',', 0);
+      secretATM = getValue(storedDeviceString, ',', 1);
+      currencyATM = getValue(storedDeviceString, ',', 2);
+      fossaMode = (storedDeviceString.indexOf("/lnurldevice/") < 0);
+      attachInterrupt(BUTTON_PIN, button_pressed_itr, FALLING);
+      home_screen();
+      return;
     }
 
-    // ── Short press(es): press-counter for screen clean (storage mode) ───────
-    // First press already registered; start counter at 1.
+    // ── Short press: press-counter for screen clean (storage mode) ─────────
     int press_counter = 1;
     time_last_press = millis();
     while ((millis() - time_last_press) < 4000 && press_counter < 6)
