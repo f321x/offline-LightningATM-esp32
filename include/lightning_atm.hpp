@@ -7,8 +7,9 @@
 #include "qrcode.h"
 #include "Bitcoin.h"
 #include <stdlib.h>
-#include <Hash.h>
 #include <ctype.h>
+#include "util.hpp"
+#include "fossa_crypto.hpp"
 
 // ########################################
 // ###########    USER ACTION   ###########
@@ -102,9 +103,8 @@ const unsigned char bitcoin_logo[] PROGMEM = {
 // put function declarations here:
 void clean_screen();
 void initialize_display();
-void to_upper(char* arr);
 void qr_withdrawl_screen(const char* qr_content);
-char* makeLNURL(float total);
+String makeLNURL(float total);
 int xor_encrypt(uint8_t* output, size_t outlen, uint8_t* key, size_t keylen, uint8_t* nonce, size_t nonce_len, uint64_t pin, uint64_t amount_in_cents);
 void show_inserted_amount(int amount_in_cents);
 String get_amount_string(int amount_in_cents);
