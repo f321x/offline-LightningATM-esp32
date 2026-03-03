@@ -40,6 +40,11 @@
 
         <div class="buttons" style="display: flex; gap: 10px; align-items: center; margin-top: 5px;">
             <select id="firmware-version" style="padding: 10px; font-size: 16px; border-radius: 4px;">
+                <option value="./firmware/v939148-Waveshare-2.13-v3-std_esp32/manifest.json">v939148-Waveshare-2.13-v3-std_esp32 (Latest ✨)</option>
+                <option value="./firmware/v939148-Waveshare-2.13-D-std_esp32/manifest.json">v939148-Waveshare-2.13-D-std_esp32 (Latest ✨)</option>
+                <option value="./firmware/v939148-Waveshare-2.7-v1-wv_esp32/manifest.json">v939148-Waveshare-2.7-v1-wv_esp32 (Latest ✨)</option>
+                <option value="./firmware/v939148-Waveshare-2.7-v2-wv_esp32/manifest.json">v939148-Waveshare-2.7-v2-wv_esp32 (Latest ✨)</option>
+                <option value="./firmware/v939148-Waveshare-1.54-v1-std_esp32/manifest.json">v939148-Waveshare-1.54-v1-std_esp32 (Latest ✨)</option>
                 <option value="./firmware/v938844-Waveshare-2.13-v3-std_esp32/manifest.json">v938844-Waveshare-2.13-v3-std_esp32 (Pilot 👨‍✈️🛫)</option>
                 <option value="./firmware/v938844-Waveshare-2.13-D-std_esp32/manifest.json">v938844-Waveshare-2.13-D-std_esp32 (Pilot 👨‍✈️🛫)</option>
                 <option value="./firmware/v938844-Waveshare-2.7-v1-wv_esp32/manifest.json">v938844-Waveshare-2.7-v1-wv_esp32 (Pilot 👨‍✈️🛫)</option>
@@ -47,7 +52,7 @@
                 <option value="./firmware/v938844-Waveshare-1.54-v1-std_esp32/manifest.json">v938844-Waveshare-1.54-v1-std_esp32 (Pilot 👨‍✈️🛫)</option>
             </select>
 
-            <esp-web-install-button id="flash-button" manifest="./firmware/v938844-Waveshare-2.13-v3-std_esp32/manifest.json">
+            <esp-web-install-button id="flash-button" manifest="./firmware/v939148-Waveshare-2.13-v3-std_esp32/manifest.json">
                 <button slot="activate">🔥 Flash</button>
                 <span slot="unsupported">Your browser does not support installing things on ESP devices. Use Google Chrome or Microsoft Edge.</span>
                 <span slot="not-allowed">Ah snap, you are not allowed to use this on HTTP!</span>

@@ -92,7 +92,7 @@ void boot_info_screen()
 
   if (is27) {
     // 2.7" = 264x176 px, 5 rows à size-2 (16px), step 32px
-    display.setCursor(0, 20);  display.print("BOOT CONFIG");
+    display.setCursor(0, 20);  display.print("Configuration:");
     display.setCursor(0, 52);  display.print("FW: "); display.print(shortVer);
     display.setCursor(0, 84);  display.print(modeStr);
     display.setCursor(0, 116); display.print("Currency: "); display.print(currencyATM);
@@ -100,7 +100,7 @@ void boot_info_screen()
   }
   else if (is154) {
     // 1.54" = 200x200 px, 5 rows à size-2 (16px), step 37px
-    display.setCursor(0, 15);  display.print("BOOT CONFIG");
+    display.setCursor(0, 15);  display.print("Configuration:");
     display.setCursor(0, 52);  display.print("FW: "); display.print(shortVer);
     display.setCursor(0, 89);  display.print(modeStr);
     display.setCursor(0, 126); display.print("Currency: "); display.print(currencyATM);
@@ -108,7 +108,7 @@ void boot_info_screen()
   }
   else if (isFlex) {
     // 2.13" D (flex) = 212x104 px (rotation 1), 5 rows à size-2 (16px), step 17px
-    display.setCursor(0, 7);  display.print("BOOT CONFIG");
+    display.setCursor(0, 7);  display.print("Configuration:");
     display.setCursor(0, 24); display.print("FW: "); display.print(shortVer);
     display.setCursor(0, 41); display.print(modeStr);
     display.setCursor(0, 58); display.print("Currency: "); display.print(currencyATM);
@@ -116,7 +116,7 @@ void boot_info_screen()
   }
   else {
     // 2.13" v3 = 250x122 px, 5 rows à size-2 (16px), step 20px
-    display.setCursor(0, 16);  display.print("BOOT CONFIG");
+    display.setCursor(0, 16);  display.print("Configuration:");
     display.setCursor(0, 36);  display.print("FW: "); display.print(shortVer);
     display.setCursor(0, 56);  display.print(modeStr);
     display.setCursor(0, 76);  display.print("Currency: "); display.print(currencyATM);
@@ -125,7 +125,7 @@ void boot_info_screen()
 
   display.nextPage();
   display.hibernate();
-  delay(5000);
+  delay(3000);
 }
 
 void setup()
@@ -175,7 +175,7 @@ void setup()
     digitalWrite(LED_BUTTON_PIN, LOW);                      // LED off while measuring
     unsigned long holdStart = millis();
     while (digitalRead(BUTTON_PIN) == LOW) {
-      if (millis() - holdStart > 5000) { forceConfigMode = true; break; } // activate on time, not on release
+      if (millis() - holdStart > 3000) { forceConfigMode = true; break; } // activate on time, not on release
       delay(50);
     }
     // Only wait for release if not entering config mode (short accidental press)
@@ -323,7 +323,7 @@ void loop()
     unsigned long holdStart = millis();
     bool isLongPress = false;
     while (digitalRead(BUTTON_PIN) == LOW) {
-      if (millis() - holdStart > 5000) { isLongPress = true; break; }
+      if (millis() - holdStart > 3000) { isLongPress = true; break; }
       digitalWrite(LED_BUTTON_PIN, (millis() / 150) % 2);
       delay(20);
     }

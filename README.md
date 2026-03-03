@@ -93,9 +93,17 @@ Below are two possible wiring options. Depending on which ESP32 type and display
 
 ### Option A – Web Installer (recommended)
 
-1. Open the [Web Installer](https://f321x.github.io/offline-LightningATM-esp32/) in Google Chrome or Microsoft Edge (Web Serial API required).
+1. Open the [Web Installer](https://ereignishorizont.xyz/offline-ATM/) in Google Chrome or Microsoft Edge (Web Serial API required).
 2. Connect the ESP32 via USB.
 3. Select the firmware version matching your display and board wiring, then press **🔥 Flash**.
+
+   | Firmware version | Display | Wiring |
+   |------------------|---------|--------|
+   | `Waveshare-2.13-v3-std_esp32` | Waveshare 2.13" e-Paper V3 (250×122) | Standard ESP32 (CS=26, DC=25, RST=33, BUSY=27) |
+   | `Waveshare-2.13-D-std_esp32` | Waveshare 2.13" e-Paper (D) flex/yellow (250×122) | Standard ESP32 (CS=26, DC=25, RST=33, BUSY=27) |
+   | `Waveshare-2.7-v1-wv_esp32` | Waveshare 2.7" E-Ink V1 (264×176) | Waveshare ESP32 Driver Board (CS=15, DC=27, RST=26, BUSY=25) |
+   | `Waveshare-2.7-v2-wv_esp32` | Waveshare 2.7" E-Ink V2 GDEY027T91 (264×176) | Waveshare ESP32 Driver Board (CS=15, DC=27, RST=26, BUSY=25) |
+   | `Waveshare-1.54-v1-std_esp32` | Waveshare 1.54" e-Paper V1 (200×200) | Standard ESP32 (CS=26, DC=25, RST=33, BUSY=27) |
 4. Wait at least **15 seconds** after flashing for the e-paper display to update.
 5. Create an [LNbits](https://legend.lnbits.com/) wallet, add the **fossa** or **lnurldevice** extension and create a new ATM device. Copy the generated **Device String**.
 6. Press **🔌 Connect** in the installer, confirm config mode is active (LED blinks slowly), paste the Device String and press **🔥 Write Config**, then **🔄 Restart**.
