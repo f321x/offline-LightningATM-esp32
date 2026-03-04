@@ -209,6 +209,7 @@ void setup()
 
   boot_info_screen(); // show config summary on display for ~5 s before normal home screen
   home_screen();
+  digitalWrite(LED_BUTTON_PIN, HIGH); // ensure LED is on when entering main loop
 }
 
 void loop()
