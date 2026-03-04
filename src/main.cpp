@@ -1,4 +1,4 @@
-#include "lightning_atm.h"
+#include "lightning_atm.hpp"
 #include <mbedtls/aes.h>
 #include <MD5Builder.h>
 #include <math.h>
