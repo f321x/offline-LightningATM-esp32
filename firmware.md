@@ -38,6 +38,19 @@ Es gibt **drei Stellen**, die je nach Variante aktiv oder auskommentiert sein m�
 2. **Mitte (Zeile ~48–67):** Der Display-Treiber-`#define` + `const String display_type`
 3. **Unten im ESP32-Block (Zeile ~206–214):** Der `display(...)`-Konstruktor – entweder std-Pinout (26,25,33,27) oder Waveshare-Pinout (15,27,26,25)
 
+> **⚠️ PFLICHT vor jeder Header-Änderung: aktuellen Zustand prüfen!**
+>
+> Vor dem Anpassen des Headers immer erst verifizieren, was gerade aktiv ist.  
+> Falsche Annahmen über den Ist-Zustand führen zu doppelten `#define`-Fehlern im Build.
+>
+> ```powershell
+> # Zeigt alle aktiven (nicht auskommentierten) Treiber-Defines:
+> Select-String -Path "include\GxEPD2_display_selection_new_style.h" -Pattern "^#define GxEPD2_DRIVER_CLASS|^#define USE_HSPI|^#define ENABLE_GxEPD2_GFX|^GxEPD2_DISPLAY_CLASS<" | Select-Object LineNumber, Line
+> ```
+>
+> Erwartete Ausgabe: **genau ein** `GxEPD2_DRIVER_CLASS` aktiv, passender Konstruktor aktiv.  
+> Wenn mehr als einer aktiv ist → erst manuell bereinigen, dann erst weitermachen.
+
 ---
 
 ### Variante 1 – `Waveshare-2.13-v3-std_esp32`
