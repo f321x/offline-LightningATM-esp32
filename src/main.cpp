@@ -1,4 +1,9 @@
 #include "lightning_atm.hpp"
+#include <mbedtls/aes.h>
+#include <MD5Builder.h>
+#include <math.h>
+#include "FS.h"
+#include "SPIFFS.h"
 
 const unsigned int COINS[] = { 0, 0, 5, 10, 20, 50, 100, 200, 1, 2 };
 bool button_pressed = false;
@@ -7,7 +12,46 @@ unsigned long long time_last_press = millis();
 String baseURLATM;
 String secretATM;
 String currencyATM;
-bool fossaMode = false;  // set automatically from lnurlDeviceString in setup()
+bool fossaMode = false;  // set automatically from storedDeviceString in setup()
+String storedDeviceString = "";  // loaded from SPIFFS config.json at boot
+
+// ─── SPIFFS / serial-config helpers ──────────────────────────────────────────
+
+static void serialWriteChunked(const String& msg) {
+  const int chunkSize = 64;
+  for (unsigned int i = 0; i < msg.length(); i += chunkSize) {
+    unsigned int end = min((unsigned int)(i + chunkSize), (unsigned int)msg.length());
+    Serial.write(msg.c_str() + i, end - i);
+    Serial.flush();
+    delay(15);
+  }
+}
+
+static String readFileContent(const char* path) {
+  if (!SPIFFS.exists(path)) return "";
+  File f = SPIFFS.open(path, "r");
+  if (!f) return "";
+  String content = f.readString();
+  f.close();
+  return content;
+}
+
+// Extract value for key "deviceString" from installer JSON:
+// [{"name":"ssid","value":""},{"name":"wifipassword","value":""},{"name":"deviceString","value":"..."}]
+static String extractDeviceStringFromJson(const String& json) {
+  int nameIdx = json.indexOf("\"deviceString\"");
+  if (nameIdx < 0) return "";
+  int valueIdx = json.indexOf("\"value\":\"", nameIdx);
+  if (valueIdx < 0) return "";
+  int start = valueIdx + 9;
+  int end = json.indexOf("\"", start);
+  if (end <= start) return "";
+  return json.substring(start, end);
+}
+
+// ─── Forward declarations ─────────────────────────────────────────────────────
+void configMode();
+void boot_info_screen();
 
 // *** for Waveshare ESP32 Driver board *** //
 #if defined(ESP32) && defined(USE_HSPI_FOR_EPD)
@@ -16,16 +60,88 @@ SPIClass hspi(HSPI);
 // *** end Waveshare ESP32 Driver board *** //
 
 
+// ─── Boot info screen ────────────────────────────────────────────────────────
+// Shows firmware version, detected mode, currency and (truncated) base URL
+// on the e-paper display for ~5 seconds right after booting with a stored config.
+void boot_info_screen()
+{
+  // FW: first 4 chars + ".." + last 8 chars  →  e.g. "v938..7-v1-rc1"
+  String verStr = String(VERSION);
+  String shortVer = (verStr.length() > 12)
+    ? (verStr.substring(0, 4) + ".." + verStr.substring(verStr.length() - 8))
+    : verStr;
+
+  String modeStr = fossaMode ? "Ext. FOSSA" : "Ext. LNURL";
+
+  bool is27 = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
+  bool is154 = (display_type == "GxEPD2_150_BN");
+  bool isFlex = (display_type == "GxEPD2_213_flex");
+
+  // URL truncation: size-2 font → 12px/char
+  // 2.7" (264px): 20; 2.13" (250px): 18; 2.13D (212px): 16; 1.54" (200px): 14
+  int urlMaxChars = is27 ? 20 : (is154 ? 14 : (isFlex ? 16 : 18));
+  String shortURL = (baseURLATM.length() > (unsigned)urlMaxChars)
+    ? baseURLATM.substring(0, urlMaxChars) + ".."
+    : baseURLATM;
+
+  display.setRotation(1);
+  display.setFullWindow();
+  display.firstPage();
+  display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+  display.setTextSize(2);
+
+  if (is27) {
+    // 2.7" = 264x176 px, 5 rows à size-2 (16px), step 32px
+    display.setCursor(0, 20);  display.print("Configuration:");
+    display.setCursor(0, 52);  display.print("FW: "); display.print(shortVer);
+    display.setCursor(0, 84);  display.print(modeStr);
+    display.setCursor(0, 116); display.print("Currency: "); display.print(currencyATM);
+    display.setCursor(0, 148); display.print(shortURL);
+  }
+  else if (is154) {
+    // 1.54" = 200x200 px, 5 rows à size-2 (16px), step 37px
+    display.setCursor(0, 15);  display.print("Configuration:");
+    display.setCursor(0, 52);  display.print("FW: "); display.print(shortVer);
+    display.setCursor(0, 89);  display.print(modeStr);
+    display.setCursor(0, 126); display.print("Currency: "); display.print(currencyATM);
+    display.setCursor(0, 163); display.print(shortURL);
+  }
+  else if (isFlex) {
+    // 2.13" D (flex) = 212x104 px (rotation 1), 5 rows à size-2 (16px), step 17px
+    display.setCursor(0, 7);  display.print("Configuration:");
+    display.setCursor(0, 24); display.print("FW: "); display.print(shortVer);
+    display.setCursor(0, 41); display.print(modeStr);
+    display.setCursor(0, 58); display.print("Currency: "); display.print(currencyATM);
+    display.setCursor(0, 75); display.print(shortURL);
+  }
+  else {
+    // 2.13" v3 = 250x122 px, 5 rows à size-2 (16px), step 20px
+    display.setCursor(0, 16);  display.print("Configuration:");
+    display.setCursor(0, 36);  display.print("FW: "); display.print(shortVer);
+    display.setCursor(0, 56);  display.print(modeStr);
+    display.setCursor(0, 76);  display.print("Currency: "); display.print(currencyATM);
+    display.setCursor(0, 96);  display.print(shortURL);
+  }
+
+  display.nextPage();
+  display.hibernate();
+  delay(3000);
+}
+
 void setup()
 {
-  initialize_display(); // connection to the e-ink display
-  Serial.begin(9600);
-  // *** for Waveshare ESP32 Driver board *** //
+  // *** for Waveshare ESP32 Driver board: HSPI must start BEFORE display.init() *** //
 #if defined(ESP32) && defined(USE_HSPI_FOR_EPD)
-  hspi.begin(13, 12, 14, 15); // remap hspi for EPD (swap pins)
+  hspi.begin(13, 12, 14, 15); // remap hspi for EPD (must be before display.init)
+#endif
+  initialize_display(); // connection to the e-ink display
+#if defined(ESP32) && defined(USE_HSPI_FOR_EPD)
   display.epd2.selectSPI(hspi, SPISettings(4000000, MSBFIRST, SPI_MODE0));
 #endif
   // *** end Waveshare ESP32 Driver board *** //
+  Serial.begin(115200);
+  delay(200);
+  Serial.println("\n[BOOT] Offline-LightningATM-esp32 firmware " VERSION);
   if (DEBUG_MODE)                                           // serial connection for debugging over USB
   {
     sleep(3);
@@ -37,13 +153,63 @@ void setup()
   pinMode(BUTTON_PIN, INPUT_PULLUP);                        // Button
   pinMode(MOSFET_PIN, OUTPUT);                              // mosfet relay to block the coin acceptor
   digitalWrite(MOSFET_PIN, LOW);                            // set it low to accept coins, high to block coins
+  digitalWrite(LED_BUTTON_PIN, HIGH);                       // LED on during boot
+
+  // ── SPIFFS: read stored config ────────────────────────────────────────────
+  if (!SPIFFS.begin(true)) {
+    Serial.println("[SETUP] SPIFFS mount failed");
+  }
+  else {
+    String configJson = readFileContent("/config.json");
+    if (configJson.length() > 0)
+      storedDeviceString = extractDeviceStringFromJson(configJson);
+  }
+
+  // Fall back to hardcoded string if SPIFFS is empty
+  if (storedDeviceString.length() == 0 && lnurlDeviceString.length() > 0)
+    storedDeviceString = lnurlDeviceString;
+
+  // ── Detect BOOT-button hold at power-on (> 5 s) → force config mode ───────
+  bool forceConfigMode = false;
+  if (digitalRead(BUTTON_PIN) == LOW) {
+    digitalWrite(LED_BUTTON_PIN, LOW);                      // LED off while measuring
+    unsigned long holdStart = millis();
+    while (digitalRead(BUTTON_PIN) == LOW) {
+      if (millis() - holdStart > 3000) { forceConfigMode = true; break; } // activate on time, not on release
+      delay(50);
+    }
+    // Only wait for release if not entering config mode (short accidental press)
+    if (!forceConfigMode) {
+      while (digitalRead(BUTTON_PIN) == LOW) delay(50);
+    }
+    digitalWrite(LED_BUTTON_PIN, HIGH);
+  }
+
+  // ── Enter config mode if unconfigured or forced ───────────────────────────
+  if (storedDeviceString.length() == 0 || forceConfigMode) {
+    home_screen();
+    configMode(); // blocks until exit; reloads storedDeviceString internally
+    if (storedDeviceString.length() == 0)
+      ESP.restart(); // still not configured → restart
+  }
+
+  // ── Normal startup ────────────────────────────────────────────────────────
   attachInterrupt(BUTTON_PIN, button_pressed_itr, FALLING); // interrupt, will set button_pressed to true when button is pressed
-  home_screen();                                            // will show first screen
   digitalWrite(LED_BUTTON_PIN, HIGH);                       // light up the led
-  baseURLATM = getValue(lnurlDeviceString, ',', 0);         // setup wallet data from string
-  secretATM = getValue(lnurlDeviceString, ',', 1);
-  currencyATM = getValue(lnurlDeviceString, ',', 2);
-  fossaMode = (lnurlDeviceString.indexOf("/fossa/") >= 0); // auto-detect backend from URL
+  baseURLATM = getValue(storedDeviceString, ',', 0);       // setup wallet data from string
+  secretATM = getValue(storedDeviceString, ',', 1);
+  currencyATM = getValue(storedDeviceString, ',', 2);
+  fossaMode = (storedDeviceString.indexOf("/lnurldevice/") < 0); // AES (fossa-compatible) unless explicitly lnurldevice path
+
+  Serial.println(F("[SETUP] Device string parsed:"));
+  Serial.println("  baseURL : " + baseURLATM);
+  Serial.println("  secret  : " + (secretATM.length() > 6 ? secretATM.substring(0, 4) + "..." + secretATM.substring(secretATM.length() - 2) : secretATM));
+  Serial.println("  currency: " + currencyATM);
+  Serial.println(String("  mode    : ") + (fossaMode ? "fossa/AES (no /lnurldevice/ in URL)" : "lnurldevice/XOR"));
+
+  boot_info_screen(); // show config summary on display for ~5 s before normal home screen
+  home_screen();
+  digitalWrite(LED_BUTTON_PIN, HIGH); // ensure LED is on when entering main loop
 }
 
 void loop()
@@ -57,54 +223,150 @@ void loop()
     digitalWrite(MOSFET_PIN, HIGH);
     digitalWrite(LED_BUTTON_PIN, LOW);
     inserted_cents += COINS[pulses];
+    Serial.println("[COIN] Coin detected: +" + String(COINS[pulses]) + " cents → total: " + get_amount_string(inserted_cents));
     show_inserted_amount(inserted_cents);
   }
   else if (button_pressed && inserted_cents > 0)
   {
     digitalWrite(MOSFET_PIN, HIGH);
     button_pressed = false;
-    try {
-      // makeLNURL can raise
-      String lnurl = makeLNURL(inserted_cents);
-      qr_withdrawl_screen(lnurl.c_str());
-      wait_for_user_to_scan();
+    Serial.println("[BUTTON] Button pressed → generating QR for " + get_amount_string(inserted_cents) + " (" + String(inserted_cents) + " cents)");
+    char* lnurl = makeLNURL(inserted_cents);
+    if (lnurl != nullptr && strlen(lnurl) > 0) {
+      Serial.println("[QR] LNURL generated (" + String(strlen(lnurl)) + " chars), showing QR code...");
     }
-    catch (const std::exception& e) {
-      Serial.println(e.what());
+    else {
+      Serial.println(F("[QR] ERROR: LNURL generation failed!"));
     }
+    qr_withdrawl_screen(lnurl);
+    free(lnurl);
+    Serial.println(F("[QR] QR code on display - waiting for user to scan..."));
+    wait_for_user_to_scan();
+    Serial.println(F("[ATM] Scan complete / timeout → returning to home screen"));
     digitalWrite(LED_BUTTON_PIN, HIGH);
     home_screen();
     digitalWrite(MOSFET_PIN, LOW);
     inserted_cents = 0;
   }
-  else if (button_pressed && !pulses && !inserted_cents) // to clean the screen (for storage), press the button several times
+  else if (button_pressed && !pulses && !inserted_cents) // two-step (brief press + 5 s hold) → config mode, short presses → clean screen
   {
-    int press_counter = 0;
-
     button_pressed = false;
-    time_last_press = millis();
-    while ((millis() - time_last_press) < 4000 && press_counter < 6)
-    {
-      if (button_pressed)
-      {
-        if (DEBUG_MODE)
-          Serial.println("Button pressed");
-        time_last_press = millis();
+    Serial.println(F("[BUTTON] #1 pressed"));
+
+    // ── Step 1: wait for release of the first brief press ────────────────────
+    unsigned long firstPressStart = millis();
+    while (digitalRead(BUTTON_PIN) == LOW) {
+      if (millis() - firstPressStart > 5000) {
+        while (digitalRead(BUTTON_PIN) == LOW) delay(20);
+        digitalWrite(LED_BUTTON_PIN, HIGH);
+        return;
+      }
+      delay(20);
+    }
+
+    // ── Debounce: wait 80 ms after release, then discard any bounce-triggered flags ──
+    delay(80);
+    button_pressed = false;
+
+    // ── Step 2: wait up to 3 s for the second press ──────────────────────────
+    digitalWrite(LED_BUTTON_PIN, HIGH);
+    unsigned long windowStart = millis();
+    bool secondPressDetected = false;
+    while (millis() - windowStart < 3000) {
+      if (digitalRead(BUTTON_PIN) == LOW || button_pressed) {
         button_pressed = false;
-        press_counter++;
-        delay(500);
+        // Debounce: confirm pin is stably LOW for at least 30 ms
+        delay(30);
+        if (digitalRead(BUTTON_PIN) != LOW) continue; // spurious bounce, keep waiting
+        secondPressDetected = true;
+        Serial.println(F("[BUTTON] #2 pressed"));
+        break;
+      }
+      delay(20);
+    }
+
+    if (!secondPressDetected) {
+      // ── No second press → short-press counter for screen clean (storage mode) ─
+      int press_counter = 1;
+      time_last_press = millis();
+      while ((millis() - time_last_press) < 4000 && press_counter < 6)
+      {
+        if (button_pressed)
+        {
+          time_last_press = millis();
+          button_pressed = false;
+          press_counter++;
+          delay(500);
+        }
+      }
+      if (press_counter > 5)
+      {
+        digitalWrite(LED_BUTTON_PIN, LOW);
+        clean_screen();
+        display_sleep();
+        delay(3000);
+        home_screen();
+      }
+      return;
+    }
+
+    // ── Step 3: wait for GPIO to be stably LOW, then measure 5 s hold ────────
+    // After detecting via interrupt flag, allow up to 200 ms for pin to settle LOW.
+    {
+      unsigned long settleStart = millis();
+      while (digitalRead(BUTTON_PIN) != LOW) {
+        if (millis() - settleStart > 200) break; // button already released → too short
+        delay(5);
       }
     }
-    if (press_counter > 5)
-    {
-      if (DEBUG_MODE)
-        Serial.println("Button pressed over 5 times, will clean screen...");
-      digitalWrite(LED_BUTTON_PIN, LOW);
-      clean_screen();
-      display_sleep();
-      delay(30000);
-      home_screen();
+
+    // Config mode activates after 5 s of holding (button does NOT need to be released).
+    unsigned long holdStart = millis();
+    bool isLongPress = false;
+    while (digitalRead(BUTTON_PIN) == LOW) {
+      if (millis() - holdStart > 3000) { isLongPress = true; break; }
+      digitalWrite(LED_BUTTON_PIN, (millis() / 150) % 2);
+      delay(20);
     }
+    digitalWrite(LED_BUTTON_PIN, HIGH);
+
+    if (!isLongPress) {
+      // Second press was too short → treat both presses as additional short presses
+      int press_counter = 2;
+      time_last_press = millis();
+      while ((millis() - time_last_press) < 4000 && press_counter < 6)
+      {
+        if (button_pressed)
+        {
+          time_last_press = millis();
+          button_pressed = false;
+          press_counter++;
+          delay(500);
+        }
+      }
+      if (press_counter > 5)
+      {
+        digitalWrite(LED_BUTTON_PIN, LOW);
+        clean_screen();
+        display_sleep();
+        delay(3000);
+        home_screen();
+      }
+      return;
+    }
+
+    // ── Config mode entered ───────────────────────────────────────────────────
+    Serial.println(F("[BUTTON] Config mode activated"));
+    detachInterrupt(BUTTON_PIN);
+    configMode();
+    // Reload operative strings after potential config update
+    baseURLATM = getValue(storedDeviceString, ',', 0);
+    secretATM = getValue(storedDeviceString, ',', 1);
+    currencyATM = getValue(storedDeviceString, ',', 2);
+    fossaMode = (storedDeviceString.indexOf("/lnurldevice/") < 0);
+    attachInterrupt(BUTTON_PIN, button_pressed_itr, FALLING);
+    home_screen();
+    return;
   }
 }
 
@@ -114,11 +376,203 @@ void IRAM_ATTR button_pressed_itr()
   button_pressed = true;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Serial Config Mode
+// Entered automatically when no device string is stored, or when BOOT button
+// is held > 5 s during normal operation.
+// LED blinks slowly (1 Hz) while in config mode.
+// Short button press exits config mode (if device string is stored).
+// Accepts web-installer serial commands: /hello /file-read /file-append
+//   /file-remove /config-soft-reset
+// ─────────────────────────────────────────────────────────────────────────────
+void configMode()
+{
+  // Block coin acceptor during config mode
+  digitalWrite(MOSFET_PIN, HIGH);
+  Serial.println(F("[CONFIG] Coin acceptor locked (MOSFET HIGH)"));
+
+  // ── Show config mode screen on e-paper ───────────────────────────────────
+  {
+    bool is27 = (display_type == "GxEPD2_270" || display_type == "GxEPD2_270_GDEY027T91");
+    bool is154 = (display_type == "GxEPD2_150_BN");
+    bool isFlex = (display_type == "GxEPD2_213_flex");
+    display.setRotation(1);
+    display.setFullWindow();
+    display.firstPage();
+    display.setTextColor(GxEPD_BLACK, GxEPD_WHITE);
+    // 2 Zeilen, eng beieinander:
+    // 2.7":      264x176 → size-2, y=78 / y=98
+    // 2.13" v3:  250x122 → size-2, y=44 / y=64
+    // 2.13" D:   212x104 → size-1, y=44 / y=58
+    // 1.54":     200x200 → size-1, y=92 / y=108
+    if (is154 || isFlex) {
+      display.setTextSize(1);
+      int y1 = isFlex ? 44 : 92;
+      int y2 = isFlex ? 58 : 108;
+      display.setCursor(0, y1); display.print("ATM ready for config");
+      display.setCursor(0, y2); display.print("Use web installer..");
+    }
+    else {
+      display.setTextSize(2);
+      display.setCursor(0, is27 ? 78 : 44);
+      display.print("ATM ready for config");
+      display.setCursor(0, is27 ? 98 : 64);
+      display.print("Use web installer..");
+    }
+    display.nextPage();
+    display.hibernate();
+  }
+
+  Serial.flush();
+  delay(300);
+  while (Serial.available()) Serial.read(); // drain stale bytes
+
+  Serial.println(F("\n==================================="));
+  Serial.println(F("  Serial Config Mode Active"));
+  Serial.println(F("==================================="));
+  Serial.println(F("[CONFIG_MODE_ENTER]"));
+  Serial.println(F("Waiting for commands..."));
+  Serial.flush();
+  // Repeat marker so web installer reliably detects it
+  for (int i = 0; i < 3; i++) { delay(150); Serial.println(F("[CONFIG_MODE_ENTER]")); Serial.flush(); }
+  while (Serial.available()) Serial.read();
+
+  bool hasData = (storedDeviceString.length() > 0);
+  unsigned long lastActivity = millis();
+  const unsigned long INACTIVITY_MS = 180000UL; // 3 minutes
+  static unsigned long lastFileReadTime = 0;
+
+  // LED blink state
+  unsigned long lastBlinkTime = millis();
+  bool blinkState = true;
+  digitalWrite(LED_BUTTON_PIN, HIGH);
+
+  // Button exit tracking (short press)
+  bool btnPrev = (digitalRead(BUTTON_PIN) == LOW);
+  unsigned long btnPressStart = 0;
+  const unsigned long CONFIG_EXIT_GUARD_MS = 2000; // guard: ignore first 2 s
+  unsigned long configStartTime = millis();
+
+  while (true)
+  {
+    yield();
+
+    // ── Slow LED blink (500 ms on / 500 ms off = 1 Hz) ───────────────────
+    if (millis() - lastBlinkTime >= 500) {
+      blinkState = !blinkState;
+      digitalWrite(LED_BUTTON_PIN, blinkState ? HIGH : LOW);
+      lastBlinkTime = millis();
+    }
+
+    // ── Button short-press → exit config mode (only if device string set) ─
+    if (hasData && (millis() - configStartTime) > CONFIG_EXIT_GUARD_MS) {
+      bool btnNow = (digitalRead(BUTTON_PIN) == LOW);
+      if (btnNow && !btnPrev) btnPressStart = millis();                 // press start
+      if (!btnNow && btnPrev && (millis() - btnPressStart) < 3000) {   // released < 3 s
+        Serial.println(F("[CONFIG_MODE_EXIT]")); Serial.flush();
+        delay(300);
+        break;
+      }
+      btnPrev = btnNow;
+    }
+
+    // ── 180 s inactivity timeout (only if device string already available) ─
+    if (hasData && (millis() - lastActivity > INACTIVITY_MS)) {
+      Serial.println(F("\n--- Inactivity timeout (180 s) ---"));
+      Serial.println(F("[CONFIG_MODE_EXIT]")); Serial.flush();
+      delay(300);
+      break;
+    }
+
+    if (Serial.available() == 0) { delay(10); continue; }
+    lastActivity = millis();
+
+    String data = Serial.readStringUntil('\n');
+    data.trim();
+    if (data.length() == 0) continue;
+
+    int spacePos = data.indexOf(' ');
+    String cmd = (spacePos >= 0) ? data.substring(0, spacePos) : data;
+    String arg = (spacePos >= 0) ? data.substring(spacePos + 1) : "";
+
+    // Echo (skip for /file-read to keep output clean)
+    if (cmd != "/file-read") {
+      if (data.length() > 80)
+        Serial.println("received: " + cmd + " [" + String(data.length()) + " bytes]");
+      else
+        Serial.println("received: " + data);
+      Serial.flush();
+    }
+
+    // ── Commands ───────────────────────────────────────────────────────────
+    if (cmd == "/hello") {
+      // ASCII art: ATM
+      Serial.println(F("   ___  _____ __  __ "));
+      Serial.println(F("  / _ |/_  _/ / \\/ \\ "));
+      Serial.println(F(" / __ | / /   /  |  \\"));
+      Serial.println(F("/_/ |_|/_/   /_/|\\_\\"));
+      Serial.println(F("[CONFIG_MODE_ENTER]"));
+      Serial.flush();
+
+    }
+    else if (cmd == "/file-read") {
+      if (millis() - lastFileReadTime < 1000) continue; // debounce
+      lastFileReadTime = millis();
+      String content = readFileContent("/config.json");
+      if (content.length() > 0) {
+        String response = "/file-read " + content;
+        serialWriteChunked(response);
+        Serial.println(); Serial.flush(); delay(50);
+      }
+      else {
+        Serial.println(F("- Failed to open file for reading")); Serial.flush();
+      }
+
+    }
+    else if (cmd == "/file-remove") {
+      SPIFFS.remove("/config.json");
+      Serial.println(F("- Remove done")); Serial.flush();
+
+    }
+    else if (cmd == "/file-append") {
+      // arg = "config.json {...json...}"
+      int fileNameEnd = arg.indexOf(' ');
+      String fileData = (fileNameEnd >= 0) ? arg.substring(fileNameEnd + 1) : "";
+      File f = SPIFFS.open("/config.json", FILE_APPEND);
+      if (!f) f = SPIFFS.open("/config.json", FILE_WRITE);
+      if (f) { f.println(fileData); f.close(); }
+      Serial.println(F("- Append done")); Serial.flush();
+
+    }
+    else if (cmd == "/config-soft-reset" || cmd == "/config-done") {
+      Serial.println(F("[CONFIG_MODE_EXIT]")); Serial.flush();
+      delay(300);
+      break;
+
+    }
+    else {
+      Serial.println(F("- Unknown command")); Serial.flush();
+    }
+  }
+
+  // ── Exiting config mode ──────────────────────────────────────────────────
+  digitalWrite(MOSFET_PIN, LOW); // Re-enable coin acceptor
+  Serial.println(F("[CONFIG] Coin acceptor unlocked (MOSFET LOW)"));
+  digitalWrite(LED_BUTTON_PIN, HIGH); // LED solid on
+  button_pressed = false;
+
+  // Re-read config so storedDeviceString is up to date
+  String configJson = readFileContent("/config.json");
+  if (configJson.length() > 0)
+    storedDeviceString = extractDeviceStringFromJson(configJson);
+}
+
 // blocking loop which is called when the qr code is shown
 void wait_for_user_to_scan()
 {
   unsigned long long time;
   bool light_on;
+  unsigned long lastStatusMs = 0;
 
   if (DEBUG_MODE)
     Serial.println("Waiting for user to scan qr code and press button...");
@@ -127,7 +581,7 @@ void wait_for_user_to_scan()
   digitalWrite(LED_BUTTON_PIN, HIGH);  // light up the led
   delay(5000);
   button_pressed = false;
-  Serial.println("wait for user to press button or 10 minutes to go back to home screen");
+  Serial.println(F("[QR] Scan QR or press button - auto-return in 10 min"));
   while (!button_pressed && (millis() - time) < 600000)
   {
     if (!light_on && (millis() - time) > 30000)
@@ -140,9 +594,17 @@ void wait_for_user_to_scan()
       digitalWrite(LED_BUTTON_PIN, LOW);
       light_on = false;
     }
+    // Print status every 10 s with remaining time
+    unsigned long now = millis();
+    if (now - lastStatusMs >= 10000) {
+      lastStatusMs = now;
+      unsigned long elapsed = (now - time) / 1000;
+      unsigned long remaining = (elapsed < 600) ? (600 - elapsed) : 0;
+      Serial.println("[QR] Still showing QR - " + String(remaining) + "s remaining, press button to confirm");
+    }
     delay(500);
   }
-  Serial.println("Exit waiting");
+  Serial.println(F("[QR] Exit waiting"));
 }
 
 unsigned int detect_coin()
@@ -153,6 +615,7 @@ unsigned int detect_coin()
   bool read_value;
   unsigned long entering_time;
   unsigned long current_time;
+  static unsigned long lastAliveMs = 0; // heartbeat timer survives between calls
 
   if (DEBUG_MODE)
     Serial.println("Starting coin detection...");
@@ -182,6 +645,16 @@ unsigned int detect_coin()
     if (pulses > 0 && (current_time - last_pulse > PULSE_TIMEOUT))
     {
       break;
+    }
+    else if (pulses == 0 && inserted_cents == 0 && (current_time - lastAliveMs >= 5000))
+    {
+      lastAliveMs = current_time;
+      Serial.println(F("[ALIVE] Waiting for coins..."));
+    }
+    else if (pulses == 0 && inserted_cents > 0 && (current_time - lastAliveMs >= 5000))
+    {
+      lastAliveMs = current_time;
+      Serial.println("[COIN] Total: " + String(inserted_cents) + " cents - press button for QR");
     }
     else if (pulses == 0 && ((current_time - entering_time) > 43200000) // refreshes the screen every 12h
       && inserted_cents == 0)
@@ -235,7 +708,7 @@ void initialize_display()
   else if (display_type == "GxEPD2_270_GDEY027T91")
     display.init(115200, true, 2, false);
   else if (display_type == "GxEPD2_213_B74")
-    display.init(115200, true, 2, false);
+    display.init(115200, true, 10, false); // reset_duration=10ms for GDEM0213B74/SSD1680
   else if (display_type == "GxEPD2_213_flex")
     display.init(115200, true, 2, false);
   else
@@ -342,13 +815,231 @@ String get_amount_string(int amount_in_cents)
   return (return_value);
 }
 
-String makeLNURL(float total)
+////////////////////////////////////////////
+///////////////LNURL STUFF//////////////////
+////USING STEPAN SNIGREVS GREAT CRYTPO//////
+////////////THANK YOU STEPAN////////////////
+////////////////////////////////////////////
+
+int xor_encrypt(uint8_t* output, size_t outlen, uint8_t* key, size_t keylen, uint8_t* nonce, size_t nonce_len, uint64_t pin, uint64_t amount_in_cents)
 {
+  // check we have space for all the data:
+  // <variant_byte><len|nonce><len|payload:{pin}{amount}><hmac>
+  if (outlen < 2 + nonce_len + 1 + lenVarInt(pin) + 1 + lenVarInt(amount_in_cents) + 8)
+  {
+    return 0;
+  }
+
+  int cur = 0;
+  output[cur] = 1; // variant: XOR encryption
+  cur++;
+
+  // nonce_len | nonce
+  output[cur] = nonce_len;
+  cur++;
+  memcpy(output + cur, nonce, nonce_len);
+  cur += nonce_len;
+
+  // payload, unxored first - <pin><currency byte><amount>
+  int payload_len = lenVarInt(pin) + 1 + lenVarInt(amount_in_cents);
+  output[cur] = (uint8_t)payload_len;
+  cur++;
+  uint8_t* payload = output + cur;                                 // pointer to the start of the payload
+  cur += writeVarInt(pin, output + cur, outlen - cur);             // pin code
+  cur += writeVarInt(amount_in_cents, output + cur, outlen - cur); // amount
+  cur++;
+
+  // xor it with round key
+  uint8_t hmacresult[32];
+  SHA256 h;
+  h.beginHMAC(key, keylen);
+  h.write((uint8_t*)"Round secret:", 13);
+  h.write(nonce, nonce_len);
+  h.endHMAC(hmacresult);
+  for (int i = 0; i < payload_len; i++)
+  {
+    payload[i] = payload[i] ^ hmacresult[i];
+  }
+
+  // add hmac to authenticate
+  h.beginHMAC(key, keylen);
+  h.write((uint8_t*)"Data:", 5);
+  h.write(output, cur);
+  h.endHMAC(hmacresult);
+  memcpy(output + cur, hmacresult, 8);
+  cur += 8;
+
+  // return number of bytes written to the output
+  return cur;
+}
+
+// AES-256-CBC encryption compatible with LNbits AESCipher (OpenSSL/CryptoJS "Salted__" format).
+// The server (fossa extension) decrypts with AESCipher.decrypt(payload, urlsafe=True).
+// Plaintext format: "pin:amount_cents" (e.g. "1234:150" for a 1.50 EUR voucher)
+// Key derivation: EVP_BytesToKey with MD5 (same as OpenSSL -k flag / CryptoJS default)
+// Returns base64url-encoded "Salted__" | salt(8) | ciphertext
+// Length is always a multiple of 22 base64 chars (= multiple of 16 raw bytes) as the server checks.
+String aes_encrypt_fossa(const char* key, size_t key_len, int pin, int amount_cents)
+{
+  // 1. Random 8-byte salt
+  uint8_t salt[8];
+  for (int i = 0; i < 8; i++)
+    salt[i] = (uint8_t)random(256);
+
+  // 2. EVP_BytesToKey: digest chain over (key || salt) until 48 bytes (32 key + 16 IV)
+  //    d0 = MD5(key || salt)
+  //    d1 = MD5(d0 || key || salt)
+  //    d2 = MD5(d1 || key || salt)
+  //    aes_key = d0 || d1 (first 32 bytes)
+  //    aes_iv  = d2        (bytes 32-47)
+  uint8_t key_data[256];
+  // Ensure we never write past key_data[256] or tmp[16 + 256]:
+  // key_data holds (effective_key_len + 8) bytes; tmp holds (16 + kd_len) bytes.
+  const size_t max_key_len = 256 - 8; // 248 bytes
+  size_t       effective_key_len = key_len > max_key_len ? max_key_len : key_len;
+  size_t       kd_len = effective_key_len + 8;
+  memcpy(key_data, key, effective_key_len);
+  memcpy(key_data + effective_key_len, salt, 8);
+
+  // helper lambda to compute MD5 via Arduino MD5Builder (avoids mbedTLS version issues)
+  auto md5_once = [](const uint8_t* buf, size_t len, uint8_t out[16]) {
+    MD5Builder md5;
+    md5.begin();
+    md5.add(const_cast<uint8_t*>(buf), (uint16_t)len);
+    md5.calculate();
+    md5.getBytes(out);
+    };
+
+  uint8_t d[48];
+  uint8_t tmp[16 + 256]; // scratch for d_prev || key_data
+
+  md5_once(key_data, kd_len, d);                 // d0
+
+  memcpy(tmp, d, 16);                // d1 = MD5(d0 || key_data)
+  memcpy(tmp + 16, key_data, kd_len);
+  md5_once(tmp, 16 + kd_len, d + 16);
+
+  memcpy(tmp, d + 16, 16);                // d2 = MD5(d1 || key_data)
+  memcpy(tmp + 16, key_data, kd_len);
+  md5_once(tmp, 16 + kd_len, d + 32);
+
+  uint8_t* aes_key = d;       // bytes  0-31
+  uint8_t  aes_iv[16];
+  memcpy(aes_iv, d + 32, 16); // bytes 32-47
+
+  // 3. Plaintext: "pin:amount_cents"
+  char    plaintext[33];
+  int     pt_len = snprintf(plaintext, sizeof(plaintext), "%d:%d", pin, amount_cents);
+  // Guard: snprintf truncated, or padded block would exceed our fixed buffers (max 16 bytes padded)
+  if (pt_len < 0 || pt_len >= (int)sizeof(plaintext) || pt_len > 15) {
+#ifdef DEBUG_MODE
+    Serial.println(F("aes_encrypt_fossa: plaintext too long"));
+#endif
+    return String();
+  }
+
+  // 4. PKCS7 padding to next multiple of 16 (always at least 1 byte of padding)
+  //    pt_len <= 15 => padded_len == 16, fits into padded[16] / ciphertext[16] / salted[32]
+  int     padded_len = 16;
+  uint8_t padded[16];
+  memset(padded, 0, sizeof(padded));
+  memcpy(padded, (const uint8_t*)plaintext, pt_len);
+  uint8_t pad_byte = (uint8_t)(padded_len - pt_len);
+  for (int i = pt_len; i < padded_len; i++)
+    padded[i] = pad_byte;
+
+  // 5. AES-256-CBC encrypt
+  uint8_t ciphertext[16]; // padded_len is always 16
+  mbedtls_aes_context aes_ctx;
+  mbedtls_aes_init(&aes_ctx);
+  int ret = mbedtls_aes_setkey_enc(&aes_ctx, aes_key, 256);
+  if (ret != 0) {
+#ifdef DEBUG_MODE
+    Serial.print(F("AES setkey_enc failed: "));
+    Serial.println(ret);
+#endif
+    mbedtls_aes_free(&aes_ctx);
+    return String();
+  }
+
+  ret = mbedtls_aes_crypt_cbc(&aes_ctx, MBEDTLS_AES_ENCRYPT, padded_len, aes_iv, padded, ciphertext);
+  if (ret != 0) {
+#ifdef DEBUG_MODE
+    Serial.print(F("AES crypt_cbc failed: "));
+    Serial.println(ret);
+#endif
+    mbedtls_aes_free(&aes_ctx);
+    return String();
+  }
+  mbedtls_aes_free(&aes_ctx);
+
+  // 6. Assemble: "Salted__" (8) | salt (8) | ciphertext (padded_len)
+  uint8_t salted[16 + 16]; // 8 header + 8 salt + 16 ciphertext
+  memcpy(salted, "Salted__", 8);
+  memcpy(salted + 8, salt, 8);
+  memcpy(salted + 16, ciphertext, padded_len);
+  int total_len = 16 + padded_len; // 32 bytes for typical amounts → 44 base64 chars (44 % 22 == 0 ✓)
+
+  // 7. Base64url WITH padding (required: server checks len(payload) % 22 == 0)
+  return toBase64(salted, total_len, BASE64_URLSAFE);
+}
+
+char* makeLNURL(float total)
+{
+  int randomPin = random(1000, 9999);
+  // fossa/AES: server expects only ?p=  (no atm=1)
+  // lnurldevice/XOR: server expects ?atm=1&p=
+  String preparedURL = baseURLATM + (fossaMode ? "?p=" : "?atm=1&p=");
+
   if (fossaMode)
   {
-    return makeLNURLFossa(secretATM, total, baseURLATM);
+    // fossa extension: AES-256-CBC (OpenSSL "Salted__" format, plaintext "pin:amount_cents")
+    preparedURL += aes_encrypt_fossa(secretATM.c_str(), secretATM.length(), randomPin, (int)lroundf(total));
   }
-  return makeLNURLLegacy(secretATM, total, baseURLATM);
+  else
+  {
+    // lnurldevice extension: XOR-HMAC encryption (legacy)
+    byte nonce[8];
+    for (int i = 0; i < 8; i++)
+    {
+      nonce[i] = random(256);
+    }
+    byte payload[51]; // 51 bytes is max one can get with xor-encryption
+    size_t payload_len = xor_encrypt(payload, sizeof(payload), (uint8_t*)secretATM.c_str(), secretATM.length(), nonce, sizeof(nonce), randomPin, float(total));
+    preparedURL += toBase64(payload, payload_len, BASE64_URLSAFE | BASE64_NOPADDING);
+  }
+
+  if (DEBUG_MODE)
+    Serial.println(preparedURL);
+  char Buf[200];
+  preparedURL.toCharArray(Buf, 200);
+  char* url = Buf;
+  byte* data = (byte*)calloc(strlen(url) * 2, sizeof(byte));
+  if (!data)
+    return (NULL);
+  size_t len = 0;
+  int res = convert_bits(data, &len, 5, (byte*)url, strlen(url), 8, 1);
+  char* charLnurl = (char*)calloc(strlen(url) * 2, sizeof(byte));
+  if (!charLnurl)
+  {
+    free(data);
+    return (NULL);
+  }
+  bech32_encode(charLnurl, "lnurl", data, len);
+  to_upper(charLnurl);
+  free(data);
+  return (charLnurl);
+}
+
+void to_upper(char* arr)
+{
+  for (size_t i = 0; i < strlen(arr); i++)
+  {
+    if (arr[i] >= 'a' && arr[i] <= 'z')
+    {
+      arr[i] = arr[i] - 'a' + 'A';
+    }
+  }
 }
 
 // Function to seperate the LNURLDevice string in key, url and currency

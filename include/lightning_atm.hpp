@@ -7,31 +7,25 @@
 #include "qrcode.h"
 #include "Bitcoin.h"
 #include <stdlib.h>
+#include <Hash.h>
 #include <ctype.h>
-#include "util.hpp"
-#include "fossa_crypto.hpp"
 
 // ########################################
 // ###########    USER ACTION   ###########
 // ########################################
-// Generate and copy in LNbits the device string for the ATM and paste it here.
-// Example:
-// const String lnurlDeviceString = "https://myserver.com/fossa/api/v1/lnurl/idexample,keyexample,EUR";
-const String lnurlDeviceString = "";  // MUST be set by user before deployment
-// The correct encryption mode is detected automatically from the URL path (/fossa/ vs /lnurldevice/).
+// Preferred: use the Web Installer (installer/index.html) to configure the device.
+// The device string is then stored in SPIFFS and loaded automatically at boot.
+//
+// Legacy fallback: paste your LNbits device string below to hard-code it at compile time.
+// Example: "https://myserver.com/fossa/api/v1/lnurl/idexample,keyexample,EUR"
+const String lnurlDeviceString = "";  // optional hard-coded fallback (leave empty when using Web Installer)
+// Encryption mode (FOSSA/AES or lnurldevice/XOR) is auto-detected from the URL path.
+// ########################################
+
 // ########################################
 // #########    Driver settings   #########
 // ########################################
-// ### Use one of these five display classes and customize it below.###
-// 1. 1.54 inch Waveshare e-paper display is "GxEPD2_DRIVER_CLASS GxEPD2_150_BN"
-// 2. Waveshare 264x176, 2.7inch E-Ink display - Version 1 = "GxEPD2_DRIVER_CLASS GxEPD2_270"
-// 3. Waveshare 264x176, 2.7inch E-Ink display - Version 2 = "GxEPD2_DRIVER_CLASS GxEPD2_270_GDEY027T91" 
-// 4. Waveshare 2.13 inch e-paper display version 3 is "GxEPD2_DRIVER_CLASS GxEPD2_213_B74"
-// 5. Waveshare 2.13 inch e-paper display (D) flex (yellow) is "GxEPD2_DRIVER_CLASS GxEPD2_213_flex"
-// ########################################
-// ##########    currently set   ##########
-// ########################################
-// -> Waveshare 2.13 inch e-paper display version 3 is "GxEPD2_DRIVER_CLASS GxEPD2_213_B74"
+// -> GxEPD2_display_selection_new_style.h
 // ########################################
 
 
@@ -103,8 +97,9 @@ const unsigned char bitcoin_logo[] PROGMEM = {
 // put function declarations here:
 void clean_screen();
 void initialize_display();
+void to_upper(char* arr);
 void qr_withdrawl_screen(const char* qr_content);
-String makeLNURL(float total);
+char* makeLNURL(float total);
 int xor_encrypt(uint8_t* output, size_t outlen, uint8_t* key, size_t keylen, uint8_t* nonce, size_t nonce_len, uint64_t pin, uint64_t amount_in_cents);
 void show_inserted_amount(int amount_in_cents);
 String get_amount_string(int amount_in_cents);

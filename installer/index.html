@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Offline-ATM ⚡️ WEB INSTALLER</title>
+
+    <!-- Primary Meta Tags -->
+    <meta name="description" content="Flash & config your Offline-LightningATM-esp32 from the browser">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+
+    <link rel="stylesheet" href="./assets/style.css">
+    <script src="./assets/serial.js?v=1"></script>
+    <script src="./assets/config-common.js"></script>
+    <script type="module" src="https://unpkg.com/esp-web-tools@9/dist/web/install-button.js?module"></script>
+</head>
+
+<body>
+    <div class="wrapper">
+
+        <noscript>
+            <p>
+                I'm sorry! For this to actually work you have to enable JavaScript in your browser.
+            </p>
+        </noscript>
+
+        <h1 style="margin-bottom: 5px; display: inline-block;">Offline-ATM ⚡️ WEB INSTALLER</h1>
+        <p style="margin: 10px 0 0 0; color: #666;"><i>Use with esp32dev microcontroller</i></p>
+        <div style="margin-bottom: 30px;"></div>
+
+        <h2 id="flash">1- Flash firmware</h2>
+
+        <ul>
+            <li>Connect your ATM to the USB port of the esp32</li>
+            <li>Choose the firmware that matches the display and the board wiring.</li>
+            <li>Press <span style="background-color: #e0e0e0; padding: 2px 6px; border-radius: 3px;">🔥 Flash</span> - select the connection and follow screen instructions</li>
+        </ul>
+
+        <!-- ##### Version selector and flash button ##### -->
+
+        <div class="buttons" style="display: flex; gap: 10px; align-items: center; margin-top: 5px;">
+            <select id="firmware-version" style="padding: 10px; font-size: 16px; border-radius: 4px;">
+                <option value="./firmware/v939229-Waveshare-2.13-v3-std_esp32/manifest.json">v939229-Waveshare-2.13-v3-std_esp32 (Latest ✨)</option>
+                <option value="./firmware/v939229-Waveshare-2.13-D-std_esp32/manifest.json">v939229-Waveshare-2.13-D-std_esp32 (Latest ✨)</option>
+                <option value="./firmware/v939229-Waveshare-2.7-v1-wv_esp32/manifest.json">v939229-Waveshare-2.7-v1-wv_esp32 (Latest ✨)</option>
+                <option value="./firmware/v939229-Waveshare-2.7-v2-wv_esp32/manifest.json">v939229-Waveshare-2.7-v2-wv_esp32 (Latest ✨)</option>
+                <option value="./firmware/v939229-Waveshare-1.54-v1-std_esp32/manifest.json">v939229-Waveshare-1.54-v1-std_esp32 (Latest ✨)</option>
+                <option value="./firmware/v939148-Waveshare-2.13-v3-std_esp32/manifest.json">v939148-Waveshare-2.13-v3-std_esp32</option>
+                <option value="./firmware/v939148-Waveshare-2.13-D-std_esp32/manifest.json">v939148-Waveshare-2.13-D-std_esp32</option>
+                <option value="./firmware/v939148-Waveshare-2.7-v1-wv_esp32/manifest.json">v939148-Waveshare-2.7-v1-wv_esp32</option>
+                <option value="./firmware/v939148-Waveshare-2.7-v2-wv_esp32/manifest.json">v939148-Waveshare-2.7-v2-wv_esp32</option>
+                <option value="./firmware/v939148-Waveshare-1.54-v1-std_esp32/manifest.json">v939148-Waveshare-1.54-v1-std_esp32</option>
+                <option value="./firmware/v938844-Waveshare-2.13-v3-std_esp32/manifest.json">v938844-Waveshare-2.13-v3-std_esp32 (Pilot 👨‍✈️🛫)</option>
+                <option value="./firmware/v938844-Waveshare-2.13-D-std_esp32/manifest.json">v938844-Waveshare-2.13-D-std_esp32 (Pilot 👨‍✈️🛫)</option>
+                <option value="./firmware/v938844-Waveshare-2.7-v1-wv_esp32/manifest.json">v938844-Waveshare-2.7-v1-wv_esp32 (Pilot 👨‍✈️🛫)</option>
+                <option value="./firmware/v938844-Waveshare-2.7-v2-wv_esp32/manifest.json">v938844-Waveshare-2.7-v2-wv_esp32 (Pilot 👨‍✈️🛫)</option>
+                <option value="./firmware/v938844-Waveshare-1.54-v1-std_esp32/manifest.json">v938844-Waveshare-1.54-v1-std_esp32 (Pilot 👨‍✈️🛫)</option>
+            </select>
+
+            <esp-web-install-button id="flash-button" manifest="./firmware/v939229-Waveshare-2.13-v3-std_esp32/manifest.json">
+                <button slot="activate">🔥 Flash</button>
+                <span slot="unsupported">Your browser does not support installing things on ESP devices. Use Google Chrome or Microsoft Edge.</span>
+                <span slot="not-allowed">Ah snap, you are not allowed to use this on HTTP!</span>
+            </esp-web-install-button>
+        </div>
+
+        <script>
+            document.getElementById('firmware-version').addEventListener('change', function(e) {
+                document.getElementById('flash-button').setAttribute('manifest', e.target.value);
+            });
+        </script>
+
+        <p><i><strong>Note:</strong> There are two ESP32 board types with different wiring (see <a href="https://github.com/f321x/offline-LightningATM-esp32">GitHub</a>)<br>
+                 -> The standard ESP32 (std_esp32) and the Waveshare ESP32 (wv_esp32)</i></p>
+
+        <p><i><strong>Note:</strong> The configuration data can be deleted using "Erase device." Otherwise, it will be retained even with the new firmware. LOGS &amp; CONSOLE is not needed.</i></p>
+
+        <div style="background-color: #d4edda; border-left: 4px solid #28a745; padding: 12px 16px; border-radius: 4px; margin: 10px 0;">
+            ⏳ <strong>After flashing:</strong> Wait at least <strong>15 seconds</strong> until the e-paper screen updates.<br>
+            Then go to <strong>3- Load config values</strong> and press <span style="background-color: #e0e0e0; padding: 2px 6px; border-radius: 3px;">🔌 Connect</span>.
+        </div>
+
+        <hr>
+
+        <h2 id="prepare-connection">2- Note on establishing a connection for parameterization</h2>
+
+        <p>When you flash a new ESP32 or use "Erase device." the ATM automatically starts in configuration mode.</p>
+
+        <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 16px; border-radius: 4px; margin: 10px 0;">
+            💡 <strong>Config mode indicator:</strong> The LED button <strong>blinks slowly</strong> (~1× per second) when the ATM is in configuration mode. Solid LED = normal operation.
+        </div>
+
+        <p>If parameters have already been stored and need to be changed, you can also open config mode retrospectively:</p>
+        <ul>
+            <li>Press and hold the BOOT button on the ESP32 for at least 5 seconds.</li>
+            <li>Press the LED button briefly once, then hold it down for at least 5 seconds.</li>
+        </ul>
+
+        <p><i><strong>Note:</strong> The connection will remain active for 3 minutes (180 seconds) before it is automatically disconnected. If data is already available, you can terminate the connection prematurely by pressing the BOOT button or pressing the external button.</i></p>
+
+        <hr>
+
+        <h2 id="load-config">3- Load config values</h2>
+
+        <ul>
+            <li>Press <span style="background-color: #e0e0e0; padding: 2px 6px; border-radius: 3px;">🔌 Connect</span> - select the connection and connect.</li>
+            <li>Check whether the ATM is in config mode.⚙️✅</li>
+            <li>If values are already available, press <span style="background-color: #e0e0e0; padding: 2px 6px; border-radius: 3px;">📖 Read Config</span>.</li>
+            <li>Define your configuration.📝 At least the Device String.</li>
+            <li>Press <span style="background-color: #e0e0e0; padding: 2px 6px; border-radius: 3px;">🔥 Write Config</span> to write the configuration.</li>
+            <li>Press <span style="background-color: #e0e0e0; padding: 2px 6px; border-radius: 3px;">🔄 Restart</span> to restart while staying connected.</li>
+            <li>Press <span style="background-color: #e0e0e0; padding: 2px 6px; border-radius: 3px;">🔌 Disconnect</span> or refresh website to close connection.</li>
+        </ul>
+
+        <div class="buttons">
+            <button id="connect-button" onclick="onConnectButtonClick()">🔌 Connect</button>
+            <button id="read-config-button" onclick="onReadConfigButtonClick()" disabled>📖 Read Config</button>
+            <button id="write-config-button" onclick="onWriteConfigButtonClick()" disabled>🔥 Write Config</button>
+            <button id="soft-reset-button" onclick="onSoftResetButtonClick()" disabled>🔄 Restart</button>
+            <button id="restart-button" onclick="onRestartButtonClick()" disabled>🔌 Disconnect</button>
+        </div>
+
+        <div style="background-color: #CCFFCC; padding: 20px; margin: 20px -20px; border-radius: 8px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; column-gap: 10px; row-gap: 1em; margin-top: 1rem;">
+                <div>
+                    <label for="ssid">WiFi SSID <span style="color:#888; font-weight:normal;">(not used)</span></label>
+                    <input type="text" name="ssid" id="ssid" placeholder="SSID" autocomplete="off">
+                </div>
+                <div>
+                    <label for="wifiPassword">WiFi password <span style="color:#888; font-weight:normal;">(not used)</span></label>
+                    <input type="text" name="wifiPassword" id="wifiPassword" placeholder="password" autocomplete="off">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; column-gap: 10px; align-items: start; margin-top: 1rem;">
+                <div>
+                    <label for="deviceString">Device String</label>
+                    <input type="text" name="deviceString" id="deviceString" placeholder="https://myserver.com/fossa/api/v1/lnurl/id,key,EUR" autocomplete="off">
+                    <p style="margin: -13px 0 0 0; font-size: 11px; color: #888; font-style: italic;">Generate the device string in LNbits (fossa or lnurldevice extension).</p>
+                </div>
+                <div>
+                    <label>Status</label>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                        <div id="connection-status" style="padding: 6px 14px; border-radius: 5px; background-color: #e0e0e0; color: #888; font-weight: bold; white-space: nowrap; font-size: 13px;">● Not connected</div>
+                        <div id="config-mode-status" style="padding: 6px 14px; border-radius: 5px; background-color: #e0e0e0; color: #888; font-weight: bold; white-space: nowrap; font-size: 13px;">● No config mode</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="debug-console" id="consoleDebug"></div>
+
+        <p style="text-align: center; font-size: 18px; margin-top: 20px;"><strong>Congratulations on configuring your own ATM! 🎉</strong></p>
+
+        <p><i><strong>Note:</strong> You can see the logs from the device in the black terminal window when you are connected. Below you will find additional optional functions and settings.</i></p>
+
+        <!-- Optional settings and functions Section -->
+        <div style="background-color: #FFE5CC; padding: 30px 20px; margin: 50px -20px 0 -20px;">
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: -10px;">
+                <h3 style="margin: 0; color: #000; font-weight: bold; white-space: nowrap;">Optional settings and functions</h3>
+                <hr style="flex: 1; border: none; border-top: 1px solid #888; margin: 0;">
+            </div>
+
+            <!-- BTC-Ticker Section -->
+            <div class="input-wrapper">
+                <div>
+                    <label for="btcTicker">BTC-Ticker Mode</label>
+                    <select name="btcTicker" id="btcTicker" disabled>
+                        <option value="off" selected>OFF (default)</option>
+                        <option value="always">ON - always</option>
+                        <option value="selecting">ON - when selecting</option>
+                    </select>
+                    <p style="margin: -13px 0 0 0; font-size: 11px; color: #888; font-style: italic;">Control when Bitcoin price/block info is shown</p>
+                </div>
+                <div>
+                    <label for="currency">Currency (ISO Code)</label>
+                    <input type="text" name="currency" id="currency" placeholder="EUR" maxlength="3" autocomplete="off" disabled>
+                    <p style="margin: -13px 0 0 0; font-size: 11px; color: #888; font-style: italic;">E.g. USD, EUR, GBP, JPY, CHF, etc.</p>
+                </div>
+            </div>
+
+            <p style="margin-top: 5px; color: #888;"><i><strong>Note:</strong> Example selection. Currently inactive.</i></p>
+
+        </div>
+
+        <!-- Error Detection Section -->
+        <div style="background-color: #FFFFCC; padding: 30px 20px; margin: 0 -20px;">
+            <h2 id="error-detection">Error Detection &amp; Report</h2>
+
+            <p style="color: #888;"><i><strong>Note:</strong> Example - currently not in use.</i></p>
+        </div>
+
+        <!-- Troubleshoot Section -->
+        <div style="background-color: #CCE5FF; padding: 30px 20px; margin: 0 -20px;">
+            <h2 id="troubleshoot">Troubleshoot</h2>
+
+            <h3 id="mostimportant">Connection problems:</h3>
+            <ul>
+                <li>Check that the USB cable is plugged directly into the USB port of the ESP32 and not into the USB port of a power supply.</li>
+                <li>Check/replace the cable. There are USB cables that have no data lines and are only for power supply.</li>
+                <li>Double connection: Check whether a connection already exists via another browser window. Close one window.</li>
+                <li>A website refresh with CTRL+F5 or CTRL+SHIFT+R can also help.</li>
+                <li>If nothing else helps, do a complete restart by erasing all data on the ESP32. Use <a href="https://espressif.github.io/esptool-js/" target="_blank" rel="noopener noreferrer">https://espressif.github.io/esptool-js/</a>. → Press: <strong>Connect</strong> &gt; <strong>Erase Flash</strong> and reflash the ATM.</li>
+            </ul>
+
+            <h3 id="hardwareproblems">Further note:</h3>
+            <p>Some ESP32 boards must first be put into bootloader mode before flashing or transferring data. Try these:</p>
+            <ul>
+                <li>Connect the board via the USB cable</li>
+                <li>Press and hold the BOOT button</li>
+                <li>While still pressing the BOOT button, press RESET (EN)</li>
+                <li>Release the RESET button</li>
+                <li>Release the BOOT button</li>
+                <li><a href="#flash">Go to step 1</a></li>
+            </ul>
+
+            <h3 id="pinout">Pinout:</h3>
+            <p style="color: #888;"><i>See the <a href="https://github.com/f321x/offline-LightningATM-esp32" target="_blank" rel="noopener noreferrer">GitHub repository</a> for wiring and pin configuration details.</i></p>
+
+            <h3>Helpful links</h3>
+            <p>
+                GitHub – offline-LightningATM-esp32: <a href="https://github.com/f321x/offline-LightningATM-esp32" target="_blank" rel="noopener noreferrer">https://github.com/f321x/offline-LightningATM-esp32</a><br>
+                LNbits – fossa extension: <a href="https://github.com/lnbits/fossa_extension" target="_blank" rel="noopener noreferrer">https://github.com/lnbits/fossa_extension</a><br>
+                LNbits – lnurldevice extension: <a href="https://github.com/lnbits/lnurldevice" target="_blank" rel="noopener noreferrer">https://github.com/lnbits/lnurldevice</a><br>
+                LNbits: <a href="https://lnbits.com/" target="_blank" rel="noopener noreferrer">https://lnbits.com/</a><br>
+                MakerBits Telegram Gruppe: <a href="https://t.me/makerbits" target="_blank" rel="noopener noreferrer">https://t.me/makerbits</a>
+            </p>
+        </div>
+
+        <hr>
+
+        <footer>
+            <p>Built on the shoulders of giants | <a href="https://github.com/f321x/offline-LightningATM-esp32" target="_blank" rel="noopener noreferrer">Github repo</a></p>
+        </footer>
+    </div>
+
+    <script>
+        const consoleDebug = document.getElementById('consoleDebug');
+        const ssid = document.getElementById('ssid');
+        const wifiPassword = document.getElementById('wifiPassword');
+        const deviceString = document.getElementById('deviceString');
+
+        let config = [
+            { "name": "ssid", "value": "" },
+            { "name": "wifipassword", "value": "" },
+            { "name": "deviceString", "value": "" }
+        ];
+
+        // Setup Web Serial using serial.js
+        const serial = new Serial();
+        serial.on(SerialEvents.CONNECTION_OPENED, onSerialConnectionOpened);
+        serial.on(SerialEvents.CONNECTION_CLOSED, onSerialConnectionClosed);
+        serial.on(SerialEvents.DATA_RECEIVED, onSerialDataReceived);
+        serial.on(SerialEvents.ERROR_OCCURRED, onSerialErrorOccurred);
+
+        function onSerialErrorOccurred(eventSender, error) {
+            console.log("onSerialErrorOccurred", error);
+        }
+
+        let configModeCheckTimeout = null;
+        let configModeVerified = false;
+        let helloSendTimeout = null;
+        let serialBuffer = "";
+        let justRestarted = false;
+        let lastDataReceivedTime = 0;
+        let waitingForManualConfigMode = false;
+        let normalOperationLogged = false;
+
+        function onSerialConnectionOpened(eventSender) {
+            console.log("onSerialConnectionOpened", eventSender);
+
+            configModeVerified = false;
+            lastDataReceivedTime = Date.now();
+            waitingForManualConfigMode = false;
+            normalOperationLogged = false;
+
+            document.getElementById("connect-button").disabled = true;
+            document.getElementById("read-config-button").disabled = true;
+            document.getElementById("write-config-button").disabled = true;
+            document.getElementById("soft-reset-button").disabled = true;
+            document.getElementById("restart-button").disabled = false;
+
+            const checkMsg = document.createElement('span');
+            checkMsg.style.color = '#888';
+            checkMsg.textContent = 'Connecting...\n';
+            consoleDebug.appendChild(checkMsg);
+            consoleDebug.scrollTop = consoleDebug.scrollHeight;
+
+            updateConnectionStatus(true);
+            updateConfigModeStatus(false);
+            waitingForManualConfigMode = true;
+
+            helloSendTimeout = setTimeout(() => {
+                if (configModeVerified === false) {
+                    console.log("Sending /hello to check for config mode...");
+                    serial.writeLine("/hello");
+                }
+            }, 3000);
+
+            configModeCheckTimeout = null;
+        }
+
+        function onSerialConnectionClosed(eventSender) {
+            console.log("onSerialConnectionClosed", eventSender);
+
+            if (helloSendTimeout) { clearTimeout(helloSendTimeout); helloSendTimeout = null; }
+            if (configModeCheckTimeout) { clearTimeout(configModeCheckTimeout); configModeCheckTimeout = null; }
+
+            configModeVerified = false;
+            serialBuffer = "";
+            justRestarted = false;
+            waitingForManualConfigMode = false;
+            lastDataReceivedTime = 0;
+            normalOperationLogged = false;
+
+            updateConnectionStatus(false);
+            updateConfigModeStatus(false);
+
+            document.getElementById("connect-button").disabled = false;
+            document.getElementById("read-config-button").disabled = true;
+            document.getElementById("write-config-button").disabled = true;
+            document.getElementById("soft-reset-button").disabled = true;
+            document.getElementById("restart-button").disabled = true;
+        }
+
+        function addEventLog(color, icon, message) {
+            const el = document.createElement('span');
+            el.style.color = color;
+            el.style.fontWeight = 'bold';
+            el.textContent = '\n' + icon + ' ' + message + '\n';
+            consoleDebug.appendChild(el);
+            consoleDebug.scrollTop = consoleDebug.scrollHeight;
+        }
+
+        function onSerialDataReceived(eventSender, newData) {
+            console.log("onSerialDataReceived:", newData);
+            lastDataReceivedTime = Date.now();
+
+            // Raw serial output – dimmed grey so events stand out
+            const textNode = document.createElement('span');
+            textNode.style.color = '#aaaaaa';
+            textNode.style.fontSize = '11px';
+            textNode.textContent = newData + '\n';
+            consoleDebug.appendChild(textNode);
+            consoleDebug.scrollTop = consoleDebug.scrollHeight;
+
+            // ── Important event highlights ──────────────────────────────
+            if (newData.includes("[BOOT]"))
+                addEventLog('#00aaff', '🚀', newData.trim());
+            if (newData.includes("received: /file-remove"))
+                addEventLog('#ffaa00', '🗑️', 'Removing existing config from flash...');
+            if (newData.includes("- Remove done"))
+                addEventLog('#00cc66', '✅', 'Old config removed.');
+            if (newData.includes("received: /file-append"))
+                addEventLog('#ffaa00', '📝', 'Writing new config to flash...');
+            if (newData.includes("- Append done"))
+                addEventLog('#00ff88', '✅', 'Config saved to flash!');
+            if (newData.includes("received: /config-soft-reset"))
+                addEventLog('#ffaa00', '🔄', 'Soft-reset command received – device is restarting...');
+            if (newData.includes("Busy Timeout!"))
+                addEventLog('#888888', 'ℹ️', 'E-paper display initializing (Busy Timeout is normal).');
+            if (newData.includes("_Update_Full"))
+                addEventLog('#888888', '🖥️', 'E-paper full update complete.');
+            if (newData.includes("[SETUP]") || newData.includes("lnurlDeviceString") || newData.includes("Device String"))
+                addEventLog('#00aaff', '⚙️', 'ATM setup running...');
+            if (!normalOperationLogged && (newData.includes("[LOOP]") || newData.includes("detect_coin") || newData.includes("makeLNURL") || newData.includes("show_inserted"))) {
+                normalOperationLogged = true;
+                addEventLog('#00ff00', '💰', 'ATM running in normal operation mode.');
+            }
+
+            // Detect normal program output (= not in config mode)
+            const hasNormalProgramOutput = newData.includes("[LOOP]") ||
+                newData.includes("show_inserted_amount") ||
+                newData.includes("detect_coin") ||
+                newData.includes("makeLNURL") ||
+                newData.includes("[SETUP]");
+
+            // Detect boot / reset
+            if (!justRestarted && (newData.includes("rst:0x1 (POWERON_RESET)") || newData.includes("ets Jul 29 2019"))) {
+                const bootMsg = document.createElement('span');
+                bootMsg.style.color = '#ffaa00';
+                bootMsg.style.fontWeight = 'bold';
+                bootMsg.textContent = '\n⚠️ DEVICE RESET DETECTED\n';
+                consoleDebug.appendChild(bootMsg);
+
+                const actionMsg = document.createElement('span');
+                actionMsg.style.color = '#00ff00';
+                actionMsg.style.fontWeight = 'bold';
+                actionMsg.textContent = '→ Please HOLD the BOOT button for 5 seconds to enter config mode.\n\n';
+                consoleDebug.appendChild(actionMsg);
+                consoleDebug.scrollTop = consoleDebug.scrollHeight;
+
+                justRestarted = true;
+                configModeVerified = false;
+                waitingForManualConfigMode = true;
+                normalOperationLogged = false;
+
+                if (helloSendTimeout) { clearTimeout(helloSendTimeout); helloSendTimeout = null; }
+                helloSendTimeout = setTimeout(() => {
+                    if (!configModeVerified) serial.writeLine("/hello");
+                }, 6000);
+            }
+
+            // Normal mode reminder
+            if (hasNormalProgramOutput && configModeVerified !== true && !justRestarted && !waitingForManualConfigMode) {
+                waitingForManualConfigMode = true;
+
+                const reminderMsg = document.createElement('span');
+                reminderMsg.style.color = '#ffaa00';
+                reminderMsg.style.fontWeight = 'bold';
+                reminderMsg.textContent = '\n⚠️ Device is running in normal mode.\n';
+                consoleDebug.appendChild(reminderMsg);
+
+                const actionMsg = document.createElement('span');
+                actionMsg.style.color = '#00ff00';
+                actionMsg.style.fontWeight = 'bold';
+                actionMsg.textContent = '→ Please HOLD the BOOT button for 5 seconds to enter config mode.\n\n';
+                consoleDebug.appendChild(actionMsg);
+                consoleDebug.scrollTop = consoleDebug.scrollHeight;
+                return;
+            }
+
+            // Config mode detection
+            const hasConfigModeEnter = newData.includes("[CONFIG_MODE_ENTER]") || newData.includes("CONFIG_MODE_ENTER");
+            const hasAsciiArt = !configModeVerified && (newData.includes("____") || newData.includes("/_  /") || newData.includes("/___/"));
+            const hasConfigTriggerLog = !configModeVerified && (
+                newData.includes("Config mode triggered") ||
+                newData.includes("Config mode screen displayed") ||
+                newData.includes("entering serial config") ||
+                newData.includes("Serial Config Mode Active") ||
+                newData.includes("Waiting for commands")
+            );
+
+            if ((hasConfigModeEnter || hasAsciiArt || hasConfigTriggerLog) && !configModeVerified) {
+                configModeVerified = true;
+                justRestarted = false;
+                waitingForManualConfigMode = false;
+
+                updateConfigModeStatus(true);
+
+                if (helloSendTimeout) { clearTimeout(helloSendTimeout); helloSendTimeout = null; }
+                if (configModeCheckTimeout) { clearTimeout(configModeCheckTimeout); configModeCheckTimeout = null; }
+
+                setTimeout(() => {
+                    const successMsg = document.createElement('span');
+                    successMsg.style.color = '#00ff00';
+                    successMsg.style.fontWeight = 'bold';
+                    successMsg.textContent = '\n✅ CONFIG MODE ACTIVE - Ready to configure!\n\n';
+                    consoleDebug.appendChild(successMsg);
+                    consoleDebug.scrollTop = consoleDebug.scrollHeight;
+                }, 300);
+
+                document.getElementById("connect-button").disabled = true;
+                document.getElementById("read-config-button").disabled = false;
+                document.getElementById("write-config-button").disabled = false;
+                document.getElementById("soft-reset-button").disabled = false;
+                document.getElementById("restart-button").disabled = false;
+            }
+
+            // Config mode exit
+            if (newData.includes("[CONFIG_MODE_EXIT]")) {
+                configModeVerified = false;
+                updateConfigModeStatus(false);
+                document.getElementById("read-config-button").disabled = true;
+                document.getElementById("write-config-button").disabled = true;
+            }
+
+            // Buffer for config parsing
+            serialBuffer += newData;
+            if (serialBuffer.includes("/file-read ") || serialBuffer.includes('[{"name":"ssid"')) {
+                tryParseConfig();
+            }
+
+            if (newData.includes("- Failed to open file for reading")) {
+                alert("There is no config in the device, please fill options and write.");
+            }
+        }
+
+        function tryParseConfig() {
+            let configStart = serialBuffer.lastIndexOf('[{"name":"ssid"');
+            let searchSection;
+
+            if (configStart !== -1) {
+                searchSection = serialBuffer.substring(configStart);
+            } else {
+                let fileReadIndex = serialBuffer.lastIndexOf("/file-read ");
+                if (fileReadIndex === -1) return;
+                let afterFileRead = serialBuffer.substring(fileReadIndex);
+                let fallbackStart = afterFileRead.indexOf("[");
+                if (fallbackStart === -1) return;
+                searchSection = afterFileRead.substring(fallbackStart);
+            }
+
+            let jsonStart = searchSection.indexOf("[");
+            if (jsonStart === -1) return;
+
+            let bracketCount = 0;
+            let inString = false;
+            let escape = false;
+            let jsonEnd = -1;
+
+            for (let i = jsonStart; i < searchSection.length; i++) {
+                let char = searchSection[i];
+                if (escape) { escape = false; continue; }
+                if (char === '\\') { escape = true; continue; }
+                if (char === '"') { inString = !inString; continue; }
+                if (!inString) {
+                    if (char === '[') bracketCount++;
+                    if (char === ']') {
+                        bracketCount--;
+                        if (bracketCount === 0) { jsonEnd = i; break; }
+                    }
+                }
+            }
+
+            if (jsonEnd === -1) return;
+
+            let jsonString = searchSection.substring(jsonStart, jsonEnd + 1);
+
+            try {
+                let configData = JSON.parse(jsonString);
+
+                if (!Array.isArray(configData) || configData.length < 1 || configData[0]?.name !== "ssid") return;
+
+                config[0].value = configData[0]?.value || "";
+                config[1].value = configData[1]?.value || "";
+                config[2].value = configData[2]?.value || "";
+
+                ssid.value = config[0].value;
+                wifiPassword.value = config[1].value;
+                deviceString.value = config[2].value;
+
+                console.log("Config loaded:", config);
+
+                const successMsg = document.createElement('span');
+                successMsg.style.color = '#00ff00';
+                successMsg.textContent = '\n✓ Data loaded\n';
+                consoleDebug.appendChild(successMsg);
+                consoleDebug.scrollTop = consoleDebug.scrollHeight;
+
+                serialBuffer = "";
+
+                setTimeout(() => {
+                    const readBtn = document.getElementById('read-config-button');
+                    readBtn.disabled = false;
+                    readBtn.textContent = '📖 Read Config';
+                }, 3000);
+
+            } catch (error) {
+                console.log("JSON parse attempt failed:", error);
+                const errorMsg = document.createElement('span');
+                errorMsg.style.color = '#ff4444';
+                errorMsg.textContent = '⚠️ Config data is corrupted on device. Please fill in the fields and write new config.\n';
+                consoleDebug.appendChild(errorMsg);
+                consoleDebug.scrollTop = consoleDebug.scrollHeight;
+                serialBuffer = "";
+            }
+        }
+
+        async function onConnectButtonClick() {
+            if (navigator.serial) {
+                if (!serial.isOpen()) {
+                    await serial.connectAndOpen(null, {
+                        baudRate: 115200,
+                        flowControl: 'none',
+                        bufferSize: 16384
+                    });
+                }
+            } else {
+                alert('⚠️ The Web Serial API does not appear supported on this web browser.');
+            }
+        }
+
+        async function onReadConfigButtonClick() {
+            const btn = document.getElementById('read-config-button');
+            if (btn.disabled) return;
+            btn.disabled = true;
+            btn.textContent = '⏳ Reading...';
+            serialBuffer = "";
+            await serial.writeLine("/file-read config.json");
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.textContent = '📖 Read Config';
+            }, 5000);
+        }
+
+        async function onWriteConfigButtonClick() {
+            if (!configModeVerified) {
+                alert("⚠️ Config Mode Required\n\nTo write config data, the device must be in SERIAL CONFIG MODE.\n\nPlease:\n1. Disconnect current connection\n2. Put device in config mode (hold BOOT button 5 seconds)\n3. Reconnect and try again");
+                const errorMsg = document.createElement('span');
+                errorMsg.style.color = '#ff4444';
+                errorMsg.textContent = '⚠️ Not in config mode - write aborted\n';
+                consoleDebug.appendChild(errorMsg);
+                consoleDebug.scrollTop = consoleDebug.scrollHeight;
+                return;
+            }
+
+            config[0].value = ssid.value;
+            config[1].value = wifiPassword.value;
+            config[2].value = deviceString.value;
+
+            if (!config[2].value.trim()) {
+                alert("⚠️ Validation Error\n\nThe field 'Device String' is required.");
+                return;
+            }
+
+            await serial.writeLine("/file-remove config.json");
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const fullCommand = "/file-append config.json " + JSON.stringify(config);
+            const chunkSize = 128;
+            for (let i = 0; i < fullCommand.length; i += chunkSize) {
+                await serial.write(fullCommand.substring(i, Math.min(i + chunkSize, fullCommand.length)));
+                await new Promise(resolve => setTimeout(resolve, 15));
+            }
+            await serial.write("\n");
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const successMsg = document.createElement('span');
+            successMsg.style.color = '#00ff00';
+            successMsg.textContent = '✓ Data written\n';
+            consoleDebug.appendChild(successMsg);
+            consoleDebug.scrollTop = consoleDebug.scrollHeight;
+
+            // Automatically exit config mode and restart device
+            const restartMsg = document.createElement('span');
+            restartMsg.style.color = '#ffaa00';
+            restartMsg.textContent = 'Sending restart command to device...\n';
+            consoleDebug.appendChild(restartMsg);
+            consoleDebug.scrollTop = consoleDebug.scrollHeight;
+
+            serial.writeLine("/config-soft-reset");
+            configModeVerified = false;
+            justRestarted = true;
+
+            document.getElementById("read-config-button").disabled = true;
+            document.getElementById("write-config-button").disabled = true;
+
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            const doneMsg = document.createElement('span');
+            doneMsg.style.color = '#00ff00';
+            doneMsg.textContent = '✓ Device restarted with new config\n\n⚠️ Device is now in normal mode.\nTo write new config, disconnect and enter config mode again (hold BOOT 5s)\n';
+            consoleDebug.appendChild(doneMsg);
+            consoleDebug.scrollTop = consoleDebug.scrollHeight;
+        }
+
+        async function onSoftResetButtonClick() {
+            const resetMsg = document.createElement('span');
+            resetMsg.style.color = '#ffaa00';
+
+            if (configModeVerified) {
+                resetMsg.textContent = 'Sending software restart command...\n';
+                consoleDebug.appendChild(resetMsg);
+                consoleDebug.scrollTop = consoleDebug.scrollHeight;
+
+                serial.writeLine("/config-soft-reset");
+                configModeVerified = false;
+                justRestarted = true;
+
+                document.getElementById("read-config-button").disabled = true;
+                document.getElementById("write-config-button").disabled = true;
+
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                const doneMsg = document.createElement('span');
+                doneMsg.style.color = '#00ff00';
+                doneMsg.textContent = '✓ Device restarted - Connection remains open for viewing logs\n\n⚠️ Device is now in normal mode.\nTo write new config, disconnect and enter config mode again (hold BOOT 5s)\n';
+                consoleDebug.appendChild(doneMsg);
+                consoleDebug.scrollTop = consoleDebug.scrollHeight;
+            } else {
+                resetMsg.textContent = 'Performing hardware reset...\n';
+                consoleDebug.appendChild(resetMsg);
+                consoleDebug.scrollTop = consoleDebug.scrollHeight;
+
+                try {
+                    await serial.hardwareReset();
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    const doneMsg = document.createElement('span');
+                    doneMsg.style.color = '#00ff00';
+                    doneMsg.textContent = '✓ Device restarted\n';
+                    consoleDebug.appendChild(doneMsg);
+                    consoleDebug.scrollTop = consoleDebug.scrollHeight;
+                } catch (error) {
+                    const errorMsg = document.createElement('span');
+                    errorMsg.style.color = '#ff0000';
+                    errorMsg.textContent = '✗ Hardware reset failed: ' + error.message + '\n';
+                    consoleDebug.appendChild(errorMsg);
+                    consoleDebug.scrollTop = consoleDebug.scrollHeight;
+                }
+            }
+        }
+
+        async function onRestartButtonClick() {
+            const restartMsg = document.createElement('span');
+            restartMsg.style.color = '#ffaa00';
+            restartMsg.textContent = 'Disconnecting...\n';
+            consoleDebug.appendChild(restartMsg);
+            consoleDebug.scrollTop = consoleDebug.scrollHeight;
+
+            if (serial.isOpen()) {
+                await serial.close();
+                consoleDebug.innerHTML += '<b>Connection closed.</b><br>';
+                consoleDebug.scrollTop = consoleDebug.scrollHeight;
+            }
+        }
+
+        // Input event listeners
+        ssid.addEventListener("input", (event) => { config[0].value = event.target.value; });
+        wifiPassword.addEventListener("input", (event) => { config[1].value = event.target.value; });
+        deviceString.addEventListener("input", (event) => { config[2].value = event.target.value; });
+
+    </script>
+
+</body>
+</html>

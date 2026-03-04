@@ -13,13 +13,27 @@
 // Waveshare e-paper displays with SPI: http://forum.arduino.cc/index.php?topic=487007.0
 // Good Display ePaper for Arduino: https://forum.arduino.cc/index.php?topic=436411.0
 
-// *** for Waveshare ESP32 Driver board *** //
+// ########################################
+// #########    Driver settings   #########
+// ########################################
+// 1. Set the correct esp32 board under "#if defined(ESP32)" very below in this file.
+// 2. Select one of the display classes and driver classes for your control panel below.
+//    Waveshare 200x200, 1.54" e-paper display
+//    Waveshare 264x176, 2.7" E-Ink display V1
+//    Waveshare 264x176, 2.7" E-Ink display V2
+//    Waveshare 250×122, 2.13" e-paper display V3
+//    Waveshare 250×122, 2.13" e-paper display (D) flex (yellow)
+// 3. If you are using the "Waveshare ESP32 Driver Board", select it on or off.
+// ########################################
+
+// ##############################################################
+// *** for Waveshare ESP32 Driver boards only *** //
 // mapping of Waveshare ESP32 Driver Board
 // BUSY -> 25, RST -> 26, DC -> 27, CS-> 15, CLK -> 13, DIN -> 14
-// uncomment next two lines for Waveshare ESP32 Driver Board
+// uncomment next two lines for Waveshare ESP32 Driver Board:
 // #define USE_HSPI_FOR_EPD
 // #define ENABLE_GxEPD2_GFX 0
-// *** end Waveshare ESP32 Driver board *** //
+// ##############################################################
 
 // NOTE: you may need to adapt or select for your wiring in the processor specific conditional compile sections below
 // select the display class (only one), matching the kind of display panel
@@ -28,22 +42,31 @@
 // #define GxEPD2_DISPLAY_CLASS GxEPD2_4C
 // #define GxEPD2_DISPLAY_CLASS GxEPD2_7C
 
-// select the display driver class (only one) for your  panel
+// ############################################################################
+// *** select / unselect the display driver class (only one) for your panel *** 
 
-// #define GxEPD2_DRIVER_CLASS GxEPD2_150_BN // 1.54 inch Waveshare e-paper display
+// Waveshare 200x200, 1.54" e-paper display
+// #define GxEPD2_DRIVER_CLASS GxEPD2_150_BN
 // const String display_type = "GxEPD2_150_BN";
 
-#define GxEPD2_DRIVER_CLASS GxEPD2_213_B74 // Waveshare 2.13 inch e-paper display - Version 3
-const String display_type = "GxEPD2_213_B74";
-
-// #define GxEPD2_DRIVER_CLASS GxEPD2_213_flex // Waveshare 2.13 inch e-paper display - (D) flex (yellow)
-// const String display_type = "GxEPD2_213_flex";
-
-// #define GxEPD2_DRIVER_CLASS GxEPD2_270 // Waveshare 264x176, 2.7inch E-Ink display - Version 1
+// Waveshare 264x176, 2.7" E-Ink display V1
+// #define GxEPD2_DRIVER_CLASS GxEPD2_270
 // const String display_type = "GxEPD2_270";
 
-// #define GxEPD2_DRIVER_CLASS GxEPD2_270_GDEY027T91 // Waveshare 264x176, 2.7inch E-Ink display - Version 2
+// Waveshare 264x176, 2.7" E-Ink display V2
+// #define GxEPD2_DRIVER_CLASS GxEPD2_270_GDEY027T91
 // const String display_type = "GxEPD2_270_GDEY027T91";
+
+// Waveshare 250×122, 2.13" e-paper display V3
+#define GxEPD2_DRIVER_CLASS GxEPD2_213_B74
+const String display_type = "GxEPD2_213_B74";
+
+// Waveshare 250×122, 2.13" e-paper display (D) flex (yellow)
+// #define GxEPD2_DRIVER_CLASS GxEPD2_213_flex
+// const String display_type = "GxEPD2_213_flex";
+// ############################################################################
+// Dont forget to select / unselect the correct board type further down.
+// ############################################################################
 
 // #define GxEPD2_DRIVER_CLASS GxEPD2_154     // GDEP015OC1  200x200, IL3829, (WFC0000CZ07), no longer available
 // #define GxEPD2_DRIVER_CLASS GxEPD2_154_D67 // GDEH0154D67 200x200, SSD1681, (HINK-E154A07-A1)
@@ -174,14 +197,24 @@ GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> displ
 #if defined(ARDUINO_LOLIN_D32_PRO)
 GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=5*/ EPD_CS, /*DC=*/0, /*RST=*/2, /*BUSY=*/15)); // my LOLIN_D32_PRO proto board
 #else
+
+// ############################################################################################################
+// *** select / unselect one of these ESP32 board types and adapt the constructor parameters to your wiring ***
+
 // GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=5*/ EPD_CS, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4)); // my suggested wiring and proto board
-// *** uncomment next line for standard ESP32 *** //
+
+// For standard esp32 board:
 GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=5*/ 26, /*DC=*/25, /*RST=*/33, /*BUSY=*/27)); // esp32 NodeMCU following AZ Delivery guide pinout
+
 // GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=5*/ 5, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4)); // LILYGO_T5_V2.4.1
 // GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=5*/ EPD_CS, /*DC=*/ 19, /*RST=*/ 4, /*BUSY=*/ 34)); // LILYGO® TTGO T5 2.66
 // GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=5*/ EPD_CS, /*DC=*/ 2, /*RST=*/ 0, /*BUSY=*/ 4)); // e.g. TTGO T8 ESP32-WROVER
-// *** uncomment next line for Waveshare ESP32 Driver board *** //
+
+// For Waveshare ESP32 Driver board:
 // GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=*/ 15, /*DC=*/ 27, /*RST=*/ 26, /*BUSY=*/ 25)); // Waveshare ESP32 Driver Board
+
+// ############################################################################################################
+
 #endif
 #else // GxEPD2_1248 or GxEPD2_1248c
 // Waveshare 12.48 b/w or b/w/r SPI display board and frame or Good Display 12.48 b/w panel GDEW1248T3 or b/w/r panel GDEY1248Z51
