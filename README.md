@@ -1,3 +1,6 @@
+# DEPRECATED
+This project has been replaced by a new implementation in https://github.com/f321x/offline-bitcoin-atm
+
 # offline-LightningATM-esp32
 Bitcoin ATM (coins only) with lightning network support, running offline on an esp32. 
 The lightning network is a 2nd layer protocol on top of the bitcoin protocol enabling trustless transactions with instant settlement and cheap fees.
